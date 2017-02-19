@@ -1,0 +1,4 @@
+Return values:
+0 - liblinux Success
+1 - liblinux Failure
+2 - other library Failure
