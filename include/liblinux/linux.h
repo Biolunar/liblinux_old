@@ -105,18 +105,18 @@ typedef long linux_off_t; // TODO: In x32 this must be long long.
 #define linux_S_IXOTH 00001
 
 // All arguments have the same size as in the kernel sources.
-LINUX_DECLARE_SYSCALL3_RET(read, linux_fd_t, fd, void*, buf, size_t, count, size_t);
-LINUX_DECLARE_SYSCALL3_RET(write, linux_fd_t, fd, void const*, buf, size_t, count, size_t);
-LINUX_DECLARE_SYSCALL3_RET(open, char const*, filename, int, flags, linux_umode_t, mode, linux_fd_t);
-LINUX_DECLARE_SYSCALL1_NORET(close, linux_fd_t, fd);
-LINUX_DECLARE_SYSCALL2_NORET(stat, char const*, filename, struct linux_old_kernel_stat_t*, statbuf);
-LINUX_DECLARE_SYSCALL2_NORET(fstat, linux_fd_t, fd, struct linux_old_kernel_stat_t*, statbuf);
-LINUX_DECLARE_SYSCALL2_NORET(lstat, char const*, filename, struct linux_old_kernel_stat_t*, statbuf);
-LINUX_DECLARE_SYSCALL3_RET(poll, struct linux_pollfd_t*, ufds, unsigned int, nfds, int, timeout, unsigned int);
-LINUX_DECLARE_SYSCALL3_RET(lseek, linux_fd_t, fd, linux_off_t, offset, unsigned int, whence, linux_off_t);
-LINUX_DECLARE_SYSCALL6_RET(mmap, void*, addr, size_t, len, unsigned long, prot, unsigned long, flags, linux_fd_t, fd, linux_off_t, off, void*);
-LINUX_DECLARE_SYSCALL3_NORET(mprotect, void*, start, size_t, len, unsigned long, prot);
-LINUX_DECLARE_SYSCALL2_NORET(munmap, void*, addr, size_t, len);
-LINUX_DECLARE_SYSCALL1_RET(brk, void*, brk, void*);
+static inline LINUX_DEFINE_SYSCALL3_RET(read, linux_fd_t, fd, void*, buf, size_t, count, size_t)
+static inline LINUX_DEFINE_SYSCALL3_RET(write, linux_fd_t, fd, void const*, buf, size_t, count, size_t)
+static inline LINUX_DEFINE_SYSCALL3_RET(open, char const*, filename, int, flags, linux_umode_t, mode, linux_fd_t)
+static inline LINUX_DEFINE_SYSCALL1_NORET(close, linux_fd_t, fd)
+static inline LINUX_DEFINE_SYSCALL2_NORET(stat, char const*, filename, struct linux_old_kernel_stat_t*, statbuf)
+static inline LINUX_DEFINE_SYSCALL2_NORET(fstat, linux_fd_t, fd, struct linux_old_kernel_stat_t*, statbuf)
+static inline LINUX_DEFINE_SYSCALL2_NORET(lstat, char const*, filename, struct linux_old_kernel_stat_t*, statbuf)
+static inline LINUX_DEFINE_SYSCALL3_RET(poll, struct linux_pollfd_t*, ufds, unsigned int, nfds, int, timeout, unsigned int)
+static inline LINUX_DEFINE_SYSCALL3_RET(lseek, linux_fd_t, fd, linux_off_t, offset, unsigned int, whence, linux_off_t)
+static inline LINUX_DEFINE_SYSCALL6_RET(mmap, void*, addr, size_t, len, unsigned long, prot, unsigned long, flags, linux_fd_t, fd, linux_off_t, off, void*)
+static inline LINUX_DEFINE_SYSCALL3_NORET(mprotect, void*, start, size_t, len, unsigned long, prot)
+static inline LINUX_DEFINE_SYSCALL2_NORET(munmap, void*, addr, size_t, len)
+static inline LINUX_DEFINE_SYSCALL1_RET(brk, void*, brk, void*)
 
 #endif // HEADER_LIBLINUX_LINUX_H_INCLUDED

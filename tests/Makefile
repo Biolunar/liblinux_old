@@ -1,7 +1,7 @@
 CC       := clang
-CFLAGS   := -std=c11 -pedantic-errors -I../include -L../src/build
+CFLAGS   := -std=c11 -pedantic-errors -I../include
 WARNINGS := -Weverything -Wno-c99-compat -Wno-switch-enum
-LIBS     := -llinux -llinux_syscall
+LIBS     := -llinux_syscall
 
 BUILDDIR := build
 SOURCES  := $(sort $(wildcard *.c))
