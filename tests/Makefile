@@ -1,5 +1,5 @@
 CC       := clang
-CFLAGS   := -std=c11 -pedantic-errors -I../include
+CFLAGS   := -std=c11 -pedantic-errors -g -I../include
 WARNINGS := -Weverything -Wno-c99-compat -Wno-switch-enum
 LIBS     := -llinux_syscall
 

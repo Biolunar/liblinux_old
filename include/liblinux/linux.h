@@ -8,34 +8,38 @@
 
 typedef unsigned int linux_fd_t;
 typedef unsigned short linux_umode_t;
-struct linux_old_kernel_stat_t
+
+struct linux_stat_t
 {
-	unsigned short st_dev;
-	unsigned short st_ino;
-	unsigned short st_mode;
-	unsigned short st_nlink;
-	unsigned short st_uid;
-	unsigned short st_gid;
-	unsigned short st_rdev;
-#ifdef __i386__
-	unsigned long st_size;
+	unsigned long st_dev;
+	unsigned long st_ino;
+	unsigned long st_nlink;
+
+	unsigned int st_mode;
+	unsigned int st_uid;
+	unsigned int st_gid;
+	unsigned int __pad0;
+	unsigned long st_rdev;
+	long st_size;
+	long st_blksize;
+	long st_blocks; // Number 512-byte blocks allocated.
+
 	unsigned long st_atime;
+	unsigned long st_atime_nsec;
 	unsigned long st_mtime;
+	unsigned long st_mtime_nsec;
 	unsigned long st_ctime;
-#else // __i386__
-	unsigned int st_size;
-	unsigned int st_atime;
-	unsigned int st_mtime;
-	unsigned int st_ctime;
-#endif // __i386__
+	unsigned long st_ctime_nsec;
+	long __unused[3];
 };
+
 struct linux_pollfd_t
 {
 	int fd;
 	short events;
 	short revents;
 };
-typedef long linux_off_t; // TODO: In x32 this must be long long.
+typedef long linux_off_t;
 
 #define linux_O_ACCMODE      00000003
 #define linux_O_RDONLY       00000000
@@ -109,9 +113,9 @@ static inline LINUX_DEFINE_SYSCALL3_RET(read, linux_fd_t, fd, void*, buf, size_t
 static inline LINUX_DEFINE_SYSCALL3_RET(write, linux_fd_t, fd, void const*, buf, size_t, count, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(open, char const*, filename, int, flags, linux_umode_t, mode, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL1_NORET(close, linux_fd_t, fd)
-static inline LINUX_DEFINE_SYSCALL2_NORET(stat, char const*, filename, struct linux_old_kernel_stat_t*, statbuf)
-static inline LINUX_DEFINE_SYSCALL2_NORET(fstat, linux_fd_t, fd, struct linux_old_kernel_stat_t*, statbuf)
-static inline LINUX_DEFINE_SYSCALL2_NORET(lstat, char const*, filename, struct linux_old_kernel_stat_t*, statbuf)
+static inline LINUX_DEFINE_SYSCALL2_NORET(stat, char const*, filename, struct linux_stat_t*, statbuf)
+static inline LINUX_DEFINE_SYSCALL2_NORET(fstat, linux_fd_t, fd, struct linux_stat_t*, statbuf)
+static inline LINUX_DEFINE_SYSCALL2_NORET(lstat, char const*, filename, struct linux_stat_t*, statbuf)
 static inline LINUX_DEFINE_SYSCALL3_RET(poll, struct linux_pollfd_t*, ufds, unsigned int, nfds, int, timeout, unsigned int)
 static inline LINUX_DEFINE_SYSCALL3_RET(lseek, linux_fd_t, fd, linux_off_t, offset, unsigned int, whence, linux_off_t)
 static inline LINUX_DEFINE_SYSCALL6_RET(mmap, void*, addr, size_t, len, unsigned long, prot, unsigned long, flags, linux_fd_t, fd, linux_off_t, off, void*)
