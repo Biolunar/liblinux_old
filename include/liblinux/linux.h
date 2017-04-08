@@ -108,6 +108,10 @@ typedef long linux_off_t;
 #define linux_S_IWOTH 00002
 #define linux_S_IXOTH 00001
 
+#define linux_stdin 0u
+#define linux_stdout 1u
+#define linux_stderr 2u
+
 // All arguments have the same size as in the kernel sources.
 static inline LINUX_DEFINE_SYSCALL3_RET(read, linux_fd_t, fd, char*, buf, size_t, count, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(write, linux_fd_t, fd, char const*, buf, size_t, count, size_t)
