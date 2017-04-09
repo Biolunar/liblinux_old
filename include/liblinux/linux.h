@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include <linux_syscall/syscall.h>
 
@@ -39,78 +40,112 @@ struct linux_pollfd_t
 	short events;
 	short revents;
 };
+
 typedef long linux_off_t;
 
-#define linux_O_ACCMODE      00000003
-#define linux_O_RDONLY       00000000
-#define linux_O_WRONLY       00000001
-#define linux_O_RDWR         00000002
-#define linux_O_CREAT        00000100 // not fcntl
-#define linux_O_EXCL         00000200 // not fcntl
-#define linux_O_NOCTTY       00000400 // not fcntl
-#define linux_O_TRUNC        00001000 // not fcntl
-#define linux_O_APPEND       00002000
-#define linux_O_NONBLOCK     00004000
-#define linux_O_DSYNC        00010000 // used to be O_SYNC, see below
-#define linux_FASYNC         00020000 // fcntl, for BSD compatibility
-#define linux_O_DIRECT       00040000 // direct disk access hint
-#define linux_O_LARGEFILE    00100000
-#define linux_O_DIRECTORY    00200000 // must be a directory
-#define linux_O_NOFOLLOW     00400000 // don't follow links
-#define linux_O_NOATIME      01000000
-#define linux_O_CLOEXEC      02000000 // set close_on_exec
+enum
+{
+	linux_stdin = 0u,
+	linux_stdout = 1u,
+	linux_stderr = 2u,
+};
 
-#define linux__O_SYNC        04000000
-#define linux_O_SYNC         (linux__O_SYNC | linux_O_DSYNC)
+enum
+{
+	linux_O_ACCMODE      = 00000003,
+	linux_O_RDONLY       = 00000000,
+	linux_O_WRONLY       = 00000001,
+	linux_O_RDWR         = 00000002,
+	linux_O_CREAT        = 00000100, // not fcntl
+	linux_O_EXCL         = 00000200, // not fcntl
+	linux_O_NOCTTY       = 00000400, // not fcntl
+	linux_O_TRUNC        = 00001000, // not fcntl
+	linux_O_APPEND       = 00002000,
+	linux_O_NONBLOCK     = 00004000,
+	linux_O_DSYNC        = 00010000, // used to be O_SYNC, see below
+	linux_FASYNC         = 00020000, // fcntl, for BSD compatibility
+	linux_O_DIRECT       = 00040000, // direct disk access hint
+	linux_O_LARGEFILE    = 00100000,
+	linux_O_DIRECTORY    = 00200000, // must be a directory
+	linux_O_NOFOLLOW     = 00400000, // don't follow links
+	linux_O_NOATIME      = 01000000,
+	linux_O_CLOEXEC      = 02000000, // set close_on_exec
 
-#define linux_O_PATH         010000000
+	linux__O_SYNC        = 04000000,
+	linux_O_SYNC         = (linux__O_SYNC | linux_O_DSYNC),
 
-#define linux__O_TMPFILE     020000000
+	linux_O_PATH         = 010000000,
 
-// a horrid kludge trying to make sure that this will fail on old kernels
-#define linux_O_TMPFILE      (linux__O_TMPFILE | linux_O_DIRECTORY)
-#define linux_O_TMPFILE_MASK (linux__O_TMPFILE | linux_O_DIRECTORY | linux_O_CREAT)      
+	linux__O_TMPFILE     = 020000000,
 
-#define linux_O_NDELAY       linux_O_NONBLOCK
+	// a horrid kludge trying to make sure that this will fail on old kernels
+	linux_O_TMPFILE      = (linux__O_TMPFILE | linux_O_DIRECTORY),
+	linux_O_TMPFILE_MASK = (linux__O_TMPFILE | linux_O_DIRECTORY | linux_O_CREAT),
 
-#define linux_S_IFMT   00170000
-#define linux_S_IFSOCK  0140000
-#define linux_S_IFLNK   0120000
-#define linux_S_IFREG   0100000
-#define linux_S_IFBLK   0060000
-#define linux_S_IFDIR   0040000
-#define linux_S_IFCHR   0020000
-#define linux_S_IFIFO   0010000
-#define linux_S_ISUID   0004000
-#define linux_S_ISGID   0002000
-#define linux_S_ISVTX   0001000
+	linux_O_NDELAY       = linux_O_NONBLOCK,
+};
 
-#define linux_S_ISLNK(m)  (((m) & S_IFMT) == S_IFLNK)
-#define linux_S_ISREG(m)  (((m) & S_IFMT) == S_IFREG)
-#define linux_S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
-#define linux_S_ISCHR(m)  (((m) & S_IFMT) == S_IFCHR)
-#define linux_S_ISBLK(m)  (((m) & S_IFMT) == S_IFBLK)
-#define linux_S_ISFIFO(m) (((m) & S_IFMT) == S_IFIFO)
-#define linux_S_ISSOCK(m) (((m) & S_IFMT) == S_IFSOCK)
+enum
+{
+	linux_S_IFMT   = 00170000,
+	linux_S_IFSOCK = 0140000,
+	linux_S_IFLNK  = 0120000,
+	linux_S_IFREG  = 0100000,
+	linux_S_IFBLK  = 0060000,
+	linux_S_IFDIR  = 0040000,
+	linux_S_IFCHR  = 0020000,
+	linux_S_IFIFO  = 0010000,
+	linux_S_ISUID  = 0004000,
+	linux_S_ISGID  = 0002000,
+	linux_S_ISVTX  = 0001000,
 
-#define linux_S_IRWXU 00700
-#define linux_S_IRUSR 00400
-#define linux_S_IWUSR 00200
-#define linux_S_IXUSR 00100
+	linux_S_IRWXU  = 00700,
+	linux_S_IRUSR  = 00400,
+	linux_S_IWUSR  = 00200,
+	linux_S_IXUSR  = 00100,
 
-#define linux_S_IRWXG 00070
-#define linux_S_IRGRP 00040
-#define linux_S_IWGRP 00020
-#define linux_S_IXGRP 00010
+	linux_S_IRWXG  = 00070,
+	linux_S_IRGRP  = 00040,
+	linux_S_IWGRP  = 00020,
+	linux_S_IXGRP  = 00010,
 
-#define linux_S_IRWXO 00007
-#define linux_S_IROTH 00004
-#define linux_S_IWOTH 00002
-#define linux_S_IXOTH 00001
+	linux_S_IRWXO  = 00007,
+	linux_S_IROTH  = 00004,
+	linux_S_IWOTH  = 00002,
+	linux_S_IXOTH  = 00001,
+};
 
-#define linux_stdin 0u
-#define linux_stdout 1u
-#define linux_stderr 2u
+static inline bool linux_S_ISLNK(linux_umode_t const m) { return ((m & linux_S_IFMT) == linux_S_IFLNK); }
+static inline bool linux_S_ISREG(linux_umode_t const m) { return ((m & linux_S_IFMT) == linux_S_IFREG); }
+static inline bool linux_S_ISDIR(linux_umode_t const m) { return ((m & linux_S_IFMT) == linux_S_IFDIR); }
+static inline bool linux_S_ISCHR(linux_umode_t const m) { return ((m & linux_S_IFMT) == linux_S_IFCHR); }
+static inline bool linux_S_ISBLK(linux_umode_t const m) { return ((m & linux_S_IFMT) == linux_S_IFBLK); }
+static inline bool linux_S_ISFIFO(linux_umode_t const m) { return ((m & linux_S_IFMT) == linux_S_IFIFO); }
+static inline bool linux_S_ISSOCK(linux_umode_t const m) { return ((m & linux_S_IFMT) == linux_S_IFSOCK); }
+
+enum
+{
+	// These are specified by iBCS2
+	linux_POLLIN     = 0x0001,
+	linux_POLLPRI    = 0x0002,
+	linux_POLLOUT    = 0x0004,
+	linux_POLLERR    = 0x0008,
+	linux_POLLHUP    = 0x0010,
+	linux_POLLNVAL   = 0x0020,
+
+	// The rest seem to be more-or-less nonstandard. Check them!
+	linux_POLLRDNORM = 0x0040,
+	linux_POLLRDBAND = 0x0080,
+	linux_POLLWRNORM = 0x0100,
+	linux_POLLWRBAND = 0x0200,
+	linux_POLLMSG    = 0x0400,
+	linux_POLLREMOVE = 0x1000,
+	linux_POLLRDHUP  = 0x2000,
+
+	linux_POLLFREE   = 0x4000, // currently only for epoll
+
+	linux_POLL_BUSY_LOOP = 0x8000,
+};
 
 // All arguments have the same size as in the kernel sources.
 static inline LINUX_DEFINE_SYSCALL3_RET(read, linux_fd_t, fd, char*, buf, size_t, count, size_t)
