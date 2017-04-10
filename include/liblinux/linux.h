@@ -115,13 +115,13 @@ enum
 	linux_S_IXOTH  = 00001,
 };
 
-static inline bool linux_S_ISLNK(linux_umode_t const m) { return ((m & linux_S_IFMT) == linux_S_IFLNK); }
-static inline bool linux_S_ISREG(linux_umode_t const m) { return ((m & linux_S_IFMT) == linux_S_IFREG); }
-static inline bool linux_S_ISDIR(linux_umode_t const m) { return ((m & linux_S_IFMT) == linux_S_IFDIR); }
-static inline bool linux_S_ISCHR(linux_umode_t const m) { return ((m & linux_S_IFMT) == linux_S_IFCHR); }
-static inline bool linux_S_ISBLK(linux_umode_t const m) { return ((m & linux_S_IFMT) == linux_S_IFBLK); }
-static inline bool linux_S_ISFIFO(linux_umode_t const m) { return ((m & linux_S_IFMT) == linux_S_IFIFO); }
-static inline bool linux_S_ISSOCK(linux_umode_t const m) { return ((m & linux_S_IFMT) == linux_S_IFSOCK); }
+static inline bool linux_S_ISLNK(linux_umode_t const m) { return (m & linux_S_IFMT) == linux_S_IFLNK; }
+static inline bool linux_S_ISREG(linux_umode_t const m) { return (m & linux_S_IFMT) == linux_S_IFREG; }
+static inline bool linux_S_ISDIR(linux_umode_t const m) { return (m & linux_S_IFMT) == linux_S_IFDIR; }
+static inline bool linux_S_ISCHR(linux_umode_t const m) { return (m & linux_S_IFMT) == linux_S_IFCHR; }
+static inline bool linux_S_ISBLK(linux_umode_t const m) { return (m & linux_S_IFMT) == linux_S_IFBLK; }
+static inline bool linux_S_ISFIFO(linux_umode_t const m) { return (m & linux_S_IFMT) == linux_S_IFIFO; }
+static inline bool linux_S_ISSOCK(linux_umode_t const m) { return (m & linux_S_IFMT) == linux_S_IFSOCK; }
 
 enum
 {
@@ -145,6 +145,16 @@ enum
 	linux_POLLFREE   = 0x4000, // currently only for epoll
 
 	linux_POLL_BUSY_LOOP = 0x8000,
+};
+
+enum
+{
+	linux_SEEK_SET  = 0, // seek relative to beginning of file
+	linux_SEEK_CUR  = 1, // seek relative to current file position
+	linux_SEEK_END  = 2, // seek relative to end of file
+	linux_SEEK_DATA = 3, // seek to the next data
+	linux_SEEK_HOLE = 4, // seek to the next hole
+	linux_SEEK_MAX  = linux_SEEK_HOLE,
 };
 
 // All arguments have the same size as in the kernel sources.
