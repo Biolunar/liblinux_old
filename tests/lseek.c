@@ -24,7 +24,7 @@ static enum TestResult test_invalid_whence(void)
 	if (fd == -1)
 		return TEST_RESULT_OTHER_FAILURE;
 
-	if (linux_lseek(fd, 0, linux_SEEK_MAX + 1, 0) != linux_EINVAL)
+	if (linux_lseek((linux_fd_t)fd, 0, linux_SEEK_MAX + 1, 0) != linux_EINVAL)
 	{
 		close(fd);
 		return TEST_RESULT_FAILURE;
@@ -40,7 +40,7 @@ static enum TestResult test_out_of_bounds(void)
 	if (fd == -1)
 		return TEST_RESULT_OTHER_FAILURE;
 
-	if (linux_lseek(fd, -1, linux_SEEK_SET, 0) != linux_EINVAL)
+	if (linux_lseek((linux_fd_t)fd, -1, linux_SEEK_SET, 0) != linux_EINVAL)
 	{
 		close(fd);
 		return TEST_RESULT_FAILURE;
@@ -58,13 +58,13 @@ static enum TestResult test_return_value(void)
 
 	linux_off_t ret = 0;
 
-	if (linux_lseek(fd, 10, linux_SEEK_SET, &ret) || ret != 10)
+	if (linux_lseek((linux_fd_t)fd, 10, linux_SEEK_SET, &ret) || ret != 10)
 	{
 		close(fd);
 		return TEST_RESULT_FAILURE;
 	}
 
-	if (linux_lseek(fd, -5, linux_SEEK_CUR, &ret) || ret != 5)
+	if (linux_lseek((linux_fd_t)fd, -5, linux_SEEK_CUR, &ret) || ret != 5)
 	{
 		close(fd);
 		return TEST_RESULT_FAILURE;
