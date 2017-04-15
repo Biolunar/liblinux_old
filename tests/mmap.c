@@ -41,7 +41,7 @@ static enum TestResult test_alloc(void)
 	if (linux_mmap(0, length, linux_PROT_WRITE, linux_MAP_PRIVATE | linux_MAP_ANONYMOUS, 0, 0, &ret))
 		return TEST_RESULT_FAILURE;
 
-	int* const p = ret;
+	int volatile* const p = ret;
 	*p = INT_MAX;
 
 	if (munmap(ret, length) == -1)
