@@ -9,6 +9,10 @@
 
 typedef unsigned int linux_fd_t;
 typedef unsigned short linux_umode_t;
+typedef int linux_kernel_pid_t;
+typedef unsigned int linux_kernel_uid32_t;
+typedef int linux_kernel_timer_t;
+typedef long linux_kernel_clock_t;
 
 struct linux_stat_t
 {
@@ -198,6 +202,293 @@ enum
 	linux_MAP_HUGE_1GB      = (30 << linux_MAP_HUGE_SHIFT),
 };
 
+enum
+{
+	linux_SIGHUP    =  1,
+	linux_SIGINT    =  2,
+	linux_SIGQUIT   =  3,
+	linux_SIGILL    =  4,
+	linux_SIGTRAP   =  5,
+	linux_SIGABRT   =  6,
+	linux_SIGIOT    =  6,
+	linux_SIGBUS    =  7,
+	linux_SIGFPE    =  8,
+	linux_SIGKILL   =  9,
+	linux_SIGUSR1   = 10,
+	linux_SIGSEGV   = 11,
+	linux_SIGUSR2   = 12,
+	linux_SIGPIPE   = 13,
+	linux_SIGALRM   = 14,
+	linux_SIGTERM   = 15,
+	linux_SIGSTKFLT = 16,
+	linux_SIGCHLD   = 17,
+	linux_SIGCONT   = 18,
+	linux_SIGSTOP   = 19,
+	linux_SIGTSTP   = 20,
+	linux_SIGTTIN   = 21,
+	linux_SIGTTOU   = 22,
+	linux_SIGURG    = 23,
+	linux_SIGXCPU   = 24,
+	linux_SIGXFSZ   = 25,
+	linux_SIGVTALRM = 26,
+	linux_SIGPROF   = 27,
+	linux_SIGWINCH  = 28,
+	linux_SIGIO     = 29,
+	linux_SIGPOLL   = linux_SIGIO,
+	//linux_SIGLOST   = 29,
+	linux_SIGPWR    = 30,
+	linux_SIGSYS    = 31,
+	linux_SIGUNUSED = 31,
+
+	linux_SIGRTMIN  = 32,
+	linux_SIGRTMAX  = 64,
+};
+
+union linux_sigval_t
+{
+	int sival_int;
+	void* sival_ptr;
+};
+
+struct linux_siginfo_t
+{
+	int si_signo;
+	int si_errno;
+	int si_code;
+
+	char _pad[4];
+	union
+	{
+		int _pad[(128 - 4 * sizeof(int)) / sizeof(int)];
+
+		// kill()
+		struct
+		{
+			linux_kernel_pid_t si_pid; // sender's pid
+			linux_kernel_uid32_t si_uid; // sender's uid
+		} kill;
+
+		// POSIX.1b timers
+		struct
+		{
+			linux_kernel_timer_t si_timerid; // timer id
+			int si_overrun; // overrun count
+			union linux_sigval_t si_value; // same as below
+			int _sys_private; // not to be passed to user
+			char _pad[4];
+		} timer;
+
+		// POSIX.1b signals
+		struct
+		{
+			linux_kernel_pid_t si_pid; // sender's pid
+			linux_kernel_uid32_t si_uid; // sender's uid
+			union linux_sigval_t si_value;
+		} rt;
+
+		// SIGCHLD
+		struct
+		{
+			linux_kernel_pid_t si_pid; // which child
+			linux_kernel_uid32_t si_uid; // sender's uid
+			int si_status; // exit code
+			char _pad[4];
+			linux_kernel_clock_t si_utime;
+			linux_kernel_clock_t si_stime;
+		} sigchld;
+
+		// SIGILL, SIGFPE, SIGSEGV, SIGBUS
+		struct
+		{
+			void* si_addr; // faulting insn/memory ref.
+			short si_addr_lsb; // LSB of the reported address
+			char _pad[6];
+			union
+			{
+				// used when si_code=SEGV_BNDERR
+				struct
+				{
+					void* si_lower;
+					void* si_upper;
+				} addr_bnd;
+				// used when si_code=SEGV_PKUERR
+				uint32_t si_pkey;
+			};
+		} sigfault;
+
+		// SIGPOLL
+		struct
+		{
+			long si_band; // POLL_IN, POLL_OUT, POLL_MSG
+			int si_fd;
+			char _pad[4];
+		} sigpoll;
+
+		// SIGSYS
+		struct
+		{
+			void* si_call_addr; // calling user insn
+			int si_syscall; // triggering system call number
+			unsigned int si_arch; // AUDIT_ARCH_* of syscall
+		} sigsys;
+	} sifields;
+};
+
+typedef unsigned long linux_sigset_t;
+
+struct linux_stack_t
+{
+	void* ss_sp;
+	int ss_flags;
+	size_t ss_size;
+};
+
+struct linux_sigcontext
+{
+	uint64_t r8;
+	uint64_t r9;
+	uint64_t r10;
+	uint64_t r11;
+	uint64_t r12;
+	uint64_t r13;
+	uint64_t r14;
+	uint64_t r15;
+	uint64_t rdi;
+	uint64_t rsi;
+	uint64_t rbp;
+	uint64_t rbx;
+	uint64_t rdx;
+	uint64_t rax;
+	uint64_t rcx;
+	uint64_t rsp;
+	uint64_t rip;
+	uint64_t eflags; // RFLAGS
+	uint16_t cs;
+
+	/*
+	 * Prior to 2.5.64 ("[PATCH] x86-64 updates for 2.5.64-bk3"),
+	 * Linux saved and restored fs and gs in these slots.  This
+	 * was counterproductive, as fsbase and gsbase were never
+	 * saved, so arch_prctl was presumably unreliable.
+	 *
+	 * These slots should never be reused without extreme caution:
+	 *
+	 *  - Some DOSEMU versions stash fs and gs in these slots manually,
+	 *    thus overwriting anything the kernel expects to be preserved
+	 *    in these slots.
+	 *
+	 *  - If these slots are ever needed for any other purpose,
+	 *    there is some risk that very old 64-bit binaries could get
+	 *    confused.  I doubt that many such binaries still work,
+	 *    though, since the same patch in 2.5.64 also removed the
+	 *    64-bit set_thread_area syscall, so it appears that there
+	 *    is no TLS API beyond modify_ldt that works in both pre-
+	 *    and post-2.5.64 kernels.
+	 *
+	 * If the kernel ever adds explicit fs, gs, fsbase, and gsbase
+	 * save/restore, it will most likely need to be opt-in and use
+	 * different context slots.
+	 */
+	uint16_t gs;
+	uint16_t fs;
+	union
+	{
+		uint16_t ss;     // If UC_SIGCONTEXT_SS
+		uint16_t __pad0; // Alias name for old (!UC_SIGCONTEXT_SS) user-space
+	};
+	uint64_t err;
+	uint64_t trapno;
+	uint64_t oldmask;
+	uint64_t cr2;
+	struct _fpstate* fpstate; // Zero when no FPU context
+	uint64_t reserved1[8];
+};
+
+struct linux_ucontext
+{
+	unsigned long uc_flags;
+	struct linux_ucontext* uc_link;
+	struct linux_stack_t uc_stack;
+	struct linux_sigcontext uc_mcontext;
+	linux_sigset_t uc_sigmask; // mask last for extensibility
+};
+
+typedef void (*linux_sighandler_t)(int signum);
+typedef void (*linux_sigactionhandler_t)(int signum, struct linux_siginfo_t* info, void* context);
+typedef void (*linux_sigrestore_t)(void);
+
+struct linux_sigaction
+{
+	linux_sighandler_t sa_handler;
+	unsigned long sa_flags;
+	linux_sigrestore_t sa_restorer;
+	linux_sigset_t sa_mask; // mask last for extensibility
+};
+
+#define linux_SIG_DFL (linux_sighandler_t)0
+#define linux_SIG_IGN (linux_sighandler_t)1
+#define linux_SIG_ERR (linux_sighandler_t)-1
+
+enum
+{
+	linux_SA_NOCLDSTOP = 0x00000001u,
+	linux_SA_NOCLDWAIT = 0x00000002u,
+	linux_SA_SIGINFO   = 0x00000004u,
+	linux_SA_ONSTACK   = 0x08000000u,
+	linux_SA_RESTART   = 0x10000000u,
+	linux_SA_NODEFER   = 0x40000000u,
+	//linux_SA_RESETHAND = 0x80000000u, // TODO: ISO C restricts enumerator values to range of 'int'.
+
+	linux_SA_NOMASK    = linux_SA_NODEFER,
+	//linux_SA_ONESHOT   = linux_SA_RESETHAND, // TODO: ISO C restricts enumerator values to range of 'int'.
+
+	linux_SA_RESTORER  = 0x04000000,
+};
+// TODO: Those are a workarounds for the maximum size of an enum.
+#define linux_SA_RESETHAND   0x80000000u
+#define linux_SA_ONESHOT     linux_SA_RESETHAND
+
+enum
+{
+	linux_SIG_BLOCK   = 0,
+	linux_SIG_UNBLOCK = 1,
+	linux_SIG_SETMASK = 2,
+};
+
+static inline void linux_sigemptyset(linux_sigset_t* const set)
+{
+	*set = 0ul;
+}
+
+static inline void linux_sigfillset(linux_sigset_t* const set)
+{
+	*set = -1ul;
+}
+
+static inline enum linux_error_t linux_sigaddset(linux_sigset_t* const set, int const signum)
+{
+	if (signum == 0 || signum > 64)
+		return linux_EINVAL;
+	*set |= 1ul << (signum - 1);
+	return linux_error_none;
+}
+
+static inline enum linux_error_t linux_sigdelset(linux_sigset_t* const set, int const signum)
+{
+	if (signum == 0 || signum > 64)
+		return linux_EINVAL;
+	*set &= ~(1ul << (signum - 1));
+	return linux_error_none;
+}
+
+static inline enum linux_error_t linux_sigismember(linux_sigset_t const* const set, int const signum, bool* const ret)
+{
+	if (signum == 0 || signum > 64)
+		return linux_EINVAL;
+	*ret = *set & (1ul << (signum - 1));
+	return linux_error_none;
+}
+
 // All arguments have the same size as in the kernel sources.
 static inline LINUX_DEFINE_SYSCALL3_RET(read, linux_fd_t, fd, char*, buf, size_t, count, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(write, linux_fd_t, fd, char const*, buf, size_t, count, size_t)
@@ -212,5 +503,8 @@ static inline LINUX_DEFINE_SYSCALL6_RET(mmap, void*, addr, size_t, len, unsigned
 static inline LINUX_DEFINE_SYSCALL3_NORET(mprotect, void*, start, size_t, len, unsigned long, prot)
 static inline LINUX_DEFINE_SYSCALL2_NORET(munmap, void*, addr, size_t, len)
 static inline LINUX_DEFINE_SYSCALL1_RET(brk, void*, brk, void*)
+static inline LINUX_DEFINE_SYSCALL4_NORET(rt_sigaction, int, signum, struct linux_sigaction const*, act, struct linux_sigaction*, oact, size_t, sigsetsize)
+static inline LINUX_DEFINE_SYSCALL4_NORET(rt_sigprocmask, int, how, linux_sigset_t*, set, linux_sigset_t*, oset, size_t, sigsetsize)
+//rt_sigreturn
 
 #endif // HEADER_LIBLINUX_LINUX_H_INCLUDED
