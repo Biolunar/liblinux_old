@@ -509,5 +509,6 @@ static inline LINUX_DEFINE_SYSCALL1_RET(brk, void*, brk, void*)
 static inline LINUX_DEFINE_SYSCALL4_NORET(rt_sigaction, int, signum, struct linux_sigaction const*, act, struct linux_sigaction*, oact, size_t, sigsetsize)
 static inline LINUX_DEFINE_SYSCALL4_NORET(rt_sigprocmask, int, how, linux_sigset_t*, set, linux_sigset_t*, oset, size_t, sigsetsize)
 //rt_sigreturn
+static inline LINUX_DEFINE_SYSCALL3_RET(ioctl, unsigned int, fd, unsigned int, cmd, uintptr_t, arg, unsigned int)
 
 #endif // HEADER_LIBLINUX_LINUX_H_INCLUDED
