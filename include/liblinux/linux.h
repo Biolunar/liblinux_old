@@ -23,7 +23,7 @@ struct linux_stat_t
 	unsigned int st_mode;
 	unsigned int st_uid;
 	unsigned int st_gid;
-	unsigned int __pad0;
+	unsigned int _pad0;
 	unsigned long st_rdev;
 	long st_size;
 	long st_blksize;
@@ -35,7 +35,7 @@ struct linux_stat_t
 	unsigned long st_mtime_nsec;
 	unsigned long st_ctime;
 	unsigned long st_ctime_nsec;
-	long __unused[3];
+	long _unused[3];
 };
 
 struct linux_pollfd_t
@@ -75,16 +75,19 @@ enum
 	linux_O_NOATIME      = 01000000,
 	linux_O_CLOEXEC      = 02000000, // set close_on_exec
 
-	linux__O_SYNC        = 04000000,
-	linux_O_SYNC         = (linux__O_SYNC | linux_O_DSYNC),
+	//linux__O_SYNC        = 04000000,
+	//linux_O_SYNC         = (linux__O_SYNC | linux_O_DSYNC),
+	linux_O_SYNC         = 04010000,
 
 	linux_O_PATH         = 010000000,
 
-	linux__O_TMPFILE     = 020000000,
+	//linux__O_TMPFILE     = 020000000,
 
 	// a horrid kludge trying to make sure that this will fail on old kernels
-	linux_O_TMPFILE      = (linux__O_TMPFILE | linux_O_DIRECTORY),
-	linux_O_TMPFILE_MASK = (linux__O_TMPFILE | linux_O_DIRECTORY | linux_O_CREAT),
+	//linux_O_TMPFILE      = (linux__O_TMPFILE | linux_O_DIRECTORY),
+	//linux_O_TMPFILE_MASK = (linux__O_TMPFILE | linux_O_DIRECTORY | linux_O_CREAT),
+	linux_O_TMPFILE      = 020200000,
+	linux_O_TMPFILE_MASK = (linux_O_TMPFILE | linux_O_CREAT),
 
 	linux_O_NDELAY       = linux_O_NONBLOCK,
 };
@@ -393,8 +396,8 @@ struct linux_sigcontext
 	uint16_t fs;
 	union
 	{
-		uint16_t ss;     // If UC_SIGCONTEXT_SS
-		uint16_t __pad0; // Alias name for old (!UC_SIGCONTEXT_SS) user-space
+		uint16_t ss;    // If UC_SIGCONTEXT_SS
+		uint16_t _pad0; // Alias name for old (!UC_SIGCONTEXT_SS) user-space
 	};
 	uint64_t err;
 	uint64_t trapno;
