@@ -9,6 +9,7 @@
 
 typedef unsigned int linux_fd_t;
 typedef unsigned short linux_umode_t;
+typedef long linux_off_t;
 typedef int linux_kernel_pid_t;
 typedef unsigned int linux_kernel_uid32_t;
 typedef int linux_kernel_timer_t;
@@ -45,8 +46,6 @@ struct linux_pollfd_t
 	short events;
 	short revents;
 };
-
-typedef long linux_off_t;
 
 enum
 {
@@ -493,6 +492,12 @@ static inline enum linux_error_t linux_sigismember(linux_sigset_t const* const s
 	return linux_error_none;
 }
 
+struct linux_iovec
+{
+	void* iov_base; // BSD uses caddr_t (1003.1g requires void *)
+	size_t iov_len; // Must be size_t (1003.1g)
+};
+
 // All arguments have the same size as in the kernel sources.
 static inline LINUX_DEFINE_SYSCALL3_RET(read, linux_fd_t, fd, char*, buf, size_t, count, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(write, linux_fd_t, fd, char const*, buf, size_t, count, size_t)
@@ -513,5 +518,7 @@ static inline LINUX_DEFINE_SYSCALL4_NORET(rt_sigprocmask, int, how, linux_sigset
 static inline LINUX_DEFINE_SYSCALL3_RET(ioctl, unsigned int, fd, unsigned int, cmd, uintptr_t, arg, unsigned int)
 static inline LINUX_DEFINE_SYSCALL4_RET(pread64, unsigned int, fd, char*, buf, size_t, count, linux_loff_t, pos, size_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(pwrite64, unsigned int, fd, char const*, buf, size_t, count, linux_loff_t, pos, size_t)
+static inline LINUX_DEFINE_SYSCALL3_RET(readv, unsigned int, fd, struct linux_iovec const*, vec, unsigned long, vlen, size_t)
+static inline LINUX_DEFINE_SYSCALL3_RET(writev, unsigned int, fd, struct linux_iovec const*, vec, unsigned long, vlen, size_t)
 
 #endif // HEADER_LIBLINUX_LINUX_H_INCLUDED
