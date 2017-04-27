@@ -13,6 +13,7 @@ typedef int linux_kernel_pid_t;
 typedef unsigned int linux_kernel_uid32_t;
 typedef int linux_kernel_timer_t;
 typedef long linux_kernel_clock_t;
+typedef long long linux_loff_t;
 
 struct linux_stat_t
 {
@@ -510,5 +511,7 @@ static inline LINUX_DEFINE_SYSCALL4_NORET(rt_sigaction, int, signum, struct linu
 static inline LINUX_DEFINE_SYSCALL4_NORET(rt_sigprocmask, int, how, linux_sigset_t*, set, linux_sigset_t*, oset, size_t, sigsetsize)
 //rt_sigreturn
 static inline LINUX_DEFINE_SYSCALL3_RET(ioctl, unsigned int, fd, unsigned int, cmd, uintptr_t, arg, unsigned int)
+static inline LINUX_DEFINE_SYSCALL4_RET(pread64, unsigned int, fd, char*, buf, size_t, count, linux_loff_t, pos, size_t)
+static inline LINUX_DEFINE_SYSCALL4_RET(pwrite64, unsigned int, fd, char const*, buf, size_t, count, linux_loff_t, pos, size_t)
 
 #endif // HEADER_LIBLINUX_LINUX_H_INCLUDED
