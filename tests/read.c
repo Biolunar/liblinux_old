@@ -16,6 +16,49 @@
 
 #define BUFFER_SIZE 512
 
+static enum TestResult test_invalid_fd(void)
+{
+	char buf[BUFFER_SIZE] = {0};
+	if (linux_read(linux_stderr + 1, buf, sizeof buf, 0) != linux_EBADF)
+		return TEST_RESULT_FAILURE;
+
+	return TEST_RESULT_SUCCESS;
+}
+
+static enum TestResult test_invalid_buf(void)
+{
+	int const fd = open("/dev/urandom", O_RDONLY, 0);
+	if (fd == -1)
+		return TEST_RESULT_OTHER_FAILURE;
+
+	if (linux_read((linux_fd_t)fd, 0, BUFFER_SIZE, 0) != linux_EFAULT)
+	{
+		close(fd);
+		return TEST_RESULT_FAILURE;
+	}
+
+	close(fd);
+	return TEST_RESULT_SUCCESS;
+}
+
+static enum TestResult test_read_zero(void)
+{
+	int const fd = open("/dev/urandom", O_RDONLY, 0);
+	if (fd == -1)
+		return TEST_RESULT_OTHER_FAILURE;
+
+	char buf[BUFFER_SIZE] = {0};
+	size_t result = 0;
+	if (linux_read((linux_fd_t)fd, buf, 0, &result) || result)
+	{
+		close(fd);
+		return TEST_RESULT_FAILURE;
+	}
+
+	close(fd);
+	return TEST_RESULT_SUCCESS;
+}
+
 static enum TestResult test_random_read(void)
 {
 	enum TestResult ret = TEST_RESULT_OTHER_FAILURE;
@@ -70,68 +113,14 @@ cleanup:
 	return ret;
 }
 
-static enum TestResult test_read_zero(void)
-{
-	enum TestResult ret = TEST_RESULT_OTHER_FAILURE;
-	int fd = -1;
-	
-	fd = open("/dev/urandom", O_RDONLY, 0);
-	if (fd == -1)
-		goto cleanup;
-
-	char buf[BUFFER_SIZE] = {0};
-	size_t result = 0;
-	if (linux_read((linux_fd_t)fd, buf, 0, &result) || result)
-	{
-		ret = TEST_RESULT_FAILURE;
-		goto cleanup;
-	}
-
-	ret = TEST_RESULT_SUCCESS;
-
-cleanup:
-	if (fd != -1)
-		close(fd);
-	return ret;
-}
-
-static enum TestResult test_invalid_fd(void)
-{
-	char buf[8] = {0};
-	if (linux_read(3, buf, sizeof buf, 0) != linux_EBADF)
-		return TEST_RESULT_FAILURE;
-
-	return TEST_RESULT_SUCCESS;
-}
-
-static enum TestResult test_invalid_buf(void)
-{
-	enum TestResult ret = TEST_RESULT_OTHER_FAILURE;
-	int fd = -1;
-	
-	fd = open("/dev/urandom", O_RDONLY, 0);
-	if (fd == -1)
-		goto cleanup;
-
-	if (linux_read((linux_fd_t)fd, 0, BUFFER_SIZE, 0) != linux_EFAULT)
-		return TEST_RESULT_FAILURE;
-
-	ret = TEST_RESULT_SUCCESS;
-
-cleanup:
-	if (fd != -1)
-		close(fd);
-	return ret;
-}
-
 int main(void)
 {
 	int ret = EXIT_SUCCESS;
 
 	printf("Start testing read.\n");
-	DO_TEST(read_zero, &ret);
 	DO_TEST(invalid_fd, &ret);
 	DO_TEST(invalid_buf, &ret);
+	DO_TEST(read_zero, &ret);
 	DO_TEST(random_read, &ret);
 	printf("Finished testing read.\n");
 

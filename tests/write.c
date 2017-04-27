@@ -16,6 +16,50 @@
 
 #define BUFFER_SIZE 512
 
+static enum TestResult test_invalid_fd(void)
+{
+	char buf[BUFFER_SIZE] = {0};
+	if (linux_write(linux_stderr + 1, buf, sizeof buf, 0) != linux_EBADF)
+		return TEST_RESULT_FAILURE;
+
+	return TEST_RESULT_SUCCESS;
+}
+
+static enum TestResult test_invalid_buf(void)
+{
+	// Cannot use /dev/null, because every write to it is successful.
+	int const fd = open(".", O_WRONLY | 020000000 | 00200000, S_IWUSR); // TODO: Use O_TMPFILE instead of 020000000 | 00200000
+	if (fd == -1)
+		return TEST_RESULT_OTHER_FAILURE;
+
+	if (linux_write((linux_fd_t)fd, 0, BUFFER_SIZE, 0) != linux_EFAULT)
+	{
+		close(fd);
+		return TEST_RESULT_FAILURE;
+	}
+
+	close(fd);
+	return TEST_RESULT_SUCCESS;
+}
+
+static enum TestResult test_write_zero(void)
+{
+	int const fd = open("/dev/null", O_WRONLY, 0);
+	if (fd == -1)
+		return TEST_RESULT_OTHER_FAILURE;
+
+	char buf[1] = {0};
+	size_t result = 0;
+	if (linux_write((linux_fd_t)fd, buf, 0, &result) || result)
+	{
+		close(fd);
+		return TEST_RESULT_FAILURE;
+	}
+
+	close(fd);
+	return TEST_RESULT_SUCCESS;
+}
+
 static enum TestResult test_random_write(void)
 {
 	enum TestResult ret = TEST_RESULT_OTHER_FAILURE;
@@ -70,69 +114,14 @@ cleanup:
 	return ret;
 }
 
-static enum TestResult test_write_zero(void)
-{
-	enum TestResult ret = TEST_RESULT_OTHER_FAILURE;
-	int fd = -1;
-	
-	fd = open("/dev/null", O_WRONLY, 0);
-	if (fd == -1)
-		goto cleanup;
-
-	char buf[1] = {0};
-	size_t result = 0;
-	if (linux_write((linux_fd_t)fd, buf, 0, &result) || result)
-	{
-		ret = TEST_RESULT_FAILURE;
-		goto cleanup;
-	}
-
-	ret = TEST_RESULT_SUCCESS;
-
-cleanup:
-	if (fd != -1)
-		close(fd);
-	return ret;
-}
-
-static enum TestResult test_invalid_fd(void)
-{
-	char buf[8] = {0};
-	if (linux_write(3, buf, sizeof buf, 0) != linux_EBADF)
-		return TEST_RESULT_FAILURE;
-
-	return TEST_RESULT_SUCCESS;
-}
-
-static enum TestResult test_invalid_buf(void)
-{
-	enum TestResult ret = TEST_RESULT_OTHER_FAILURE;
-	int fd = -1;
-	
-	// Cannot use /dev/null, because every write to it is successful.
-	fd = open(".", O_WRONLY | 020000000 | 00200000, S_IWUSR); // 020000000 | 00200000  == O_TMPFILE
-	if (fd == -1)
-		goto cleanup;
-
-	if (linux_write((linux_fd_t)fd, 0, BUFFER_SIZE, 0) != linux_EFAULT)
-		return TEST_RESULT_FAILURE;
-
-	ret = TEST_RESULT_SUCCESS;
-
-cleanup:
-	if (fd != -1)
-		close(fd);
-	return ret;
-}
-
 int main(void)
 {
 	int ret = EXIT_SUCCESS;
 
 	printf("Start testing write.\n");
-	DO_TEST(write_zero, &ret);
 	DO_TEST(invalid_fd, &ret);
 	DO_TEST(invalid_buf, &ret);
+	DO_TEST(write_zero, &ret);
 	DO_TEST(random_write, &ret);
 	printf("Finished testing write.\n");
 
