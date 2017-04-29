@@ -498,6 +498,14 @@ struct linux_iovec
 	size_t iov_len; // Must be size_t (1003.1g)
 };
 
+enum // TODO: Kernel sources do not explicitly define these constants. They correspond to S_IXOTH, S_IWOTH and S_IROTH.
+{
+	linux_F_OK = 0,
+	linux_X_OK = 1,
+	linux_W_OK = 2,
+	linux_R_OK = 4,
+};
+
 // All arguments have the same size as in the kernel sources.
 static inline LINUX_DEFINE_SYSCALL3_RET(read, linux_fd_t, fd, char*, buf, size_t, count, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(write, linux_fd_t, fd, char const*, buf, size_t, count, size_t)
@@ -520,5 +528,6 @@ static inline LINUX_DEFINE_SYSCALL4_RET(pread64, unsigned int, fd, char*, buf, s
 static inline LINUX_DEFINE_SYSCALL4_RET(pwrite64, unsigned int, fd, char const*, buf, size_t, count, linux_loff_t, pos, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(readv, unsigned int, fd, struct linux_iovec const*, vec, unsigned long, vlen, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(writev, unsigned int, fd, struct linux_iovec const*, vec, unsigned long, vlen, size_t)
+static inline LINUX_DEFINE_SYSCALL2_NORET(access, char const*, filename, int, mode)
 
 #endif // HEADER_LIBLINUX_LINUX_H_INCLUDED
