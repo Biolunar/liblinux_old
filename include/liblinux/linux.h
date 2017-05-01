@@ -529,5 +529,6 @@ static inline LINUX_DEFINE_SYSCALL4_RET(pwrite64, unsigned int, fd, char const*,
 static inline LINUX_DEFINE_SYSCALL3_RET(readv, unsigned int, fd, struct linux_iovec const*, vec, unsigned long, vlen, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(writev, unsigned int, fd, struct linux_iovec const*, vec, unsigned long, vlen, size_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(access, char const*, filename, int, mode)
+static inline LINUX_DEFINE_SYSCALL1_NORET(pipe, int*, fildes)
 
 #endif // HEADER_LIBLINUX_LINUX_H_INCLUDED
