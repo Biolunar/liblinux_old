@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <limits.h>
 
 #include <linux_syscall/syscall.h>
 
@@ -15,6 +16,8 @@ typedef unsigned int linux_kernel_uid32_t;
 typedef int linux_kernel_timer_t;
 typedef long linux_kernel_clock_t;
 typedef long long linux_loff_t;
+typedef long linux_kernel_time_t;
+typedef long linux_kernel_suseconds_t;
 
 struct linux_stat_t
 {
@@ -447,7 +450,7 @@ enum
 
 	linux_SA_RESTORER  = 0x04000000,
 };
-// TODO: Those are a workarounds for the maximum size of an enum.
+// TODO: Those are workarounds for the maximum size of an enum.
 #define linux_SA_RESETHAND   0x80000000u
 #define linux_SA_ONESHOT     linux_SA_RESETHAND
 
@@ -506,6 +509,40 @@ enum // TODO: Kernel sources do not explicitly define these constants. They corr
 	linux_R_OK = 4,
 };
 
+struct linux_timeval_t
+{
+	linux_kernel_time_t      tv_sec;  // seconds
+	linux_kernel_suseconds_t tv_usec; // microseconds
+};
+
+struct linux_fd_set_t
+{
+	unsigned long _fds_bits[1024 / (CHAR_BIT * sizeof(long))];
+};
+
+static inline void linux_FD_ZERO(struct linux_fd_set_t* set)
+{
+	// Don't use memset here because that needs a libc.
+	unsigned long* p = set->_fds_bits;
+	for(size_t i = sizeof(struct linux_fd_set_t) / sizeof(long); i; --i)
+		*p++ = 0;
+}
+
+static inline void linux_FD_SET(int fd, struct linux_fd_set_t* set)
+{
+	set->_fds_bits[(unsigned)fd / (CHAR_BIT * sizeof(long))] |= (1ul << ((unsigned)fd % (CHAR_BIT * sizeof(long))));
+}
+
+static inline void linux_FD_CLR(int fd, struct linux_fd_set_t* set)
+{
+	set->_fds_bits[(unsigned)fd / (CHAR_BIT * sizeof(long))] &= ~(1ul << ((unsigned)fd % (CHAR_BIT * sizeof(long))));
+}
+
+static inline bool linux_FD_ISSET(int fd, struct linux_fd_set_t* set)
+{
+	return set->_fds_bits[(unsigned)fd / (CHAR_BIT * sizeof(long))] & (1ul << ((unsigned)fd % (CHAR_BIT * sizeof(long))));
+}
+
 // All arguments have the same size as in the kernel sources.
 static inline LINUX_DEFINE_SYSCALL3_RET(read, linux_fd_t, fd, char*, buf, size_t, count, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(write, linux_fd_t, fd, char const*, buf, size_t, count, size_t)
@@ -530,5 +567,6 @@ static inline LINUX_DEFINE_SYSCALL3_RET(readv, unsigned int, fd, struct linux_io
 static inline LINUX_DEFINE_SYSCALL3_RET(writev, unsigned int, fd, struct linux_iovec const*, vec, unsigned long, vlen, size_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(access, char const*, filename, int, mode)
 static inline LINUX_DEFINE_SYSCALL1_NORET(pipe, int*, fildes)
+static inline LINUX_DEFINE_SYSCALL5_RET(select, int, n, struct linux_fd_set_t*, inp, struct linux_fd_set_t*, outp, struct linux_fd_set_t*, exp, struct linux_timeval_t*, tvp, unsigned int)
 
 #endif // HEADER_LIBLINUX_LINUX_H_INCLUDED
