@@ -568,5 +568,6 @@ static inline LINUX_DEFINE_SYSCALL3_RET(writev, unsigned int, fd, struct linux_i
 static inline LINUX_DEFINE_SYSCALL2_NORET(access, char const*, filename, int, mode)
 static inline LINUX_DEFINE_SYSCALL1_NORET(pipe, int*, fildes)
 static inline LINUX_DEFINE_SYSCALL5_RET(select, int, n, struct linux_fd_set_t*, inp, struct linux_fd_set_t*, outp, struct linux_fd_set_t*, exp, struct linux_timeval_t*, tvp, unsigned int)
+static inline LINUX_DEFINE_SYSCALL0_NORET(sched_yield)
 
 #endif // HEADER_LIBLINUX_LINUX_H_INCLUDED
