@@ -543,6 +543,12 @@ static inline bool linux_FD_ISSET(int fd, struct linux_fd_set_t* set)
 	return set->_fds_bits[(unsigned)fd / (CHAR_BIT * sizeof(long))] & (1ul << ((unsigned)fd % (CHAR_BIT * sizeof(long))));
 }
 
+enum
+{
+	linux_MREMAP_MAYMOVE = 1,
+	linux_MREMAP_FIXED   = 2,
+};
+
 // All arguments have the same size as in the kernel sources.
 static inline LINUX_DEFINE_SYSCALL3_RET(read, linux_fd_t, fd, char*, buf, size_t, count, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(write, linux_fd_t, fd, char const*, buf, size_t, count, size_t)
@@ -569,5 +575,6 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(access, char const*, filename, int, mo
 static inline LINUX_DEFINE_SYSCALL1_NORET(pipe, int*, fildes)
 static inline LINUX_DEFINE_SYSCALL5_RET(select, int, n, struct linux_fd_set_t*, inp, struct linux_fd_set_t*, outp, struct linux_fd_set_t*, exp, struct linux_timeval_t*, tvp, unsigned int)
 static inline LINUX_DEFINE_SYSCALL0_NORET(sched_yield)
+static inline LINUX_DEFINE_SYSCALL5_RET(mremap, void*, addr, size_t, old_len, size_t, new_len, unsigned long, flags, void*, new_addr, void*)
 
 #endif // HEADER_LIBLINUX_LINUX_H_INCLUDED
