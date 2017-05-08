@@ -19,7 +19,7 @@
 static enum TestResult test_invalid_fd(void)
 {
 	char buf[BUFFER_SIZE] = {0};
-	struct linux_iovec vec =
+	struct linux_iovec_t vec =
 	{
 		.iov_base = buf,
 		.iov_len = sizeof buf,
@@ -37,7 +37,7 @@ static enum TestResult test_invalid_buf(void)
 	if (fd == -1)
 		return TEST_RESULT_OTHER_FAILURE;
 
-	struct linux_iovec vec =
+	struct linux_iovec_t vec =
 	{
 		.iov_base = 0,
 		.iov_len = BUFFER_SIZE,
@@ -59,7 +59,7 @@ static enum TestResult test_write_zero(void)
 		return TEST_RESULT_OTHER_FAILURE;
 
 	char buf[1] = {0};
-	struct linux_iovec vec =
+	struct linux_iovec_t vec =
 	{
 		.iov_base = buf,
 		.iov_len = 0,
@@ -95,7 +95,7 @@ static enum TestResult test_random_write(void)
 	if (fread(in_buf, 1, sizeof in_buf, file) != sizeof in_buf)
 		goto cleanup;
 
-	struct linux_iovec vec =
+	struct linux_iovec_t vec =
 	{
 		.iov_base = in_buf,
 		.iov_len = sizeof in_buf,

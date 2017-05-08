@@ -28,7 +28,7 @@ static enum TestResult test_invalid_size(void)
 
 static enum TestResult test_get_old(void)
 {
-	struct linux_sigaction old;
+	struct linux_sigaction_t old;
 	if (linux_rt_sigaction(linux_SIGUSR1, 0, &old, size))
 		return TEST_RESULT_FAILURE;
 
@@ -45,7 +45,7 @@ static enum TestResult test_set_new(void)
 {
 	linux_sigset_t empty = 0;
 	linux_sigemptyset(&empty);
-	struct linux_sigaction const new =
+	struct linux_sigaction_t const new =
 	{
 		.sa_handler = &normal_handler,
 		.sa_flags = linux_SA_RESTORER,
@@ -76,7 +76,7 @@ static enum TestResult test_set_siginfo(void)
 {
 	linux_sigset_t empty = 0;
 	linux_sigemptyset(&empty);
-	struct linux_sigaction const new =
+	struct linux_sigaction_t const new =
 	{
 		.sa_handler = (linux_sighandler_t)&siginfo_handler,
 		.sa_flags = linux_SA_RESTORER | linux_SA_SIGINFO,

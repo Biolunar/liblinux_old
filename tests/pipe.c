@@ -5,6 +5,8 @@
 
 #include <liblinux/linux.h>
 
+#include <unistd.h>
+
 static enum TestResult test_invalid_fd(void)
 {
 	if (linux_pipe(0) != linux_EFAULT)
@@ -15,14 +17,15 @@ static enum TestResult test_invalid_fd(void)
 
 static enum TestResult test_valid_function(void)
 {
-	int p[2] = {-1, -1};
-
+	linux_fd_t p[2];
 	if (linux_pipe(p))
 		return TEST_RESULT_FAILURE;
 
-	if (p[0] == -1 || p[1] == -1)
+	if (p[0] != (linux_stderr + 1) || p[1] != (linux_stderr + 2))
 		return TEST_RESULT_FAILURE;
 
+	close((int)p[0]);
+	close((int)p[1]);
 	return TEST_RESULT_SUCCESS;
 }
 

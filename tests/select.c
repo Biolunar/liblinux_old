@@ -33,7 +33,7 @@ static enum TestResult test_correct_usage(void)
 		.tv_sec = 1,
 		.tv_usec = 0,
 	};
-	struct linux_fd_set_t set;
+	linux_fd_set_t set;
 	linux_FD_ZERO(&set);
 	linux_FD_SET(linux_stdout, &set);
 	linux_FD_SET(linux_stderr, &set);

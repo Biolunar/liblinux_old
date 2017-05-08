@@ -8,51 +8,299 @@
 
 #include <linux_syscall/syscall.h>
 
+/* C types
+ *
+ * _Bool, char, signed char, unsigned char
+ * signed short, unsigned short
+ * signed int, unsigned int
+ * signed long, unsigned long
+ * signed long long, unsigned long long
+ * float, double, long double
+ * size_t, ptrdiff_t, max_align_t, wchar_t
+ * intX_t, uintX_t
+ * int_fastX_t, uint_fastX_t
+ * int_leastX_t, uint_leastX_t
+ * intmax_t, uintmax_t
+ * intptr_t, uintptr_t
+ */
+
+//------------------------------------------------------------------------------
+// Custom types
+
 typedef unsigned int linux_fd_t;
+
+// Custom types
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Kernel types
+
 typedef unsigned short linux_umode_t;
-typedef long linux_off_t;
+typedef long long linux_kernel_long_t;
+typedef unsigned long long linux_kernel_ulong_t;
+typedef linux_kernel_long_t linux_kernel_off_t;
+typedef linux_kernel_off_t linux_off_t;
 typedef int linux_kernel_pid_t;
 typedef unsigned int linux_kernel_uid32_t;
+typedef linux_kernel_uid32_t linux_arch_si_uid_t;
 typedef int linux_kernel_timer_t;
-typedef long linux_kernel_clock_t;
-typedef long long linux_loff_t;
-typedef long linux_kernel_time_t;
-typedef long linux_kernel_suseconds_t;
-
+typedef linux_kernel_long_t linux_kernel_clock_t;
+typedef linux_kernel_clock_t linux_arch_si_clock_t;
+typedef long linux_arch_si_band_t;
+typedef unsigned long linux_sigset_t;
+typedef linux_kernel_ulong_t linux_kernel_size_t;
+typedef long long linux_kernel_loff_t;
+typedef linux_kernel_loff_t linux_loff_t;
+typedef linux_kernel_long_t linux_kernel_time_t;
+typedef linux_kernel_long_t linux_kernel_suseconds_t;
 struct linux_stat_t
 {
-	unsigned long st_dev;
-	unsigned long st_ino;
-	unsigned long st_nlink;
+	linux_kernel_ulong_t st_dev;
+	linux_kernel_ulong_t st_ino;
+	linux_kernel_ulong_t st_nlink;
 
 	unsigned int st_mode;
 	unsigned int st_uid;
 	unsigned int st_gid;
 	unsigned int _pad0;
-	unsigned long st_rdev;
-	long st_size;
-	long st_blksize;
-	long st_blocks; // Number 512-byte blocks allocated.
+	linux_kernel_ulong_t st_rdev;
+	linux_kernel_long_t st_size;
+	linux_kernel_long_t st_blksize;
+	linux_kernel_long_t st_blocks; // Number 512-byte blocks allocated.
 
-	unsigned long st_atime;
-	unsigned long st_atime_nsec;
-	unsigned long st_mtime;
-	unsigned long st_mtime_nsec;
-	unsigned long st_ctime;
-	unsigned long st_ctime_nsec;
-	long _unused[3];
+	linux_kernel_ulong_t st_atime;
+	linux_kernel_ulong_t st_atime_nsec;
+	linux_kernel_ulong_t st_mtime;
+	linux_kernel_ulong_t st_mtime_nsec;
+	linux_kernel_ulong_t st_ctime;
+	linux_kernel_ulong_t st_ctime_nsec;
+	linux_kernel_long_t _unused[3];
 };
-
 struct linux_pollfd_t
 {
 	int fd;
 	short events;
 	short revents;
 };
+typedef void linux_signalfn_t(int sig);
+typedef linux_signalfn_t* linux_sighandler_t;
+typedef void linux_restorefn_t(void);
+typedef linux_restorefn_t* linux_sigrestore_t;
+union linux_sigval_t
+{
+	int sival_int;
+	void* sival_ptr;
+};
+struct linux_siginfo_t
+{
+	int si_signo;
+	int si_errno;
+	int si_code;
+
+	char _pad[4];
+	union
+	{
+		int _pad[(128 - 4 * sizeof(int)) / sizeof(int)];
+
+		// kill()
+		struct
+		{
+			linux_kernel_pid_t si_pid; // sender's pid
+			linux_arch_si_uid_t si_uid; // sender's uid
+		} kill;
+
+		// POSIX.1b timers
+		struct
+		{
+			linux_kernel_timer_t si_timerid; // timer id
+			int si_overrun; // overrun count
+			union linux_sigval_t si_value; // same as below
+			int _sys_private; // not to be passed to user
+			char _pad[4];
+		} timer;
+
+		// POSIX.1b signals
+		struct
+		{
+			linux_kernel_pid_t si_pid; // sender's pid
+			linux_arch_si_uid_t si_uid; // sender's uid
+			union linux_sigval_t si_value;
+		} rt;
+
+		// SIGCHLD
+		struct
+		{
+			linux_kernel_pid_t si_pid; // which child
+			linux_arch_si_uid_t si_uid; // sender's uid
+			int si_status; // exit code
+			char _pad[4];
+			linux_arch_si_clock_t si_utime;
+			linux_arch_si_clock_t si_stime;
+		} sigchld;
+
+		// SIGILL, SIGFPE, SIGSEGV, SIGBUS
+		struct
+		{
+			void* si_addr; // faulting insn/memory ref.
+			short si_addr_lsb; // LSB of the reported address
+			char _pad[6];
+			union
+			{
+				// used when si_code=SEGV_BNDERR
+				struct
+				{
+					void* si_lower;
+					void* si_upper;
+				} addr_bnd;
+				// used when si_code=SEGV_PKUERR
+				uint32_t si_pkey;
+			};
+		} sigfault;
+
+		// SIGPOLL
+		struct
+		{
+			linux_arch_si_band_t si_band; // POLL_IN, POLL_OUT, POLL_MSG
+			int si_fd;
+			char _pad[4];
+		} sigpoll;
+
+		// SIGSYS
+		struct
+		{
+			void* si_call_addr; // calling user insn
+			int si_syscall; // triggering system call number
+			unsigned int si_arch; // AUDIT_ARCH_* of syscall
+		} sigsys;
+	} sifields;
+};
+typedef struct
+{
+	void* ss_sp;
+	int ss_flags;
+	size_t ss_size;
+} linux_stack_t;
+struct linux_fpx_sw_bytes_t
+{
+	// If set to FP_XSTATE_MAGIC1 then this is an xstate context.
+	// 0 if a legacy frame.
+	uint32_t magic1;
+
+	// Total size of the fpstate area:
+	//
+	//  - if magic1 == 0 then it's sizeof(struct _fpstate)
+	//  - if magic1 == FP_XSTATE_MAGIC1 then it's sizeof(struct _xstate)
+	//    plus extensions (if any)
+	uint32_t extended_size;
+
+	// Feature bit mask (including FP/SSE/extended state) that is present
+	// in the memory layout:
+	uint64_t xfeatures;
+
+	// Actual XSAVE state size, based on the xfeatures saved in the layout.
+	// 'extended_size' is greater than 'xstate_size':
+	uint32_t xstate_size;
+
+	// For future use:
+	uint32_t _padding[7];
+};
+struct linux_fpstate_t
+{
+	uint16_t cwd;
+	uint16_t swd;
+	// Note this is not the same as the 32-bit/x87/FSAVE twd:
+	uint16_t twd;
+	uint16_t fop;
+	uint64_t rip;
+	uint64_t rdp;
+	uint32_t mxcsr;
+	uint32_t mxcsr_mask;
+	uint32_t st_space[32];  //  8x  FP registers, 16 bytes each
+	uint32_t xmm_space[64];	// 16x XMM registers, 16 bytes each
+	uint32_t reserved2[12];
+	union
+	{
+		uint32_t eserved3[12];
+		struct linux_fpx_sw_bytes_t sw_reserved; // Potential extended state is encoded here
+	};
+};
+struct linux_sigcontext_t
+{
+	uint64_t r8;
+	uint64_t r9;
+	uint64_t r10;
+	uint64_t r11;
+	uint64_t r12;
+	uint64_t r13;
+	uint64_t r14;
+	uint64_t r15;
+	uint64_t rdi;
+	uint64_t rsi;
+	uint64_t rbp;
+	uint64_t rbx;
+	uint64_t rdx;
+	uint64_t rax;
+	uint64_t rcx;
+	uint64_t rsp;
+	uint64_t rip;
+	uint64_t eflags; // RFLAGS
+	uint16_t cs;
+	uint16_t gs;
+	uint16_t fs;
+	union
+	{
+		uint16_t ss;    // If UC_SIGCONTEXT_SS
+		uint16_t _pad0; // Alias name for old (!UC_SIGCONTEXT_SS) user-space
+	};
+	uint64_t err;
+	uint64_t trapno;
+	uint64_t oldmask;
+	uint64_t cr2;
+	struct linux_fpstate_t* fpstate; // Zero when no FPU context
+	uint64_t _reserved1[8];
+};
+struct linux_ucontext_t
+{
+	unsigned long uc_flags;
+	struct linux_ucontext_t* uc_link;
+	linux_stack_t uc_stack;
+	struct linux_sigcontext_t uc_mcontext;
+	linux_sigset_t uc_sigmask; // mask last for extensibility
+};
+typedef void linux_infofn_t(int sig, struct linux_siginfo_t* info, struct linux_ucontext_t* context);
+typedef linux_infofn_t* linux_siginfo_t;
+struct linux_sigaction_t
+{
+	linux_sighandler_t sa_handler;
+	unsigned long sa_flags;
+	linux_sigrestore_t sa_restorer;
+	linux_sigset_t sa_mask; // mask last for extensibility
+};
+struct linux_iovec_t
+{
+	void* iov_base; // BSD uses caddr_t (1003.1g requires void *)
+	linux_kernel_size_t iov_len; // Must be size_t (1003.1g)
+};
+typedef struct
+{
+	unsigned long _fds_bits[1024 / (CHAR_BIT * sizeof(long))];
+} linux_kernel_fd_set_t;
+typedef linux_kernel_fd_set_t linux_fd_set_t;
+struct linux_timeval_t
+{
+	linux_kernel_time_t      tv_sec;  // seconds
+	linux_kernel_suseconds_t tv_usec; // microseconds
+};
+
+// Kernel types
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Constants
 
 enum
 {
-	linux_stdin = 0u,
+	linux_stdin  = 0u,
 	linux_stdout = 1u,
 	linux_stderr = 2u,
 };
@@ -78,18 +326,11 @@ enum
 	linux_O_NOATIME      = 01000000,
 	linux_O_CLOEXEC      = 02000000, // set close_on_exec
 
-	//linux__O_SYNC        = 04000000,
-	//linux_O_SYNC         = (linux__O_SYNC | linux_O_DSYNC),
 	linux_O_SYNC         = 04010000,
 
 	linux_O_PATH         = 010000000,
 
-	//linux__O_TMPFILE     = 020000000,
-
-	// a horrid kludge trying to make sure that this will fail on old kernels
-	//linux_O_TMPFILE      = (linux__O_TMPFILE | linux_O_DIRECTORY),
-	//linux_O_TMPFILE_MASK = (linux__O_TMPFILE | linux_O_DIRECTORY | linux_O_CREAT),
-	linux_O_TMPFILE      = 020200000,
+	linux_O_TMPFILE      = 020200000, // a horrid kludge trying to make sure that this will fail on old kernels
 	linux_O_TMPFILE_MASK = (linux_O_TMPFILE | linux_O_CREAT),
 
 	linux_O_NDELAY       = linux_O_NONBLOCK,
@@ -125,34 +366,26 @@ enum
 	linux_S_IXOTH  = 00001,
 };
 
-static inline bool linux_S_ISLNK(linux_umode_t const m) { return (m & linux_S_IFMT) == linux_S_IFLNK; }
-static inline bool linux_S_ISREG(linux_umode_t const m) { return (m & linux_S_IFMT) == linux_S_IFREG; }
-static inline bool linux_S_ISDIR(linux_umode_t const m) { return (m & linux_S_IFMT) == linux_S_IFDIR; }
-static inline bool linux_S_ISCHR(linux_umode_t const m) { return (m & linux_S_IFMT) == linux_S_IFCHR; }
-static inline bool linux_S_ISBLK(linux_umode_t const m) { return (m & linux_S_IFMT) == linux_S_IFBLK; }
-static inline bool linux_S_ISFIFO(linux_umode_t const m) { return (m & linux_S_IFMT) == linux_S_IFIFO; }
-static inline bool linux_S_ISSOCK(linux_umode_t const m) { return (m & linux_S_IFMT) == linux_S_IFSOCK; }
-
 enum
 {
 	// These are specified by iBCS2
-	linux_POLLIN     = 0x0001,
-	linux_POLLPRI    = 0x0002,
-	linux_POLLOUT    = 0x0004,
-	linux_POLLERR    = 0x0008,
-	linux_POLLHUP    = 0x0010,
-	linux_POLLNVAL   = 0x0020,
+	linux_POLLIN         = 0x0001,
+	linux_POLLPRI        = 0x0002,
+	linux_POLLOUT        = 0x0004,
+	linux_POLLERR        = 0x0008,
+	linux_POLLHUP        = 0x0010,
+	linux_POLLNVAL       = 0x0020,
 
 	// The rest seem to be more-or-less nonstandard. Check them!
-	linux_POLLRDNORM = 0x0040,
-	linux_POLLRDBAND = 0x0080,
-	linux_POLLWRNORM = 0x0100,
-	linux_POLLWRBAND = 0x0200,
-	linux_POLLMSG    = 0x0400,
-	linux_POLLREMOVE = 0x1000,
-	linux_POLLRDHUP  = 0x2000,
+	linux_POLLRDNORM     = 0x0040,
+	linux_POLLRDBAND     = 0x0080,
+	linux_POLLWRNORM     = 0x0100,
+	linux_POLLWRBAND     = 0x0200,
+	linux_POLLMSG        = 0x0400,
+	linux_POLLREMOVE     = 0x1000,
+	linux_POLLRDHUP      = 0x2000,
 
-	linux_POLLFREE   = 0x4000, // currently only for epoll
+	linux_POLLFREE       = 0x4000, // currently only for epoll
 
 	linux_POLL_BUSY_LOOP = 0x8000,
 };
@@ -250,191 +483,11 @@ enum
 	linux_SIGRTMAX  = 64,
 };
 
-union linux_sigval_t
-{
-	int sival_int;
-	void* sival_ptr;
-};
+#define linux_SIG_DFL ((linux_sighandler_t)0)
+#define linux_SIG_IGN ((linux_sighandler_t)1)
+#define linux_SIG_ERR ((linux_sighandler_t)-1)
 
-struct linux_siginfo_t
-{
-	int si_signo;
-	int si_errno;
-	int si_code;
-
-	char _pad[4];
-	union
-	{
-		int _pad[(128 - 4 * sizeof(int)) / sizeof(int)];
-
-		// kill()
-		struct
-		{
-			linux_kernel_pid_t si_pid; // sender's pid
-			linux_kernel_uid32_t si_uid; // sender's uid
-		} kill;
-
-		// POSIX.1b timers
-		struct
-		{
-			linux_kernel_timer_t si_timerid; // timer id
-			int si_overrun; // overrun count
-			union linux_sigval_t si_value; // same as below
-			int _sys_private; // not to be passed to user
-			char _pad[4];
-		} timer;
-
-		// POSIX.1b signals
-		struct
-		{
-			linux_kernel_pid_t si_pid; // sender's pid
-			linux_kernel_uid32_t si_uid; // sender's uid
-			union linux_sigval_t si_value;
-		} rt;
-
-		// SIGCHLD
-		struct
-		{
-			linux_kernel_pid_t si_pid; // which child
-			linux_kernel_uid32_t si_uid; // sender's uid
-			int si_status; // exit code
-			char _pad[4];
-			linux_kernel_clock_t si_utime;
-			linux_kernel_clock_t si_stime;
-		} sigchld;
-
-		// SIGILL, SIGFPE, SIGSEGV, SIGBUS
-		struct
-		{
-			void* si_addr; // faulting insn/memory ref.
-			short si_addr_lsb; // LSB of the reported address
-			char _pad[6];
-			union
-			{
-				// used when si_code=SEGV_BNDERR
-				struct
-				{
-					void* si_lower;
-					void* si_upper;
-				} addr_bnd;
-				// used when si_code=SEGV_PKUERR
-				uint32_t si_pkey;
-			};
-		} sigfault;
-
-		// SIGPOLL
-		struct
-		{
-			long si_band; // POLL_IN, POLL_OUT, POLL_MSG
-			int si_fd;
-			char _pad[4];
-		} sigpoll;
-
-		// SIGSYS
-		struct
-		{
-			void* si_call_addr; // calling user insn
-			int si_syscall; // triggering system call number
-			unsigned int si_arch; // AUDIT_ARCH_* of syscall
-		} sigsys;
-	} sifields;
-};
-
-typedef unsigned long linux_sigset_t;
-
-struct linux_stack_t
-{
-	void* ss_sp;
-	int ss_flags;
-	size_t ss_size;
-};
-
-struct linux_sigcontext
-{
-	uint64_t r8;
-	uint64_t r9;
-	uint64_t r10;
-	uint64_t r11;
-	uint64_t r12;
-	uint64_t r13;
-	uint64_t r14;
-	uint64_t r15;
-	uint64_t rdi;
-	uint64_t rsi;
-	uint64_t rbp;
-	uint64_t rbx;
-	uint64_t rdx;
-	uint64_t rax;
-	uint64_t rcx;
-	uint64_t rsp;
-	uint64_t rip;
-	uint64_t eflags; // RFLAGS
-	uint16_t cs;
-
-	/*
-	 * Prior to 2.5.64 ("[PATCH] x86-64 updates for 2.5.64-bk3"),
-	 * Linux saved and restored fs and gs in these slots.  This
-	 * was counterproductive, as fsbase and gsbase were never
-	 * saved, so arch_prctl was presumably unreliable.
-	 *
-	 * These slots should never be reused without extreme caution:
-	 *
-	 *  - Some DOSEMU versions stash fs and gs in these slots manually,
-	 *    thus overwriting anything the kernel expects to be preserved
-	 *    in these slots.
-	 *
-	 *  - If these slots are ever needed for any other purpose,
-	 *    there is some risk that very old 64-bit binaries could get
-	 *    confused.  I doubt that many such binaries still work,
-	 *    though, since the same patch in 2.5.64 also removed the
-	 *    64-bit set_thread_area syscall, so it appears that there
-	 *    is no TLS API beyond modify_ldt that works in both pre-
-	 *    and post-2.5.64 kernels.
-	 *
-	 * If the kernel ever adds explicit fs, gs, fsbase, and gsbase
-	 * save/restore, it will most likely need to be opt-in and use
-	 * different context slots.
-	 */
-	uint16_t gs;
-	uint16_t fs;
-	union
-	{
-		uint16_t ss;    // If UC_SIGCONTEXT_SS
-		uint16_t _pad0; // Alias name for old (!UC_SIGCONTEXT_SS) user-space
-	};
-	uint64_t err;
-	uint64_t trapno;
-	uint64_t oldmask;
-	uint64_t cr2;
-	struct _fpstate* fpstate; // Zero when no FPU context
-	uint64_t reserved1[8];
-};
-
-struct linux_ucontext
-{
-	unsigned long uc_flags;
-	struct linux_ucontext* uc_link;
-	struct linux_stack_t uc_stack;
-	struct linux_sigcontext uc_mcontext;
-	linux_sigset_t uc_sigmask; // mask last for extensibility
-};
-
-typedef void (*linux_sighandler_t)(int signum);
-typedef void (*linux_sigactionhandler_t)(int signum, struct linux_siginfo_t* info, void* context);
-typedef void (*linux_sigrestore_t)(void);
-
-struct linux_sigaction
-{
-	linux_sighandler_t sa_handler;
-	unsigned long sa_flags;
-	linux_sigrestore_t sa_restorer;
-	linux_sigset_t sa_mask; // mask last for extensibility
-};
-
-#define linux_SIG_DFL (linux_sighandler_t)0
-#define linux_SIG_IGN (linux_sighandler_t)1
-#define linux_SIG_ERR (linux_sighandler_t)-1
-
+_Static_assert((unsigned)INT_MIN == 0x80000000u, "Needs a two's complement platform.");
 enum
 {
 	linux_SA_NOCLDSTOP = 0x00000001u,
@@ -443,16 +496,13 @@ enum
 	linux_SA_ONSTACK   = 0x08000000u,
 	linux_SA_RESTART   = 0x10000000u,
 	linux_SA_NODEFER   = 0x40000000u,
-	//linux_SA_RESETHAND = 0x80000000u, // TODO: ISO C restricts enumerator values to range of 'int'.
+	linux_SA_RESETHAND = INT_MIN, // Workaround for the value 0x80000000u as a signed int.
 
 	linux_SA_NOMASK    = linux_SA_NODEFER,
-	//linux_SA_ONESHOT   = linux_SA_RESETHAND, // TODO: ISO C restricts enumerator values to range of 'int'.
+	linux_SA_ONESHOT   = linux_SA_RESETHAND,
 
 	linux_SA_RESTORER  = 0x04000000,
 };
-// TODO: Those are workarounds for the maximum size of an enum.
-#define linux_SA_RESETHAND   0x80000000u
-#define linux_SA_ONESHOT     linux_SA_RESETHAND
 
 enum
 {
@@ -460,6 +510,68 @@ enum
 	linux_SIG_UNBLOCK = 1,
 	linux_SIG_SETMASK = 2,
 };
+
+enum
+{
+	linux_FP_XSTATE_MAGIC1      = 0x46505853u,
+	linux_FP_XSTATE_MAGIC2      = 0x46505845u,
+};
+#define linux_FP_XSTATE_MAGIC2_SIZE   (sizeof linux_FP_XSTATE_MAGIC2)
+
+enum // Kernel sources do not explicitly define these constants. They correspond to S_IXOTH, S_IWOTH and S_IROTH.
+{
+	linux_F_OK = 0,
+	linux_X_OK = 1,
+	linux_W_OK = 2,
+	linux_R_OK = 4,
+};
+
+enum
+{
+	linux_MREMAP_MAYMOVE = 1,
+	linux_MREMAP_FIXED   = 2,
+};
+
+// Constants
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Helper functions
+
+static inline bool linux_S_ISLNK(linux_umode_t const m)
+{
+	return (m & linux_S_IFMT) == linux_S_IFLNK;
+}
+
+static inline bool linux_S_ISREG(linux_umode_t const m)
+{
+	return (m & linux_S_IFMT) == linux_S_IFREG;
+}
+
+static inline bool linux_S_ISDIR(linux_umode_t const m)
+{
+	return (m & linux_S_IFMT) == linux_S_IFDIR;
+}
+
+static inline bool linux_S_ISCHR(linux_umode_t const m)
+{
+	return (m & linux_S_IFMT) == linux_S_IFCHR;
+}
+
+static inline bool linux_S_ISBLK(linux_umode_t const m)
+{
+	return (m & linux_S_IFMT) == linux_S_IFBLK;
+}
+
+static inline bool linux_S_ISFIFO(linux_umode_t const m)
+{
+	return (m & linux_S_IFMT) == linux_S_IFIFO;
+}
+
+static inline bool linux_S_ISSOCK(linux_umode_t const m)
+{
+	return (m & linux_S_IFMT) == linux_S_IFSOCK;
+}
 
 static inline void linux_sigemptyset(linux_sigset_t* const set)
 {
@@ -495,63 +607,37 @@ static inline enum linux_error_t linux_sigismember(linux_sigset_t const* const s
 	return linux_error_none;
 }
 
-struct linux_iovec
-{
-	void* iov_base; // BSD uses caddr_t (1003.1g requires void *)
-	size_t iov_len; // Must be size_t (1003.1g)
-};
-
-enum // TODO: Kernel sources do not explicitly define these constants. They correspond to S_IXOTH, S_IWOTH and S_IROTH.
-{
-	linux_F_OK = 0,
-	linux_X_OK = 1,
-	linux_W_OK = 2,
-	linux_R_OK = 4,
-};
-
-struct linux_timeval_t
-{
-	linux_kernel_time_t      tv_sec;  // seconds
-	linux_kernel_suseconds_t tv_usec; // microseconds
-};
-
-struct linux_fd_set_t
-{
-	unsigned long _fds_bits[1024 / (CHAR_BIT * sizeof(long))];
-};
-
-static inline void linux_FD_ZERO(struct linux_fd_set_t* set)
+static inline void linux_FD_ZERO(linux_fd_set_t* set)
 {
 	// Don't use memset here because that needs a libc.
 	unsigned long* p = set->_fds_bits;
-	for(size_t i = sizeof(struct linux_fd_set_t) / sizeof(long); i; --i)
+	for(size_t i = sizeof(linux_fd_set_t) / sizeof(long); i; --i)
 		*p++ = 0;
 }
 
-static inline void linux_FD_SET(int fd, struct linux_fd_set_t* set)
+static inline void linux_FD_SET(int fd, linux_fd_set_t* set)
 {
 	set->_fds_bits[(unsigned)fd / (CHAR_BIT * sizeof(long))] |= (1ul << ((unsigned)fd % (CHAR_BIT * sizeof(long))));
 }
 
-static inline void linux_FD_CLR(int fd, struct linux_fd_set_t* set)
+static inline void linux_FD_CLR(int fd, linux_fd_set_t* set)
 {
 	set->_fds_bits[(unsigned)fd / (CHAR_BIT * sizeof(long))] &= ~(1ul << ((unsigned)fd % (CHAR_BIT * sizeof(long))));
 }
 
-static inline bool linux_FD_ISSET(int fd, struct linux_fd_set_t* set)
+static inline bool linux_FD_ISSET(int fd, linux_fd_set_t* set)
 {
 	return set->_fds_bits[(unsigned)fd / (CHAR_BIT * sizeof(long))] & (1ul << ((unsigned)fd % (CHAR_BIT * sizeof(long))));
 }
 
-enum
-{
-	linux_MREMAP_MAYMOVE = 1,
-	linux_MREMAP_FIXED   = 2,
-};
+// Helper functions
+//------------------------------------------------------------------------------
 
-// All arguments have the same size as in the kernel sources.
-static inline LINUX_DEFINE_SYSCALL3_RET(read, linux_fd_t, fd, char*, buf, size_t, count, size_t)
-static inline LINUX_DEFINE_SYSCALL3_RET(write, linux_fd_t, fd, char const*, buf, size_t, count, size_t)
+//------------------------------------------------------------------------------
+// Syscalls
+
+static inline LINUX_DEFINE_SYSCALL3_RET(read, linux_fd_t, fd, void*, buf, size_t, count, size_t)
+static inline LINUX_DEFINE_SYSCALL3_RET(write, linux_fd_t, fd, void const*, buf, size_t, count, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(open, char const*, filename, int, flags, linux_umode_t, mode, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL1_NORET(close, linux_fd_t, fd)
 static inline LINUX_DEFINE_SYSCALL2_NORET(stat, char const*, filename, struct linux_stat_t*, statbuf)
@@ -563,18 +649,21 @@ static inline LINUX_DEFINE_SYSCALL6_RET(mmap, void*, addr, size_t, len, unsigned
 static inline LINUX_DEFINE_SYSCALL3_NORET(mprotect, void*, start, size_t, len, unsigned long, prot)
 static inline LINUX_DEFINE_SYSCALL2_NORET(munmap, void*, addr, size_t, len)
 static inline LINUX_DEFINE_SYSCALL1_RET(brk, void*, brk, void*)
-static inline LINUX_DEFINE_SYSCALL4_NORET(rt_sigaction, int, signum, struct linux_sigaction const*, act, struct linux_sigaction*, oact, size_t, sigsetsize)
+static inline LINUX_DEFINE_SYSCALL4_NORET(rt_sigaction, int, sig, struct linux_sigaction_t const*, act, struct linux_sigaction_t*, oact, size_t, sigsetsize)
 static inline LINUX_DEFINE_SYSCALL4_NORET(rt_sigprocmask, int, how, linux_sigset_t*, set, linux_sigset_t*, oset, size_t, sigsetsize)
 //rt_sigreturn
-static inline LINUX_DEFINE_SYSCALL3_RET(ioctl, unsigned int, fd, unsigned int, cmd, uintptr_t, arg, unsigned int)
-static inline LINUX_DEFINE_SYSCALL4_RET(pread64, unsigned int, fd, char*, buf, size_t, count, linux_loff_t, pos, size_t)
-static inline LINUX_DEFINE_SYSCALL4_RET(pwrite64, unsigned int, fd, char const*, buf, size_t, count, linux_loff_t, pos, size_t)
-static inline LINUX_DEFINE_SYSCALL3_RET(readv, unsigned int, fd, struct linux_iovec const*, vec, unsigned long, vlen, size_t)
-static inline LINUX_DEFINE_SYSCALL3_RET(writev, unsigned int, fd, struct linux_iovec const*, vec, unsigned long, vlen, size_t)
+static inline LINUX_DEFINE_SYSCALL3_RET(ioctl, linux_fd_t, fd, unsigned int, cmd, uintptr_t, arg, unsigned int)
+static inline LINUX_DEFINE_SYSCALL4_RET(pread64, linux_fd_t, fd, void*, buf, size_t, count, linux_loff_t, pos, size_t)
+static inline LINUX_DEFINE_SYSCALL4_RET(pwrite64, linux_fd_t, fd, void const*, buf, size_t, count, linux_loff_t, pos, size_t)
+static inline LINUX_DEFINE_SYSCALL3_RET(readv, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, size_t)
+static inline LINUX_DEFINE_SYSCALL3_RET(writev, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, size_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(access, char const*, filename, int, mode)
-static inline LINUX_DEFINE_SYSCALL1_NORET(pipe, int*, fildes)
-static inline LINUX_DEFINE_SYSCALL5_RET(select, int, n, struct linux_fd_set_t*, inp, struct linux_fd_set_t*, outp, struct linux_fd_set_t*, exp, struct linux_timeval_t*, tvp, unsigned int)
+static inline LINUX_DEFINE_SYSCALL1_NORET(pipe, linux_fd_t*, fildes)
+static inline LINUX_DEFINE_SYSCALL5_RET(select, int, n, linux_fd_set_t*, inp, linux_fd_set_t*, outp, linux_fd_set_t*, exp, struct linux_timeval_t*, tvp, unsigned int)
 static inline LINUX_DEFINE_SYSCALL0_NORET(sched_yield)
 static inline LINUX_DEFINE_SYSCALL5_RET(mremap, void*, addr, size_t, old_len, size_t, new_len, unsigned long, flags, void*, new_addr, void*)
+
+// Syscalls
+//------------------------------------------------------------------------------
 
 #endif // HEADER_LIBLINUX_LINUX_H_INCLUDED
