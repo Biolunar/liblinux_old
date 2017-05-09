@@ -15,8 +15,10 @@
  */
 
 #include "test.h"
-
 #include <liblinux/linux.h>
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <unistd.h>
 

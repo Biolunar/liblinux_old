@@ -15,8 +15,10 @@
  */
 
 #include "test.h"
-
 #include <liblinux/linux.h>
+
+#include <stdio.h>
+#include <stdlib.h>
 
 static size_t const size = sizeof(linux_sigset_t);
 

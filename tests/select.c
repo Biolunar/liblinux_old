@@ -15,11 +15,10 @@
  */
 
 #include "test.h"
+#include <liblinux/linux.h>
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <liblinux/linux.h>
 
 static enum TestResult test_invalid_number(void)
 {

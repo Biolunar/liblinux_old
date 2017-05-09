@@ -15,10 +15,10 @@
  */
 
 #include "test.h"
-
-#include <limits.h>
-
 #include <liblinux/linux.h>
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <sys/mman.h>
 

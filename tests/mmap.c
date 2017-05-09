@@ -15,11 +15,12 @@
  */
 
 #include "test.h"
-
-#include <limits.h>
-
 #include <liblinux/linux.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <limits.h>
 #include <sys/mman.h>
 
 static enum TestResult test_invalid_file(void)

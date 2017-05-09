@@ -15,20 +15,15 @@
  */
 
 #include "test.h"
+#include <liblinux/linux.h>
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
-#include <string.h>
-#include <stdint.h>
-#include <limits.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-
-#include <liblinux/linux.h>
 
 #define BUFFER_SIZE 512
 

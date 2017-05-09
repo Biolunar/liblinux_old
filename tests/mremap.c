@@ -15,12 +15,10 @@
  */
 
 #include "test.h"
-
-#include <limits.h>
-
 #include <liblinux/linux.h>
 
-#include <sys/mman.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 static size_t const size = 0x1000;
 

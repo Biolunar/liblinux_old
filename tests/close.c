@@ -15,8 +15,10 @@
  */
 
 #include "test.h"
-
 #include <liblinux/linux.h>
+
+#include <stdio.h>
+#include <stdlib.h>
 
 static enum TestResult test_valid_fd(void)
 {
