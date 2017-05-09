@@ -548,6 +548,13 @@ enum
 	linux_MREMAP_FIXED   = 2,
 };
 
+enum
+{
+	linux_MS_ASYNC      = 1, // sync memory asynchronously
+	linux_MS_INVALIDATE = 2, // invalidate the caches
+	linux_MS_SYNC       = 4, // synchronous memory sync
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -678,6 +685,7 @@ static inline LINUX_DEFINE_SYSCALL1_NORET(pipe, linux_fd_t*, fildes)
 static inline LINUX_DEFINE_SYSCALL5_RET(select, int, n, linux_fd_set_t*, inp, linux_fd_set_t*, outp, linux_fd_set_t*, exp, struct linux_timeval_t*, tvp, unsigned int)
 static inline LINUX_DEFINE_SYSCALL0_NORET(sched_yield)
 static inline LINUX_DEFINE_SYSCALL5_RET(mremap, void*, addr, size_t, old_len, size_t, new_len, unsigned long, flags, void*, new_addr, void*)
+static inline LINUX_DEFINE_SYSCALL3_NORET(msync, void*, start, size_t, len, int, flags)
 
 // Syscalls
 //------------------------------------------------------------------------------
