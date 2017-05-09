@@ -37,7 +37,7 @@ static inline void do_test(enum TestResult test(void), char const* name, int res
 	{
 		case TEST_RESULT_SUCCESS: printf(u8"\x1B[32mSUCCESS\x1B[0m\n"); break;
 		case TEST_RESULT_FAILURE: printf(u8"\x1B[31mFAILURE\x1B[0m\n"); break;
-		default: printf(u8"OTHER FAILURE\n"); break;
+		default: printf(u8"\x1B[31mOTHER FAILURE\x1B[0m\n"); break;
 	}
 
 	if (ret)
