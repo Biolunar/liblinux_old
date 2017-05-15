@@ -67,7 +67,7 @@ static enum TestResult test_set_new(void)
 	{
 		.sa_handler = &normal_handler,
 		.sa_flags = linux_SA_RESTORER,
-		.sa_restorer = linux_restorer,
+		.sa_restorer = linux_rt_restorer,
 		.sa_mask = empty,
 	};
 	if (linux_rt_sigaction(linux_SIGUSR1, &new, 0, size))
@@ -98,7 +98,7 @@ static enum TestResult test_set_siginfo(void)
 	{
 		.sa_handler = (linux_sighandler_t)&siginfo_handler,
 		.sa_flags = linux_SA_RESTORER | linux_SA_SIGINFO,
-		.sa_restorer = linux_restorer,
+		.sa_restorer = linux_rt_restorer,
 		.sa_mask = empty,
 	};
 	if (linux_rt_sigaction(linux_SIGUSR1, &new, 0, size))
