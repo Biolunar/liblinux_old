@@ -686,6 +686,7 @@ static inline LINUX_DEFINE_SYSCALL5_RET(select, int, n, linux_fd_set_t*, inp, li
 static inline LINUX_DEFINE_SYSCALL0_NORET(sched_yield)
 static inline LINUX_DEFINE_SYSCALL5_RET(mremap, void*, addr, size_t, old_len, size_t, new_len, unsigned long, flags, void*, new_addr, void*)
 static inline LINUX_DEFINE_SYSCALL3_NORET(msync, void*, start, size_t, len, int, flags)
+static inline LINUX_DEFINE_SYSCALL3_NORET(mincore, void*, start, size_t, len, unsigned char*, vec)
 
 // Syscalls
 //------------------------------------------------------------------------------
