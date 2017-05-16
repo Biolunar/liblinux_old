@@ -555,6 +555,27 @@ enum
 	linux_MS_SYNC       = 4, // synchronous memory sync
 };
 
+enum
+{
+	linux_MADV_NORMAL       =   0, // no further special treatment
+	linux_MADV_RANDOM       =   1, // expect random page references
+	linux_MADV_SEQUENTIAL   =   2, // expect sequential page references
+	linux_MADV_WILLNEED     =   3, // will need these pages
+	linux_MADV_DONTNEED     =   4, // don't need these pages
+	linux_MADV_FREE         =   8, // free pages only if memory pressure
+	linux_MADV_REMOVE       =   9, // remove these pages & resources
+	linux_MADV_DONTFORK     =  10, // don't inherit across fork
+	linux_MADV_DOFORK       =  11, // do inherit across fork
+	linux_MADV_HWPOISON     = 100, // poison a page for testing
+	linux_MADV_SOFT_OFFLINE = 101, // soft offline page for testing
+	linux_MADV_MERGEABLE    =  12, // KSM may merge identical pages
+	linux_MADV_UNMERGEABLE  =  13, // KSM may not merge identical pages
+	linux_MADV_HUGEPAGE     =  14, // Worth backing with hugepages
+	linux_MADV_NOHUGEPAGE   =  15, // Not worth backing with hugepages
+	linux_MADV_DONTDUMP     =  16, // Explicity exclude from the core dump, overrides the coredump filter bits
+	linux_MADV_DODUMP       =  17, // Clear the MADV_DONTDUMP flag
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -687,6 +708,7 @@ static inline LINUX_DEFINE_SYSCALL0_NORET(sched_yield)
 static inline LINUX_DEFINE_SYSCALL5_RET(mremap, void*, addr, size_t, old_len, size_t, new_len, unsigned long, flags, void*, new_addr, void*)
 static inline LINUX_DEFINE_SYSCALL3_NORET(msync, void*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL3_NORET(mincore, void*, start, size_t, len, unsigned char*, vec)
+static inline LINUX_DEFINE_SYSCALL3_NORET(madvise, void*, start, size_t, len, int, behavior)
 
 // Syscalls
 //------------------------------------------------------------------------------
