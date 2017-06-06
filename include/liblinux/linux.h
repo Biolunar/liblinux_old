@@ -51,6 +51,7 @@ typedef unsigned int linux_fd_t;
 //------------------------------------------------------------------------------
 // Kernel types
 
+typedef unsigned short linux_kernel_mode_t;
 typedef unsigned short linux_umode_t;
 typedef long long linux_kernel_long_t;
 typedef unsigned long long linux_kernel_ulong_t;
@@ -58,6 +59,7 @@ typedef linux_kernel_long_t linux_kernel_off_t;
 typedef linux_kernel_off_t linux_off_t;
 typedef int linux_kernel_pid_t;
 typedef unsigned int linux_kernel_uid32_t;
+typedef unsigned int linux_kernel_gid32_t;
 typedef linux_kernel_uid32_t linux_arch_si_uid_t;
 typedef int linux_kernel_timer_t;
 typedef linux_kernel_long_t linux_kernel_clock_t;
@@ -69,6 +71,8 @@ typedef long long linux_kernel_loff_t;
 typedef linux_kernel_loff_t linux_loff_t;
 typedef linux_kernel_long_t linux_kernel_time_t;
 typedef linux_kernel_long_t linux_kernel_suseconds_t;
+typedef int linux_kernel_key_t;
+typedef linux_kernel_key_t linux_key_t;
 struct linux_stat_t
 {
 	linux_kernel_ulong_t st_dev;
@@ -306,6 +310,56 @@ struct linux_timeval_t
 {
 	linux_kernel_time_t      tv_sec;  // seconds
 	linux_kernel_suseconds_t tv_usec; // microseconds
+};
+struct linux_ipc64_perm
+{
+	linux_kernel_key_t key;
+	linux_kernel_uid32_t uid;
+	linux_kernel_gid32_t gid;
+	linux_kernel_uid32_t cuid;
+	linux_kernel_gid32_t cgid;
+	linux_kernel_mode_t mode;
+	// pad if mode_t is u16:
+	unsigned char _pad1[4 - sizeof(linux_kernel_mode_t)];
+	unsigned short seq;
+	unsigned char _pad2[6];
+	linux_kernel_ulong_t _unused1;
+	linux_kernel_ulong_t _unused2;
+};
+struct linux_shmid64_ds
+{
+	struct linux_ipc64_perm shm_perm; // operation perms
+	size_t shm_segsz; // size of segment (bytes)
+	linux_kernel_time_t shm_atime; // last attach time
+	linux_kernel_time_t shm_dtime; // last detach time
+	linux_kernel_time_t shm_ctime; // last change time
+	linux_kernel_pid_t shm_cpid; //  of creator
+	linux_kernel_pid_t shm_lpid; //  of last operator
+	linux_kernel_ulong_t shm_nattch; // no. of current attaches
+	linux_kernel_ulong_t _unused4;
+	linux_kernel_ulong_t _unused5;
+};
+struct linux_shminfo64
+{
+	linux_kernel_ulong_t shmmax;
+	linux_kernel_ulong_t shmmin;
+	linux_kernel_ulong_t shmmni;
+	linux_kernel_ulong_t shmseg;
+	linux_kernel_ulong_t shmall;
+	linux_kernel_ulong_t _unused1;
+	linux_kernel_ulong_t _unused2;
+	linux_kernel_ulong_t _unused3;
+	linux_kernel_ulong_t _unused4;
+};
+struct linux_shm_info
+{
+	int used_ids;
+	unsigned char _pad[4];
+	linux_kernel_ulong_t shm_tot; // total allocated shm
+	linux_kernel_ulong_t shm_rss; // total resident shm
+	linux_kernel_ulong_t shm_swp; // total swapped shm
+	linux_kernel_ulong_t swap_attempts;
+	linux_kernel_ulong_t swap_successes;
 };
 
 // Kernel types
@@ -576,6 +630,80 @@ enum
 	linux_MADV_DODUMP       =  17, // Clear the MADV_DONTDUMP flag
 };
 
+enum
+{
+	linux_IPC_PRIVATE = 0,
+};
+
+enum
+{
+	// resource get request flags
+	linux_IPC_CREAT  = 00001000, // create if key is nonexistent
+	linux_IPC_EXCL   = 00002000, // fail if key exists
+	linux_IPC_NOWAIT = 00004000, // return error on wait
+
+	// Control commands used with semctl, msgctl and shmctl
+	// see also specific commands in sem.h, msg.h and shm.h
+	linux_IPC_RMID   = 0, // remove resource
+	linux_IPC_SET    = 1, // set ipc_perm options
+	linux_IPC_STAT   = 2, // get ipc_perm options
+	linux_IPC_INFO   = 3, // see ipcs
+};
+
+enum
+{
+	linux_SHMMIN = 1, // min shared seg size (bytes)
+	linux_SHMMNI = 4096, // max num of segs system wide
+#define linux_SHMMAX   (ULONG_MAX - (1ul << 24)) // max shared seg size (bytes)
+#define linux_SHMALL   (ULONG_MAX - (1ul << 24)) // max shm system wide (pages)
+	linux_SHMSEG = linux_SHMMNI, // max shared segs per process
+};
+
+enum
+{
+	// permission flag for shmget
+	linux_SHM_R      = 0400, // or S_IRUGO from <linux/stat.h>
+	linux_SHM_W      = 0200, // or S_IWUGO from <linux/stat.h>
+
+	// mode for attach
+	linux_SHM_RDONLY = 010000, // read-only access
+	linux_SHM_RND    = 020000, // round attach address to SHMLBA boundary
+	linux_SHM_REMAP  = 040000, // take-over region on attach
+	linux_SHM_EXEC   = 0100000, // execution access
+
+	// super user shmctl commands
+	linux_SHM_LOCK   = 11,
+	linux_SHM_UNLOCK = 12,
+
+	// ipcs ctl commands
+	linux_SHM_STAT   = 13,
+	linux_SHM_INFO   = 14,
+
+	// shm_mode upper byte flags
+	linux_SHM_DEST      = 01000, // egment will be destroyed on last detach
+	linux_SHM_LOCKED    = 02000, // segment will not be swapped
+	linux_SHM_HUGETLB   = 04000, // segment will use huge TLB pages
+	linux_SHM_NORESERVE = 010000, // don't check for reservations
+
+	// Bits [26:31] are reserved
+
+	// When SHM_HUGETLB is set bits [26:31] encode the log2 of the huge page size.
+	// This gives us 6 bits, which is enough until someone invents 128 bit address
+	// spaces.
+	//
+	// Assume these are all power of twos.
+	// When 0 use the default page size.
+#define linux_SHM_HUGE_SHIFT  26
+	linux_SHM_HUGE_2MB  = (21 << linux_SHM_HUGE_SHIFT),
+	linux_SHM_HUGE_1GB  = (30 << linux_SHM_HUGE_SHIFT),
+};
+
+enum
+{
+	linux_PAGE_SIZE = 4096,
+	linux_SHMLBA = linux_PAGE_SIZE,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -709,6 +837,11 @@ static inline LINUX_DEFINE_SYSCALL5_RET(mremap, void*, addr, size_t, old_len, si
 static inline LINUX_DEFINE_SYSCALL3_NORET(msync, void*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL3_NORET(mincore, void*, start, size_t, len, unsigned char*, vec)
 static inline LINUX_DEFINE_SYSCALL3_NORET(madvise, void*, start, size_t, len, int, behavior)
+static inline LINUX_DEFINE_SYSCALL3_RET(shmget, linux_key_t, key, size_t, size, int, flag, int)
+static inline LINUX_DEFINE_SYSCALL3_RET(shmat, int, shmid, void*, shmaddr, int, shmflg, void*)
+static inline LINUX_DEFINE_SYSCALL3_RET(shmctl, int, shmid, int, cmd, struct linux_shmid64_ds*, buf, int)
+// Insert more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL1_NORET(shmdt, void*, shmaddr)
 
 // Syscalls
 //------------------------------------------------------------------------------
