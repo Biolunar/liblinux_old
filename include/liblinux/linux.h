@@ -840,6 +840,8 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(madvise, void*, start, size_t, len, in
 static inline LINUX_DEFINE_SYSCALL3_RET(shmget, linux_key_t, key, size_t, size, int, flag, int)
 static inline LINUX_DEFINE_SYSCALL3_RET(shmat, int, shmid, void*, shmaddr, int, shmflg, void*)
 static inline LINUX_DEFINE_SYSCALL3_RET(shmctl, int, shmid, int, cmd, struct linux_shmid64_ds*, buf, int)
+static inline LINUX_DEFINE_SYSCALL1_RET(dup, linux_fd_t, fildes, linux_fd_t)
+static inline LINUX_DEFINE_SYSCALL2_RET(dup2, linux_fd_t, oldfd, linux_fd_t, newfd, linux_fd_t)
 // Insert more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_NORET(shmdt, void*, shmaddr)
 
