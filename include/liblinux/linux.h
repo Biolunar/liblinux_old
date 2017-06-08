@@ -58,6 +58,7 @@ typedef unsigned long long linux_kernel_ulong_t;
 typedef linux_kernel_long_t linux_kernel_off_t;
 typedef linux_kernel_off_t linux_off_t;
 typedef int linux_kernel_pid_t;
+typedef linux_kernel_pid_t linux_pid_t;
 typedef unsigned int linux_kernel_uid32_t;
 typedef unsigned int linux_kernel_gid32_t;
 typedef linux_kernel_uid32_t linux_arch_si_uid_t;
@@ -842,6 +843,9 @@ static inline LINUX_DEFINE_SYSCALL3_RET(shmat, int, shmid, void*, shmaddr, int, 
 static inline LINUX_DEFINE_SYSCALL3_RET(shmctl, int, shmid, int, cmd, struct linux_shmid64_ds*, buf, int)
 static inline LINUX_DEFINE_SYSCALL1_RET(dup, linux_fd_t, fildes, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_RET(dup2, linux_fd_t, oldfd, linux_fd_t, newfd, linux_fd_t)
+static inline LINUX_DEFINE_SYSCALL0_NORET(pause)
+// Insert more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL2_NORET(kill, linux_pid_t, pid, int, sig)
 // Insert more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_NORET(shmdt, void*, shmaddr)
 
