@@ -362,6 +362,11 @@ struct linux_shm_info
 	linux_kernel_ulong_t swap_attempts;
 	linux_kernel_ulong_t swap_successes;
 };
+struct linux_timespec_t
+{
+	linux_kernel_time_t tv_sec;
+	long tv_nsec;
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -844,6 +849,7 @@ static inline LINUX_DEFINE_SYSCALL3_RET(shmctl, int, shmid, int, cmd, struct lin
 static inline LINUX_DEFINE_SYSCALL1_RET(dup, linux_fd_t, fildes, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_RET(dup2, linux_fd_t, oldfd, linux_fd_t, newfd, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL0_NORET(pause)
+static inline LINUX_DEFINE_SYSCALL2_NORET(nanosleep, struct linux_timespec_t const*, rqtp, struct linux_timespec_t*, rmtp) // The first argument is const despite being non-const in the kernel declaration. The syscall does not modify that variable.
 // Insert more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(kill, linux_pid_t, pid, int, sig)
 // Insert more syscalls here first.
