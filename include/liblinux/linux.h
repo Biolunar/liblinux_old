@@ -40,6 +40,16 @@
  * intptr_t, uintptr_t
  */
 
+// Some syscalls do not modify a parameter but are passed as non-const
+// pointers in the kernel sources. Define this macro so that our syscalls also
+// expect non-const pointers. Do not define this macro if you wish to have const
+// correctness.
+#ifdef LINUX_NO_SAFE_CONST
+#define LINUX_SAFE_CONST
+#else
+#define LINUX_SAFE_CONST const
+#endif // LINUX_NO_SAFE_CONST
+
 //------------------------------------------------------------------------------
 // Custom types
 
@@ -366,6 +376,11 @@ struct linux_timespec_t
 {
 	linux_kernel_time_t tv_sec;
 	long tv_nsec;
+};
+struct linux_itimerval_t
+{
+	struct linux_timeval_t it_interval; // timer interval
+	struct linux_timeval_t it_value; // current value
 };
 
 // Kernel types
@@ -710,6 +725,13 @@ enum
 	linux_SHMLBA = linux_PAGE_SIZE,
 };
 
+enum
+{
+	linux_ITIMER_REAL    = 0,
+	linux_ITIMER_VIRTUAL = 1,
+	linux_ITIMER_PROF    = 2,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -785,7 +807,7 @@ static inline enum linux_error_t linux_sigismember(linux_sigset_t const* const s
 	return linux_error_none;
 }
 
-static inline void linux_FD_ZERO(linux_fd_set_t* set)
+static inline void linux_FD_ZERO(linux_fd_set_t* const set)
 {
 	// Don't use memset here because that needs a libc.
 	unsigned long* p = set->_fds_bits;
@@ -793,17 +815,17 @@ static inline void linux_FD_ZERO(linux_fd_set_t* set)
 		*p++ = 0;
 }
 
-static inline void linux_FD_SET(int fd, linux_fd_set_t* set)
+static inline void linux_FD_SET(int const fd, linux_fd_set_t* const set)
 {
 	set->_fds_bits[(unsigned)fd / (CHAR_BIT * sizeof(long))] |= (1ul << ((unsigned)fd % (CHAR_BIT * sizeof(long))));
 }
 
-static inline void linux_FD_CLR(int fd, linux_fd_set_t* set)
+static inline void linux_FD_CLR(int const fd, linux_fd_set_t* const set)
 {
 	set->_fds_bits[(unsigned)fd / (CHAR_BIT * sizeof(long))] &= ~(1ul << ((unsigned)fd % (CHAR_BIT * sizeof(long))));
 }
 
-static inline bool linux_FD_ISSET(int fd, linux_fd_set_t* set)
+static inline bool linux_FD_ISSET(int const fd, linux_fd_set_t* const set)
 {
 	return set->_fds_bits[(unsigned)fd / (CHAR_BIT * sizeof(long))] & (1ul << ((unsigned)fd % (CHAR_BIT * sizeof(long))));
 }
@@ -823,12 +845,12 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(fstat, linux_fd_t, fd, struct linux_st
 static inline LINUX_DEFINE_SYSCALL2_NORET(lstat, char const*, filename, struct linux_stat_t*, statbuf)
 static inline LINUX_DEFINE_SYSCALL3_RET(poll, struct linux_pollfd_t*, ufds, unsigned int, nfds, int, timeout, unsigned int)
 static inline LINUX_DEFINE_SYSCALL3_RET(lseek, linux_fd_t, fd, linux_off_t, offset, unsigned int, whence, linux_off_t)
-static inline LINUX_DEFINE_SYSCALL6_RET(mmap, void*, addr, size_t, len, unsigned long, prot, unsigned long, flags, linux_fd_t, fd, linux_off_t, off, void*)
-static inline LINUX_DEFINE_SYSCALL3_NORET(mprotect, void*, start, size_t, len, unsigned long, prot)
-static inline LINUX_DEFINE_SYSCALL2_NORET(munmap, void*, addr, size_t, len)
-static inline LINUX_DEFINE_SYSCALL1_RET(brk, void*, brk, void*)
+static inline LINUX_DEFINE_SYSCALL6_RET(mmap, void const*, addr, size_t, len, unsigned long, prot, unsigned long, flags, linux_fd_t, fd, linux_off_t, off, void*)
+static inline LINUX_DEFINE_SYSCALL3_NORET(mprotect, void const*, start, size_t, len, unsigned long, prot)
+static inline LINUX_DEFINE_SYSCALL2_NORET(munmap, void const*, addr, size_t, len)
+static inline LINUX_DEFINE_SYSCALL1_RET(brk, void const*, brk, void*)
 static inline LINUX_DEFINE_SYSCALL4_NORET(rt_sigaction, int, sig, struct linux_sigaction_t const*, act, struct linux_sigaction_t*, oact, size_t, sigsetsize)
-static inline LINUX_DEFINE_SYSCALL4_NORET(rt_sigprocmask, int, how, linux_sigset_t*, set, linux_sigset_t*, oset, size_t, sigsetsize)
+static inline LINUX_DEFINE_SYSCALL4_NORET(rt_sigprocmask, int, how, linux_sigset_t LINUX_SAFE_CONST*, set, linux_sigset_t*, oset, size_t, sigsetsize)
 //rt_sigreturn
 static inline LINUX_DEFINE_SYSCALL3_RET(ioctl, linux_fd_t, fd, unsigned int, cmd, uintptr_t, arg, unsigned int)
 static inline LINUX_DEFINE_SYSCALL4_RET(pread64, linux_fd_t, fd, void*, buf, size_t, count, linux_loff_t, pos, size_t)
@@ -839,21 +861,23 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(access, char const*, filename, int, mo
 static inline LINUX_DEFINE_SYSCALL1_NORET(pipe, linux_fd_t*, fildes)
 static inline LINUX_DEFINE_SYSCALL5_RET(select, int, n, linux_fd_set_t*, inp, linux_fd_set_t*, outp, linux_fd_set_t*, exp, struct linux_timeval_t*, tvp, unsigned int)
 static inline LINUX_DEFINE_SYSCALL0_NORET(sched_yield)
-static inline LINUX_DEFINE_SYSCALL5_RET(mremap, void*, addr, size_t, old_len, size_t, new_len, unsigned long, flags, void*, new_addr, void*)
-static inline LINUX_DEFINE_SYSCALL3_NORET(msync, void*, start, size_t, len, int, flags)
-static inline LINUX_DEFINE_SYSCALL3_NORET(mincore, void*, start, size_t, len, unsigned char*, vec)
-static inline LINUX_DEFINE_SYSCALL3_NORET(madvise, void*, start, size_t, len, int, behavior)
+static inline LINUX_DEFINE_SYSCALL5_RET(mremap, void const*, addr, size_t, old_len, size_t, new_len, unsigned long, flags, void const*, new_addr, void*)
+static inline LINUX_DEFINE_SYSCALL3_NORET(msync, void const*, start, size_t, len, int, flags)
+static inline LINUX_DEFINE_SYSCALL3_NORET(mincore, void const*, start, size_t, len, unsigned char*, vec)
+static inline LINUX_DEFINE_SYSCALL3_NORET(madvise, void const*, start, size_t, len, int, behavior)
 static inline LINUX_DEFINE_SYSCALL3_RET(shmget, linux_key_t, key, size_t, size, int, flag, int)
-static inline LINUX_DEFINE_SYSCALL3_RET(shmat, int, shmid, void*, shmaddr, int, shmflg, void*)
+static inline LINUX_DEFINE_SYSCALL3_RET(shmat, int, shmid, void LINUX_SAFE_CONST*, shmaddr, int, shmflg, void*)
 static inline LINUX_DEFINE_SYSCALL3_RET(shmctl, int, shmid, int, cmd, struct linux_shmid64_ds*, buf, int)
 static inline LINUX_DEFINE_SYSCALL1_RET(dup, linux_fd_t, fildes, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_RET(dup2, linux_fd_t, oldfd, linux_fd_t, newfd, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL0_NORET(pause)
-static inline LINUX_DEFINE_SYSCALL2_NORET(nanosleep, struct linux_timespec_t const*, rqtp, struct linux_timespec_t*, rmtp) // The first argument is const despite being non-const in the kernel declaration. The syscall does not modify that variable.
+static inline LINUX_DEFINE_SYSCALL2_NORET(nanosleep, struct linux_timespec_t LINUX_SAFE_CONST*, rqtp, struct linux_timespec_t*, rmtp)
+static inline LINUX_DEFINE_SYSCALL2_NORET(getitimer, int, which, struct linux_itimerval_t*, value)
+static inline LINUX_DEFINE_SYSCALL3_NORET(setitimer, int, which, struct linux_itimerval_t  LINUX_SAFE_CONST*, value, struct linux_itimerval_t*, ovalue)
 // Insert more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(kill, linux_pid_t, pid, int, sig)
 // Insert more syscalls here first.
-static inline LINUX_DEFINE_SYSCALL1_NORET(shmdt, void*, shmaddr)
+static inline LINUX_DEFINE_SYSCALL1_NORET(shmdt, void LINUX_SAFE_CONST*, shmaddr)
 
 // Syscalls
 //------------------------------------------------------------------------------
