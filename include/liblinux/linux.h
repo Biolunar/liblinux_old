@@ -875,6 +875,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(nanosleep, struct linux_timespec_t LIN
 static inline LINUX_DEFINE_SYSCALL2_NORET(getitimer, int, which, struct linux_itimerval_t*, value)
 static inline LINUX_DEFINE_SYSCALL1_RET(alarm, unsigned int, seconds, unsigned int)
 static inline LINUX_DEFINE_SYSCALL3_NORET(setitimer, int, which, struct linux_itimerval_t  LINUX_SAFE_CONST*, value, struct linux_itimerval_t*, ovalue)
+static inline LINUX_DEFINE_SYSCALL0_RET(getpid, linux_pid_t)
 // Insert more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(kill, linux_pid_t, pid, int, sig)
 // Insert more syscalls here first.
