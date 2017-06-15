@@ -109,7 +109,7 @@ struct linux_stat_t
 };
 struct linux_pollfd_t
 {
-	int fd;
+	int fd; // TODO: int is used as a file descriptor.
 	short events;
 	short revents;
 };
@@ -192,7 +192,7 @@ struct linux_siginfo_t
 		struct
 		{
 			linux_arch_si_band_t si_band; // POLL_IN, POLL_OUT, POLL_MSG
-			int si_fd;
+			int si_fd; // TODO: int is used as a file descriptor.
 			char _pad[4];
 		} sigpoll;
 
@@ -876,6 +876,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(getitimer, int, which, struct linux_it
 static inline LINUX_DEFINE_SYSCALL1_RET(alarm, unsigned int, seconds, unsigned int)
 static inline LINUX_DEFINE_SYSCALL3_NORET(setitimer, int, which, struct linux_itimerval_t  LINUX_SAFE_CONST*, value, struct linux_itimerval_t*, ovalue)
 static inline LINUX_DEFINE_SYSCALL0_RET(getpid, linux_pid_t)
+static inline LINUX_DEFINE_SYSCALL4_RET(sendfile, linux_fd_t, out_fd, linux_fd_t, in_fd, linux_loff_t, offset, size_t, count, size_t)
 // Insert more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(kill, linux_pid_t, pid, int, sig)
 // Insert more syscalls here first.
