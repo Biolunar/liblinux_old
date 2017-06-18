@@ -732,6 +732,125 @@ enum
 	linux_ITIMER_PROF    = 2,
 };
 
+enum
+{
+	linux_AF_UNSPEC     =  0,
+	linux_AF_UNIX       =  1, // Unix domain sockets
+	linux_AF_LOCAL      =  1, // POSIX name for AF_UNIX
+	linux_AF_INET       =  2, // Internet IP Protocol
+	linux_AF_AX25       =  3, // Amateur Radio AX.25
+	linux_AF_IPX        =  4, // Novell IPX
+	linux_AF_APPLETALK  =  5, // AppleTalk DDP
+	linux_AF_NETROM     =  6, // Amateur Radio NET/ROM
+	linux_AF_BRIDGE     =  7, // Multiprotocol bridge
+	linux_AF_ATMPVC     =  8, // ATM PVCs
+	linux_AF_X25        =  9, // Reserved for X.25 project
+	linux_AF_INET6      = 10, // IP version 6
+	linux_AF_ROSE       = 11, // Amateur Radio X.25 PLP
+	linux_AF_DECnet     = 12, // Reserved for DECnet project
+	linux_AF_NETBEUI    = 13, // Reserved for 802.2LLC project
+	linux_AF_SECURITY   = 14, // Security callback pseudo AF
+	linux_AF_KEY        = 15, // PF_KEY key management API
+	linux_AF_NETLINK    = 16,
+	linux_AF_ROUTE      = linux_AF_NETLINK, // Alias to emulate 4.4BSD
+	linux_AF_PACKET     = 17, // Packet family
+	linux_AF_ASH        = 18, // Ash
+	linux_AF_ECONET     = 19, // Acorn Econet
+	linux_AF_ATMSVC     = 20, // ATM SVCs
+	linux_AF_RDS        = 21, // RDS sockets
+	linux_AF_SNA        = 22, // Linux SNA Project (nutters!)
+	linux_AF_IRDA       = 23, // IRDA sockets
+	linux_AF_PPPOX      = 24, // PPPoX sockets
+	linux_AF_WANPIPE    = 25, // Wanpipe API Sockets
+	linux_AF_LLC        = 26, // Linux LLC
+	linux_AF_IB         = 27, // Native InfiniBand address
+	linux_AF_MPLS       = 28, // MPLS
+	linux_AF_CAN        = 29, // Controller Area Network
+	linux_AF_TIPC       = 30, // TIPC sockets
+	linux_AF_BLUETOOTH  = 31, // Bluetooth sockets
+	linux_AF_IUCV       = 32, // IUCV sockets
+	linux_AF_RXRPC      = 33, // RxRPC sockets
+	linux_AF_ISDN       = 34, // mISDN sockets
+	linux_AF_PHONET     = 35, // Phonet sockets
+	linux_AF_IEEE802154 = 36, // IEEE802154 sockets
+	linux_AF_CAIF       = 37, // CAIF sockets
+	linux_AF_ALG        = 38, // Algorithm sockets
+	linux_AF_NFC        = 39, // NFC sockets
+	linux_AF_VSOCK      = 40, // vSockets
+	linux_AF_KCM        = 41, // Kernel Connection Multiplexo
+	linux_AF_QIPCRTR    = 42, // Qualcomm IPC Router
+	linux_AF_SMC        = 43, // smc sockets: reserve number for
+	                          //     PF_SMC protocol family that
+	                          //     reuses AF_INET address family
+
+	linux_AF_MAX        = 44, // For now..
+};
+
+enum
+{
+	linux_PF_UNSPEC     = linux_AF_UNSPEC,
+	linux_PF_UNIX       = linux_AF_UNIX,
+	linux_PF_LOCAL      = linux_AF_LOCAL,
+	linux_PF_INET       = linux_AF_INET,
+	linux_PF_AX25       = linux_AF_AX25,
+	linux_PF_IPX        = linux_AF_IPX,
+	linux_PF_APPLETALK  = linux_AF_APPLETALK,
+	linux_PF_NETROM     = linux_AF_NETROM,
+	linux_PF_BRIDGE     = linux_AF_BRIDGE,
+	linux_PF_ATMPVC     = linux_AF_ATMPVC,
+	linux_PF_X25        = linux_AF_X25,
+	linux_PF_INET6      = linux_AF_INET6,
+	linux_PF_ROSE       = linux_AF_ROSE,
+	linux_PF_DECnet     = linux_AF_DECnet,
+	linux_PF_NETBEUI    = linux_AF_NETBEUI,
+	linux_PF_SECURITY   = linux_AF_SECURITY,
+	linux_PF_KEY        = linux_AF_KEY,
+	linux_PF_NETLINK    = linux_AF_NETLINK,
+	linux_PF_ROUTE      = linux_AF_ROUTE,
+	linux_PF_PACKET     = linux_AF_PACKET,
+	linux_PF_ASH        = linux_AF_ASH,
+	linux_PF_ECONET     = linux_AF_ECONET,
+	linux_PF_ATMSVC     = linux_AF_ATMSVC,
+	linux_PF_RDS        = linux_AF_RDS,
+	linux_PF_SNA        = linux_AF_SNA,
+	linux_PF_IRDA       = linux_AF_IRDA,
+	linux_PF_PPPOX      = linux_AF_PPPOX,
+	linux_PF_WANPIPE    = linux_AF_WANPIPE,
+	linux_PF_LLC        = linux_AF_LLC,
+	linux_PF_IB         = linux_AF_IB,
+	linux_PF_MPLS       = linux_AF_MPLS,
+	linux_PF_CAN        = linux_AF_CAN,
+	linux_PF_TIPC       = linux_AF_TIPC,
+	linux_PF_BLUETOOTH  = linux_AF_BLUETOOTH,
+	linux_PF_IUCV       = linux_AF_IUCV,
+	linux_PF_RXRPC      = linux_AF_RXRPC,
+	linux_PF_ISDN       = linux_AF_ISDN,
+	linux_PF_PHONET     = linux_AF_PHONET,
+	linux_PF_IEEE802154 = linux_AF_IEEE802154,
+	linux_PF_CAIF       = linux_AF_CAIF,
+	linux_PF_ALG        = linux_AF_ALG,
+	linux_PF_NFC        = linux_AF_NFC,
+	linux_PF_VSOCK      = linux_AF_VSOCK,
+	linux_PF_KCM        = linux_AF_KCM,
+	linux_PF_QIPCRTR    = linux_AF_QIPCRTR,
+	linux_PF_SMC        = linux_AF_SMC,
+	linux_PF_MAX        = linux_AF_MAX,
+};
+
+enum
+{
+	linux_SOCK_STREAM    =  1,
+	linux_SOCK_DGRAM     =  2,
+	linux_SOCK_RAW       =  3,
+	linux_SOCK_RDM       =  4,
+	linux_SOCK_SEQPACKET =  5,
+	linux_SOCK_DCCP      =  6,
+	linux_SOCK_PACKET    = 10,
+
+	linux_SOCK_CLOEXEC   = linux_O_CLOEXEC,
+	linux_SOCK_NONBLOCK  = linux_O_NONBLOCK,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -877,6 +996,7 @@ static inline LINUX_DEFINE_SYSCALL1_RET(alarm, unsigned int, seconds, unsigned i
 static inline LINUX_DEFINE_SYSCALL3_NORET(setitimer, int, which, struct linux_itimerval_t  LINUX_SAFE_CONST*, value, struct linux_itimerval_t*, ovalue)
 static inline LINUX_DEFINE_SYSCALL0_RET(getpid, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(sendfile, linux_fd_t, out_fd, linux_fd_t, in_fd, linux_loff_t, offset, size_t, count, size_t)
+static inline LINUX_DEFINE_SYSCALL3_RET(socket, int, family, int, type, int, protocol, linux_fd_t)
 // Insert more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(kill, linux_pid_t, pid, int, sig)
 // Insert more syscalls here first.
