@@ -851,6 +851,47 @@ enum
 	linux_SOCK_NONBLOCK  = linux_O_NONBLOCK,
 };
 
+enum
+{
+	linux_IPPROTO_IP      =   0, // Dummy protocol for TCP
+	linux_IPPROTO_ICMP    =   1, // Internet Control Message Protocol
+	linux_IPPROTO_IGMP    =   2, // Internet Group Management Protocol
+	linux_IPPROTO_IPIP    =   4, // IPIP tunnels (older KA9Q tunnels use 94)
+	linux_IPPROTO_TCP     =   6, // Transmission Control Protocol
+	linux_IPPROTO_EGP     =   8, // Exterior Gateway Protocol
+	linux_IPPROTO_PUP     =  12, // PUP protocol
+	linux_IPPROTO_UDP     =  17, // User Datagram Protocol
+	linux_IPPROTO_IDP     =  22, // XNS IDP protocol
+	linux_IPPROTO_TP      =  29, // SO Transport Protocol Class 4
+	linux_IPPROTO_DCCP    =  33, // Datagram Congestion Control Protocol
+	linux_IPPROTO_IPV6    =  41, // IPv6-in-IPv4 tunnelling
+	linux_IPPROTO_RSVP    =  46, // RSVP Protocol
+	linux_IPPROTO_GRE     =  47, // Cisco GRE tunnels (rfc 1701,1702)
+	linux_IPPROTO_ESP     =  50, // Encapsulation Security Payload protocol
+	linux_IPPROTO_AH      =  51, // Authentication Header protocol
+	linux_IPPROTO_MTP     =  92, // Multicast Transport Protocol
+	linux_IPPROTO_BEETPH  =  94, // IP option pseudo header for BEET
+	linux_IPPROTO_ENCAP   =  98, // Encapsulation Header
+	linux_IPPROTO_PIM     = 103, // Protocol Independent Multicast
+	linux_IPPROTO_COMP    = 108, // Compression Header Protocol
+	linux_IPPROTO_SCTP    = 132, // Stream Control Transport Protocol
+	linux_IPPROTO_UDPLITE = 136, // UDP-Lite (RFC 3828)
+	linux_IPPROTO_MPLS    = 137, // MPLS in IP (RFC 4023)
+	linux_IPPROTO_RAW     = 255, // Raw IP packets
+	linux_IPPROTO_MAX
+};
+
+enum
+{
+	linux_IPPROTO_HOPOPTS  =   0, // IPv6 hop-by-hop options
+	linux_IPPROTO_ROUTING  =  43, // IPv6 routing header
+	linux_IPPROTO_FRAGMENT =  44, // IPv6 fragmentation header
+	linux_IPPROTO_ICMPV6   =  58, // ICMPv6
+	linux_IPPROTO_NONE     =  59, // IPv6 no next header
+	linux_IPPROTO_DSTOPTS  =  60, // IPv6 destination options
+	linux_IPPROTO_MH       = 135, // IPv6 mobility header
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
