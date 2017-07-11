@@ -20,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdalign.h>
 #include <limits.h>
 
 #include <linux_syscall/syscall.h>
@@ -84,6 +85,8 @@ typedef linux_kernel_long_t linux_kernel_time_t;
 typedef linux_kernel_long_t linux_kernel_suseconds_t;
 typedef int linux_kernel_key_t;
 typedef linux_kernel_key_t linux_key_t;
+typedef unsigned short linux_kernel_sa_family_t;
+typedef linux_kernel_sa_family_t linux_sa_family_t;
 struct linux_stat_t
 {
 	linux_kernel_ulong_t st_dev;
@@ -381,6 +384,58 @@ struct linux_itimerval_t
 {
 	struct linux_timeval_t it_interval; // timer interval
 	struct linux_timeval_t it_value; // current value
+};
+struct linux_sockaddr_t
+{
+	linux_sa_family_t sa_family; // address family, AF_xxx
+	char sa_data[14]; // 14 bytes of protocol address
+};
+struct linux_sockaddr_storage_t
+{
+	alignas(struct linux_sockaddr_t*) linux_kernel_sa_family_t ss_family; // address family
+	// Following field(s) are implementation specific
+	char _data[128 - sizeof(linux_kernel_sa_family_t)];
+		// space to achieve desired size,
+		// 128 minus size of ss_family
+};
+_Static_assert(alignof(struct linux_sockaddr_storage_t) == alignof(struct linux_sockaddr_t*), "Structure alignment missmatch. This is a bug in a liblinux header.");
+struct linux_in_addr_t
+{
+	uint32_t s_addr;
+};
+_Static_assert(sizeof(struct linux_in_addr_t) >= 4, "IPv4 address struct size is not large enough. This is a bug in a liblinux header.");
+struct linux_sockaddr_in_t
+{
+	linux_kernel_sa_family_t sin_family; // Address family
+	uint16_t sin_port; // Port number
+	struct linux_in_addr_t sin_addr; // Internet address
+
+	// Pad to size of `struct linux_sockaddr_t'.
+	unsigned char _pad[sizeof(struct linux_sockaddr_t) - sizeof(linux_kernel_sa_family_t) - sizeof(uint16_t) - sizeof(struct linux_in_addr_t)];
+};
+_Static_assert(sizeof(struct linux_sockaddr_t) == sizeof(struct linux_sockaddr_in_t), "Struct size missmatch. This is a bug in a liblinux header.");
+struct linux_in6_addr_t
+{
+	union
+	{
+		uint8_t s6_addr[16];
+		uint16_t s6_addr16[8];
+		uint32_t s6_addr32[4];
+	};
+};
+_Static_assert(sizeof(struct linux_in6_addr_t) >= 16, "IPv6 address struct size is not large enough. This is a bug in a liblinux header.");
+struct linux_sockaddr_in6_t
+{
+	unsigned short sin6_family; // AF_INET6
+	uint16_t sin6_port; // Transport layer port #
+	uint32_t sin6_flowinfo; // IPv6 flow information
+	struct linux_in6_addr_t sin6_addr; // IPv6 address
+	uint32_t sin6_scope_id; // scope id (new in RFC2553)
+};
+struct linux_sockaddr_un_t
+{
+	linux_kernel_sa_family_t sun_family; // AF_UNIX
+	char sun_path[108]; // pathname
 };
 
 // Kernel types
@@ -892,6 +947,24 @@ enum
 	linux_IPPROTO_MH       = 135, // IPv6 mobility header
 };
 
+enum
+{
+	linux_INET_ADDRSTRLEN  = 16,
+	linux_INET6_ADDRSTRLEN = 48,
+};
+
+#define linux_INADDR_ANY       UINT32_C(0x00000000) // Address to accept any incoming messages.
+#define linux_INADDR_BROADCAST UINT32_C(0xFFFFFFFF) // Address to send to all hosts.
+#define linux_INADDR_NONE      UINT32_C(0xFFFFFFFF) // Address indicating an error return.
+
+#define linux_IN6ADDR_ANY_INIT                       { { {    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } } }
+#define linux_IN6ADDR_LOOPBACK_INIT                  { { {    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } }
+#define linux_IN6ADDR_LINKLOCAL_ALLNODES_INIT        { { { 0xFF,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } }
+#define linux_IN6ADDR_LINKLOCAL_ALLROUTERS_INIT      { { { 0xFF,2,0,0,0,0,0,0,0,0,0,0,0,0,0,2 } } }
+#define linux_IN6ADDR_INTERFACELOCAL_ALLNODES_INIT   { { { 0xFF,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } }
+#define linux_IN6ADDR_INTERFACELOCAL_ALLROUTERS_INIT { { { 0xFF,1,0,0,0,0,0,0,0,0,0,0,0,0,0,2 } } }
+#define linux_IN6ADDR_SITELOCAL_ALLROUTERS_INIT      { { { 0xFF,5,0,0,0,0,0,0,0,0,0,0,0,0,0,2 } } }
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -1038,6 +1111,7 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(setitimer, int, which, struct linux_it
 static inline LINUX_DEFINE_SYSCALL0_RET(getpid, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(sendfile, linux_fd_t, out_fd, linux_fd_t, in_fd, linux_loff_t, offset, size_t, count, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(socket, int, family, int, type, int, protocol, linux_fd_t)
+static inline LINUX_DEFINE_SYSCALL3_NORET(connect, linux_fd_t, fd, struct linux_sockaddr_t LINUX_SAFE_CONST*, uservaddr, int, addrlen)
 // Insert more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(kill, linux_pid_t, pid, int, sig)
 // Insert more syscalls here first.
