@@ -385,6 +385,25 @@ struct linux_itimerval_t
 	struct linux_timeval_t it_interval; // timer interval
 	struct linux_timeval_t it_value; // current value
 };
+struct linux_rusage_t
+{
+	struct linux_timeval_t ru_utime; // user time used
+	struct linux_timeval_t ru_stime; // ystem time used
+	linux_kernel_long_t ru_maxrss; // aximum resident set size
+	linux_kernel_long_t ru_ixrss; // ntegral shared memory size
+	linux_kernel_long_t ru_idrss; // ntegral unshared data size
+	linux_kernel_long_t ru_isrss; // ntegral unshared stack size
+	linux_kernel_long_t ru_minflt; // age reclaims
+	linux_kernel_long_t ru_majflt; // age faults
+	linux_kernel_long_t ru_nswap; // waps
+	linux_kernel_long_t ru_inblock; // lock input operations
+	linux_kernel_long_t ru_oublock; // lock output operations
+	linux_kernel_long_t ru_msgsnd; // essages sent
+	linux_kernel_long_t ru_msgrcv; // essages received
+	linux_kernel_long_t ru_nsignals; // ignals received
+	linux_kernel_long_t ru_nvcsw; // voluntary context switches
+	linux_kernel_long_t ru_nivcsw; // involuntary context switches
+};
 struct linux_sockaddr_t
 {
 	linux_sa_family_t sa_family; // address family, AF_xxx
@@ -789,6 +808,26 @@ enum
 
 enum
 {
+	linux_WNOHANG    = 0x00000001,
+	linux_WUNTRACED  = 0x00000002,
+	linux_WSTOPPED   = linux_WUNTRACED,
+	linux_WEXITED    = 0x00000004,
+	linux_WCONTINUED = 0x00000008,
+	linux_WNOWAIT    = 0x01000000, // Don't reap, just poll status.
+	linux_WNOTHREAD  = 0x20000000, // Don't wait on children of other threads in this group
+	linux_WALL       = 0x40000000, // Wait on all children, regardless of type
+	linux_WCLONE     = INT_MIN, // Wait only on non-SIGCHLD children. INT_MIN is a workaround for the value 0x80000000 as a signed int.
+};
+
+enum
+{
+	linux_P_ALL  = 0,
+	linux_P_PID  = 1,
+	linux_P_PGID = 2,
+};
+
+enum
+{
 	linux_AF_UNSPEC     =  0,
 	linux_AF_UNIX       =  1, // Unix domain sockets
 	linux_AF_LOCAL      =  1, // POSIX name for AF_UNIX
@@ -1063,6 +1102,46 @@ static inline bool linux_FD_ISSET(int const fd, linux_fd_set_t* const set)
 	return set->_fds_bits[(unsigned)fd / (CHAR_BIT * sizeof(long))] & (1ul << ((unsigned)fd % (CHAR_BIT * sizeof(long))));
 }
 
+// Status bits
+// -----------
+// Bits  1– 7: signal number
+// Bit      8: core dump
+// Bits  9–16: exit code
+// Bits 17–32: unknown
+
+static inline uint8_t linux_WEXITSTATUS(int const status)
+{
+	return (status & 0xFF00) >> 8;
+}
+static inline uint8_t linux_WTERMSIG(int const status)
+{
+	return status & 0x7F;
+}
+static inline uint8_t linux_WSTOPSIG(int const status)
+{
+	return linux_WEXITSTATUS(status);
+}
+static inline bool linux_WIFEXITED(int const status)
+{
+	return !linux_WTERMSIG(status);
+}
+static inline bool linux_WIFSTOPPED(int const status)
+{
+	return (status & 0xFF) == 0x7F;
+}
+static inline bool linux_WIFSIGNALED(int const status)
+{
+	return (status & 0xFFFF) - 1u < 0xFFu;
+}
+static inline bool linux_WCOREDUMP(int const status)
+{
+	return status & 0x80;
+}
+static inline bool linux_WIFCONTINUED(int const status)
+{
+	return status == 0xFFFF;
+}
+
 // Helper functions
 //------------------------------------------------------------------------------
 
@@ -1112,9 +1191,11 @@ static inline LINUX_DEFINE_SYSCALL0_RET(getpid, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(sendfile, linux_fd_t, out_fd, linux_fd_t, in_fd, linux_loff_t, offset, size_t, count, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(socket, int, family, int, type, int, protocol, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL3_NORET(connect, linux_fd_t, fd, struct linux_sockaddr_t LINUX_SAFE_CONST*, uservaddr, int, addrlen)
-// Insert more syscalls here first.
+// TODO: Insert more syscalls here first.
+//exit
+static inline LINUX_DEFINE_SYSCALL4_RET(wait4, linux_pid_t, pid, int*, stat_addr, int, options, struct linux_rusage_t*, ru, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(kill, linux_pid_t, pid, int, sig)
-// Insert more syscalls here first.
+// TODO: Insert more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_NORET(shmdt, void LINUX_SAFE_CONST*, shmaddr)
 
 // Syscalls

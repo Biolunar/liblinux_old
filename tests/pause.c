@@ -20,9 +20,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <unistd.h>
 #include <sys/types.h>
-#include <sys/wait.h>
+#include <unistd.h>
 
 static void handler(int const sig)
 {
@@ -40,7 +39,7 @@ static enum TestResult test_correct_usage(void)
 	if (linux_rt_sigaction(linux_SIGUSR1, &sa, 0, sizeof(linux_sigset_t)))
 		return TEST_RESULT_OTHER_FAILURE;
 
-	// Block all signals except SIGUSR1 so that no foreign signal kills parent or child.
+	// Block all signals except SIGUSR1 so that no foreign signal kills parent nor child.
 	linux_sigset_t set;
 	linux_sigfillset(&set);
 	linux_sigdelset(&set, linux_SIGUSR1);
@@ -62,8 +61,7 @@ static enum TestResult test_correct_usage(void)
 			return TEST_RESULT_FAILURE;
 
 		linux_kill(pid, linux_SIGKILL);
-		int status = 0;
-		wait(&status);
+		linux_wait4(-1, 0, 0, 0, 0);
 	}
 
 	return TEST_RESULT_SUCCESS;
