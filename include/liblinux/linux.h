@@ -995,6 +995,7 @@ enum
 #define linux_INADDR_ANY       UINT32_C(0x00000000) // Address to accept any incoming messages.
 #define linux_INADDR_BROADCAST UINT32_C(0xFFFFFFFF) // Address to send to all hosts.
 #define linux_INADDR_NONE      UINT32_C(0xFFFFFFFF) // Address indicating an error return.
+#define linux_INADDR_LOOPBACK  UINT32_C(0x7F000001) // 127.0.0.1
 
 #define linux_IN6ADDR_ANY_INIT                       { { {    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } } }
 #define linux_IN6ADDR_LOOPBACK_INIT                  { { {    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } }
@@ -1003,6 +1004,31 @@ enum
 #define linux_IN6ADDR_INTERFACELOCAL_ALLNODES_INIT   { { { 0xFF,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } }
 #define linux_IN6ADDR_INTERFACELOCAL_ALLROUTERS_INIT { { { 0xFF,1,0,0,0,0,0,0,0,0,0,0,0,0,0,2 } } }
 #define linux_IN6ADDR_SITELOCAL_ALLROUTERS_INIT      { { { 0xFF,5,0,0,0,0,0,0,0,0,0,0,0,0,0,2 } } }
+
+#define linux_MSG_OOB              1u
+#define linux_MSG_PEEK             2u
+#define linux_MSG_DONTROUTE        4u
+#define linux_MSG_TRYHARD          4u // Synonym for MSG_DONTROUTE for DECnet
+#define linux_MSG_CTRUNC           8u
+#define linux_MSG_PROBE            0x10u // Do not send. Only probe path f.e. for MTU
+#define linux_MSG_TRUNC            0x20u
+#define linux_MSG_DONTWAIT         0x40u // Nonblocking io
+#define linux_MSG_EOR              0x80u // End of record
+#define linux_MSG_WAITALL          0x100u // Wait for a full request
+#define linux_MSG_FIN              0x200u
+#define linux_MSG_SYN              0x400u
+#define linux_MSG_CONFIRM          0x800u // Confirm path validity
+#define linux_MSG_RST              0x1000u
+#define linux_MSG_ERRQUEUE         0x2000u // Fetch message from error queue
+#define linux_MSG_NOSIGNAL         0x4000u // Do not generate SIGPIPE
+#define linux_MSG_MORE             0x8000u // Sender will send more
+#define linux_MSG_WAITFORONE       0x10000u // recvmmsg(): block until 1+ packets avail
+#define linux_MSG_SENDPAGE_NOTLAST 0x20000u // sendpage() internal : not the last page
+#define linux_MSG_BATCH            0x40000u // sendmmsg(): more messages coming
+#define linux_MSG_EOF              linux_MSG_FIN
+#define linux_MSG_FASTOPEN         0x20000000u // Send data in TCP SYN
+#define linux_MSG_CMSG_CLOEXEC     0x40000000u // Set close_on_exec for file descriptor received through SCM_RIGHTS
+#define linux_MSG_CMSG_COMPAT      0x80000000u // This message needs 32 bit fixups
 
 // Constants
 //------------------------------------------------------------------------------
@@ -1192,6 +1218,7 @@ static inline LINUX_DEFINE_SYSCALL4_RET(sendfile, linux_fd_t, out_fd, linux_fd_t
 static inline LINUX_DEFINE_SYSCALL3_RET(socket, int, family, int, type, int, protocol, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL3_NORET(connect, linux_fd_t, fd, struct linux_sockaddr_t LINUX_SAFE_CONST*, uservaddr, int, addrlen)
 static inline LINUX_DEFINE_SYSCALL3_RET(accept, linux_fd_t, fd, struct linux_sockaddr_t*, upeer_sockaddr, int*, upeer_addrlen, linux_fd_t)
+static inline LINUX_DEFINE_SYSCALL6_RET(sendto, linux_fd_t, fd, void LINUX_SAFE_CONST*, buff, size_t, len, unsigned int, flags, struct linux_sockaddr_t LINUX_SAFE_CONST*, addr, int, addr_len, size_t)
 // TODO: Insert more syscalls here first.
 //exit
 static inline LINUX_DEFINE_SYSCALL4_RET(wait4, linux_pid_t, pid, int*, stat_addr, int, options, struct linux_rusage_t*, ru, linux_pid_t)
