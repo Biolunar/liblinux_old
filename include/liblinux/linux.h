@@ -947,6 +947,124 @@ enum
 
 enum
 {
+	linux_SOL_SOCKET = 1,
+};
+
+enum
+{
+	linux_SO_DEBUG                         =  1,
+	linux_SO_REUSEADDR                     =  2,
+	linux_SO_TYPE                          =  3,
+	linux_SO_ERROR                         =  4,
+	linux_SO_DONTROUTE                     =  5,
+	linux_SO_BROADCAST                     =  6,
+	linux_SO_SNDBUF                        =  7,
+	linux_SO_RCVBUF                        =  8,
+	linux_SO_KEEPALIVE                     =  9,
+	linux_SO_OOBINLINE                     = 10,
+	linux_SO_NO_CHECK                      = 11,
+	linux_SO_PRIORITY                      = 12,
+	linux_SO_LINGER                        = 13,
+	linux_SO_BSDCOMPAT                     = 14,
+	linux_SO_REUSEPORT                     = 15,
+	linux_SO_PASSCRED                      = 16,
+	linux_SO_PEERCRED                      = 17,
+	linux_SO_RCVLOWAT                      = 18,
+	linux_SO_SNDLOWAT                      = 19,
+	linux_SO_RCVTIMEO                      = 20,
+	linux_SO_SNDTIMEO                      = 21,
+
+	// Security levels - as per NRL IPv6 - don't actually do anything
+	linux_SO_SECURITY_AUTHENTICATION       = 22,
+	linux_SO_SECURITY_ENCRYPTION_TRANSPORT = 23,
+	linux_SO_SECURITY_ENCRYPTION_NETWORK   = 24,
+
+	linux_SO_BINDTODEVICE                  = 25,
+
+	// Socket filtering
+	linux_SO_ATTACH_FILTER                 = 26,
+	linux_SO_DETACH_FILTER                 = 27,
+	linux_SO_GET_FILTER                    = linux_SO_ATTACH_FILTER,
+
+	linux_SO_PEERNAME                      = 28,
+	linux_SO_TIMESTAMP                     = 29,
+	linux_SCM_TIMESTAMP                    = linux_SO_TIMESTAMP,
+	linux_SO_ACCEPTCONN                    = 30,
+	linux_SO_PEERSEC                       = 31,
+	linux_SO_SNDBUFFORCE                   = 32,
+	linux_SO_RCVBUFFORCE                   = 33,
+	linux_SO_PASSSEC                       = 34,
+	linux_SO_TIMESTAMPNS                   = 35,
+	linux_SCM_TIMESTAMPNS                  = linux_SO_TIMESTAMPNS,
+	linux_SO_MARK                          = 36,
+	linux_SO_TIMESTAMPING                  = 37,
+	linux_SCM_TIMESTAMPING                 = linux_SO_TIMESTAMPING,
+	linux_SO_PROTOCOL                      = 38,
+	linux_SO_DOMAIN                        = 39,
+	linux_SO_RXQ_OVFL                      = 40,
+	linux_SO_WIFI_STATUS                   = 41,
+	linux_SCM_WIFI_STATUS                  = linux_SO_WIFI_STATUS,
+	linux_SO_PEEK_OFF                      = 42,
+
+	// Instruct lower device to use last 4-bytes of skb data as FCS
+	linux_SO_NOFCS                         = 43,
+
+	linux_SO_LOCK_FILTER                   = 44,
+	linux_SO_SELECT_ERR_QUEUE              = 45,
+	linux_SO_BUSY_POLL                     = 46,
+	linux_SO_MAX_PACING_RATE               = 47,
+	linux_SO_BPF_EXTENSIONS                = 48,
+	linux_SO_INCOMING_CPU                  = 49,
+	linux_SO_ATTACH_BPF                    = 50,
+	linux_SO_DETACH_BPF                    = linux_SO_DETACH_FILTER,
+	linux_SO_ATTACH_REUSEPORT_CBPF         = 51,
+	linux_SO_ATTACH_REUSEPORT_EBPF         = 52,
+	linux_SO_CNX_ADVICE                    = 53,
+	linux_SCM_TIMESTAMPING_OPT_STATS       = 54,
+	linux_SO_MEMINFO                       = 55,
+	linux_SO_INCOMING_NAPI_ID              = 56,
+	linux_SO_COOKIE                        = 57,
+};
+
+// Socket-level I/O control calls.
+enum
+{
+	linux_FIOSETOWN    = 0x8901,
+	linux_SIOCSPGRP    = 0x8902,
+	linux_FIOGETOWN    = 0x8903,
+	linux_SIOCGPGRP    = 0x8904,
+	linux_SIOCATMARK   = 0x8905,
+	linux_SIOCGSTAMP   = 0x8906, // Get stamp (timeval)
+	linux_SIOCGSTAMPNS = 0x8907, // Get stamp (timespec)
+};
+
+#define linux_MSG_OOB              1u
+#define linux_MSG_PEEK             2u
+#define linux_MSG_DONTROUTE        4u
+#define linux_MSG_TRYHARD          4u // Synonym for MSG_DONTROUTE for DECnet
+#define linux_MSG_CTRUNC           8u
+#define linux_MSG_PROBE            0x10u // Do not send. Only probe path f.e. for MTU
+#define linux_MSG_TRUNC            0x20u
+#define linux_MSG_DONTWAIT         0x40u // Nonblocking io
+#define linux_MSG_EOR              0x80u // End of record
+#define linux_MSG_WAITALL          0x100u // Wait for a full request
+#define linux_MSG_FIN              0x200u
+#define linux_MSG_SYN              0x400u
+#define linux_MSG_CONFIRM          0x800u // Confirm path validity
+#define linux_MSG_RST              0x1000u
+#define linux_MSG_ERRQUEUE         0x2000u // Fetch message from error queue
+#define linux_MSG_NOSIGNAL         0x4000u // Do not generate SIGPIPE
+#define linux_MSG_MORE             0x8000u // Sender will send more
+#define linux_MSG_WAITFORONE       0x10000u // recvmmsg(): block until 1+ packets avail
+#define linux_MSG_SENDPAGE_NOTLAST 0x20000u // sendpage() internal : not the last page
+#define linux_MSG_BATCH            0x40000u // sendmmsg(): more messages coming
+#define linux_MSG_EOF              linux_MSG_FIN
+#define linux_MSG_FASTOPEN         0x20000000u // Send data in TCP SYN
+#define linux_MSG_CMSG_CLOEXEC     0x40000000u // Set close_on_exec for file descriptor received through SCM_RIGHTS
+#define linux_MSG_CMSG_COMPAT      0x80000000u // This message needs 32 bit fixups
+
+enum
+{
 	linux_IPPROTO_IP      =   0, // Dummy protocol for TCP
 	linux_IPPROTO_ICMP    =   1, // Internet Control Message Protocol
 	linux_IPPROTO_IGMP    =   2, // Internet Group Management Protocol
@@ -1004,31 +1122,6 @@ enum
 #define linux_IN6ADDR_INTERFACELOCAL_ALLNODES_INIT   { { { 0xFF,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } }
 #define linux_IN6ADDR_INTERFACELOCAL_ALLROUTERS_INIT { { { 0xFF,1,0,0,0,0,0,0,0,0,0,0,0,0,0,2 } } }
 #define linux_IN6ADDR_SITELOCAL_ALLROUTERS_INIT      { { { 0xFF,5,0,0,0,0,0,0,0,0,0,0,0,0,0,2 } } }
-
-#define linux_MSG_OOB              1u
-#define linux_MSG_PEEK             2u
-#define linux_MSG_DONTROUTE        4u
-#define linux_MSG_TRYHARD          4u // Synonym for MSG_DONTROUTE for DECnet
-#define linux_MSG_CTRUNC           8u
-#define linux_MSG_PROBE            0x10u // Do not send. Only probe path f.e. for MTU
-#define linux_MSG_TRUNC            0x20u
-#define linux_MSG_DONTWAIT         0x40u // Nonblocking io
-#define linux_MSG_EOR              0x80u // End of record
-#define linux_MSG_WAITALL          0x100u // Wait for a full request
-#define linux_MSG_FIN              0x200u
-#define linux_MSG_SYN              0x400u
-#define linux_MSG_CONFIRM          0x800u // Confirm path validity
-#define linux_MSG_RST              0x1000u
-#define linux_MSG_ERRQUEUE         0x2000u // Fetch message from error queue
-#define linux_MSG_NOSIGNAL         0x4000u // Do not generate SIGPIPE
-#define linux_MSG_MORE             0x8000u // Sender will send more
-#define linux_MSG_WAITFORONE       0x10000u // recvmmsg(): block until 1+ packets avail
-#define linux_MSG_SENDPAGE_NOTLAST 0x20000u // sendpage() internal : not the last page
-#define linux_MSG_BATCH            0x40000u // sendmmsg(): more messages coming
-#define linux_MSG_EOF              linux_MSG_FIN
-#define linux_MSG_FASTOPEN         0x20000000u // Send data in TCP SYN
-#define linux_MSG_CMSG_CLOEXEC     0x40000000u // Set close_on_exec for file descriptor received through SCM_RIGHTS
-#define linux_MSG_CMSG_COMPAT      0x80000000u // This message needs 32 bit fixups
 
 // Constants
 //------------------------------------------------------------------------------
@@ -1219,6 +1312,7 @@ static inline LINUX_DEFINE_SYSCALL3_RET(socket, int, family, int, type, int, pro
 static inline LINUX_DEFINE_SYSCALL3_NORET(connect, linux_fd_t, fd, struct linux_sockaddr_t LINUX_SAFE_CONST*, uservaddr, int, addrlen)
 static inline LINUX_DEFINE_SYSCALL3_RET(accept, linux_fd_t, fd, struct linux_sockaddr_t*, upeer_sockaddr, int*, upeer_addrlen, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL6_RET(sendto, linux_fd_t, fd, void LINUX_SAFE_CONST*, buff, size_t, len, unsigned int, flags, struct linux_sockaddr_t LINUX_SAFE_CONST*, addr, int, addr_len, size_t)
+static inline LINUX_DEFINE_SYSCALL6_RET(recvfrom, linux_fd_t, fd, void*, ubuf, size_t, size, unsigned int, flags, struct linux_sockaddr_t*, addr, int*, addr_len, size_t)
 // TODO: Insert more syscalls here first.
 //exit
 static inline LINUX_DEFINE_SYSCALL4_RET(wait4, linux_pid_t, pid, int*, stat_addr, int, options, struct linux_rusage_t*, ru, linux_pid_t)

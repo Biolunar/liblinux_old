@@ -22,13 +22,10 @@
 
 #include <string.h>
 #include <pthread.h>
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <unistd.h>
 
 static uint16_t const port = 6112;
-static uint32_t const ip = 0x0100007F; // 127.0.0.1 == 0x7F000001
 
 static enum TestResult test_invalid_fd(void)
 {
@@ -58,13 +55,14 @@ static enum TestResult test_segfault(void)
 static void* listen_thread(void* const param)
 {
 	(void)param;
+	void* ret = (void*)EXIT_FAILURE;
 
 	linux_fd_t fd;
 	if (linux_socket(linux_PF_INET, linux_SOCK_STREAM, 0, &fd))
-		return (void*)EXIT_FAILURE;
+		goto error;
 
 	if (setsockopt((int)fd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) == -1)
-		return (void*)EXIT_FAILURE;
+		goto error_fd;
 
 	struct sockaddr_in sa =
 	{
@@ -72,35 +70,30 @@ static void* listen_thread(void* const param)
 		.sin_port = htons(port),
 		.sin_addr =
 		{
-			.s_addr = ip,
+			.s_addr = htonl(INADDR_LOOPBACK),
 		},
 	};
 
 	if (bind((int)fd, (struct sockaddr const*)&sa, sizeof sa) == -1)
-	{
-		linux_close(fd);
-		return (void*)EXIT_FAILURE;
-	}
+		goto error_fd;
 
 	if (listen((int)fd, 10) == -1)
-	{
-		linux_close(fd);
-		return (void*)EXIT_FAILURE;
-	}
+		goto error_fd;
 
-	struct sockaddr_in csa;
-	socklen_t len = sizeof csa;
-	memset(&csa, 0, len);
-	int const client = accept((int)fd, (struct sockaddr*)&csa, &len);
-	if (client == -1)
-	{
-		linux_close(fd);
-		return (void*)EXIT_FAILURE;
-	}
+	struct linux_sockaddr_in_t csa;
+	memset(&csa, 0, sizeof csa);
+	int csa_len = sizeof csa;
 
-	close(client);
+	linux_fd_t con_fd;
+	if (linux_accept(fd, (struct linux_sockaddr_t*)&csa, &csa_len, &con_fd))
+		goto error_fd;
+
+	ret = (void*)EXIT_SUCCESS;
+	linux_close(con_fd);
+error_fd:
 	linux_close(fd);
-	return (void*)EXIT_SUCCESS;
+error:
+	return ret;
 }
 
 static enum TestResult test_correct_usage(void)
@@ -119,7 +112,7 @@ static enum TestResult test_correct_usage(void)
 		.sin_port = htons(port),
 		.sin_addr =
 		{
-			.s_addr = ip,
+			.s_addr = htonl(linux_INADDR_LOOPBACK),
 		},
 	};
 
