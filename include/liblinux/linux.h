@@ -456,6 +456,18 @@ struct linux_sockaddr_un_t
 	linux_kernel_sa_family_t sun_family; // AF_UNIX
 	char sun_path[108]; // pathname
 };
+struct linux_user_msghdr_t
+{
+	void* msg_name; // ptr to socket address structure
+	int msg_namelen; // size of socket address structure
+	char _pad0[4];
+	struct linux_iovec_t* msg_iov; // scatter/gather array
+	linux_kernel_size_t msg_iovlen; // # elements in msg_iov
+	void* msg_control; // ancillary data
+	linux_kernel_size_t msg_controllen; // ancillary data buffer length
+	unsigned int msg_flags; // flags on received message
+	char _pad1[4];
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -1313,6 +1325,8 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(connect, linux_fd_t, fd, struct linux_
 static inline LINUX_DEFINE_SYSCALL3_RET(accept, linux_fd_t, fd, struct linux_sockaddr_t*, upeer_sockaddr, int*, upeer_addrlen, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL6_RET(sendto, linux_fd_t, fd, void LINUX_SAFE_CONST*, buff, size_t, len, unsigned int, flags, struct linux_sockaddr_t LINUX_SAFE_CONST*, addr, int, addr_len, size_t)
 static inline LINUX_DEFINE_SYSCALL6_RET(recvfrom, linux_fd_t, fd, void*, ubuf, size_t, size, unsigned int, flags, struct linux_sockaddr_t*, addr, int*, addr_len, size_t)
+static inline LINUX_DEFINE_SYSCALL3_RET(sendmsg, linux_fd_t, fd, struct linux_user_msghdr_t LINUX_SAFE_CONST*, msg, unsigned int, flags, size_t)
+static inline LINUX_DEFINE_SYSCALL3_RET(recvmsg, linux_fd_t, fd, struct linux_user_msghdr_t*, msg, unsigned int, flags, size_t)
 // TODO: Insert more syscalls here first.
 //exit
 static inline LINUX_DEFINE_SYSCALL4_RET(wait4, linux_pid_t, pid, int*, stat_addr, int, options, struct linux_rusage_t*, ru, linux_pid_t)
