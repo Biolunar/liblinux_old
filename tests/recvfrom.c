@@ -39,6 +39,8 @@ static enum TestResult test_invalid_fd(void)
 
 static void* send_thread(void* const param)
 {
+	(void)param;
+
 	linux_fd_t fd;
 	if (linux_socket(linux_PF_INET, linux_SOCK_STREAM, 0, &fd))
 		return (void*)EXIT_FAILURE;
