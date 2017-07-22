@@ -1077,6 +1077,13 @@ enum
 
 enum
 {
+	linux_SHUT_RD = 0,
+	linux_SHUT_WR = 1,
+	linux_SHUT_RDWR = 2,
+};
+
+enum
+{
 	linux_IPPROTO_IP      =   0, // Dummy protocol for TCP
 	linux_IPPROTO_ICMP    =   1, // Internet Control Message Protocol
 	linux_IPPROTO_IGMP    =   2, // Internet Group Management Protocol
@@ -1327,6 +1334,7 @@ static inline LINUX_DEFINE_SYSCALL6_RET(sendto, linux_fd_t, fd, void LINUX_SAFE_
 static inline LINUX_DEFINE_SYSCALL6_RET(recvfrom, linux_fd_t, fd, void*, ubuf, size_t, size, unsigned int, flags, struct linux_sockaddr_t*, addr, int*, addr_len, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(sendmsg, linux_fd_t, fd, struct linux_user_msghdr_t LINUX_SAFE_CONST*, msg, unsigned int, flags, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(recvmsg, linux_fd_t, fd, struct linux_user_msghdr_t*, msg, unsigned int, flags, size_t)
+static inline LINUX_DEFINE_SYSCALL2_NORET(shutdown, linux_fd_t, fd, int, how)
 // TODO: Insert more syscalls here first.
 //exit
 static inline LINUX_DEFINE_SYSCALL4_RET(wait4, linux_pid_t, pid, int*, stat_addr, int, options, struct linux_rusage_t*, ru, linux_pid_t)
