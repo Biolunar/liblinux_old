@@ -116,13 +116,13 @@ int main(void)
 {
 	int ret = EXIT_SUCCESS;
 
-	printf("Start testing accept.\n");
+	printf("Start testing sendto.\n");
 	DO_TEST(invalid_fd, &ret);
 	DO_TEST(segfault, &ret);
 	DO_TEST(no_dest_addr, &ret);
 	DO_TEST(fd_not_socket, &ret);
 	DO_TEST(correct_usage, &ret);
-	printf("Finished testing accept.\n");
+	printf("Finished testing sendto.\n");
 
 	return ret;
 }
