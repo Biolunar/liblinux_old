@@ -310,6 +310,20 @@ struct linux_sigaction_t
 	linux_sigrestore_t sa_restorer;
 	linux_sigset_t sa_mask; // mask last for extensibility
 };
+typedef unsigned char linux_cc_t;
+typedef unsigned int linux_speed_t;
+typedef unsigned int linux_tcflag_t;
+struct linux_termios2_t
+{
+	linux_tcflag_t c_iflag; // input mode flags
+	linux_tcflag_t c_oflag; // output mode flags
+	linux_tcflag_t c_cflag; // control mode flags
+	linux_tcflag_t c_lflag; // local mode flags
+	linux_cc_t c_line; // line discipline
+	linux_cc_t c_cc[19]; // control characters
+	linux_speed_t c_ispeed; // input speed
+	linux_speed_t c_ospeed; // output speed
+};
 struct linux_iovec_t
 {
 	void* iov_base; // BSD uses caddr_t (1003.1g requires void *)
@@ -451,11 +465,6 @@ struct linux_sockaddr_in6_t
 	struct linux_in6_addr_t sin6_addr; // IPv6 address
 	uint32_t sin6_scope_id; // scope id (new in RFC2553)
 };
-struct linux_sockaddr_un_t
-{
-	linux_kernel_sa_family_t sun_family; // AF_UNIX
-	char sun_path[108]; // pathname
-};
 struct linux_user_msghdr_t
 {
 	void* msg_name; // ptr to socket address structure
@@ -467,6 +476,16 @@ struct linux_user_msghdr_t
 	linux_kernel_size_t msg_controllen; // ancillary data buffer length
 	unsigned int msg_flags; // flags on received message
 	char _pad1[4];
+};
+
+enum
+{
+	linux_UNIX_PATH_MAX = 108,
+};
+struct linux_sockaddr_un_t
+{
+	linux_kernel_sa_family_t sun_family; // AF_UNIX
+	char sun_path[linux_UNIX_PATH_MAX]; // pathname
 };
 
 // Kernel types
@@ -690,10 +709,110 @@ enum
 
 enum
 {
+	// 0x54 is just a magic number to make these relatively unique ('T')
+	linux_TCGETS          = 0x5401,
+	linux_TCSETS          = 0x5402,
+	linux_TCSETSW         = 0x5403,
+	linux_TCSETSF         = 0x5404,
+	linux_TCGETA          = 0x5405,
+	linux_TCSETA          = 0x5406,
+	linux_TCSETAW         = 0x5407,
+	linux_TCSETAF         = 0x5408,
+	linux_TCSBRK          = 0x5409,
+	linux_TCXONC          = 0x540A,
+	linux_TCFLSH          = 0x540B,
+	linux_TIOCEXCL        = 0x540C,
+	linux_TIOCNXCL        = 0x540D,
+	linux_TIOCSCTTY       = 0x540E,
+	linux_TIOCGPGRP       = 0x540F,
+	linux_TIOCSPGRP       = 0x5410,
+	linux_TIOCOUTQ        = 0x5411,
+	linux_TIOCSTI         = 0x5412,
+	linux_TIOCGWINSZ      = 0x5413,
+	linux_TIOCSWINSZ      = 0x5414,
+	linux_TIOCMGET        = 0x5415,
+	linux_TIOCMBIS        = 0x5416,
+	linux_TIOCMBIC        = 0x5417,
+	linux_TIOCMSET        = 0x5418,
+	linux_TIOCGSOFTCAR    = 0x5419,
+	linux_TIOCSSOFTCAR    = 0x541A,
+	linux_FIONREAD        = 0x541B,
+	linux_TIOCINQ         = linux_FIONREAD,
+	linux_TIOCLINUX       = 0x541C,
+	linux_TIOCCONS        = 0x541D,
+	linux_TIOCGSERIAL     = 0x541E,
+	linux_TIOCSSERIAL     = 0x541F,
+	linux_TIOCPKT         = 0x5420,
+	linux_FIONBIO         = 0x5421,
+	linux_TIOCNOTTY       = 0x5422,
+	linux_TIOCSETD        = 0x5423,
+	linux_TIOCGETD        = 0x5424,
+	linux_TCSBRKP         = 0x5425, // Needed for POSIX tcsendbreak()
+	linux_TIOCSBRK        = 0x5427, // BSD compatibility
+	linux_TIOCCBRK        = 0x5428, // BSD compatibility
+	linux_TIOCGSID        = 0x5429, // Return the session ID of FD
+#define linux_TCGETS2         = (2u << 30) | ('T' << 8) | 0x2A | (sizeof(struct linux_termios2_t) << 16),
+	linux_TCSETS2         = (1u << 30) | ('T' << 8) | 0x2B | (sizeof(struct linux_termios2_t) << 16),
+	linux_TCSETSW2        = (1u << 30) | ('T' << 8) | 0x2C | (sizeof(struct linux_termios2_t) << 16),
+	linux_TCSETSF2        = (1u << 30) | ('T' << 8) | 0x2D | (sizeof(struct linux_termios2_t) << 16),
+	linux_TIOCGRS485      = 0x542E,
+	linux_TIOCSRS485      = 0x542F,
+#define linux_TIOCGPTN        = ((2u << 30) | ('T' << 8) | 0x30 | (sizeof(unsigned int) << 16)), // Get Pty Number (of pty-mux device)
+	linux_TIOCSPTLCK      = ((1u << 30) | ('T' << 8) | 0x31 | (sizeof(int) << 16)), // Lock/unlock Pty
+#define linux_TIOCGDEV        = ((2u << 30) | ('T' << 8) | 0x32 | (sizeof(unsigned int) << 16)), // Get primary device node of /dev/console
+	linux_TCGETX          = 0x5432, // SYS5 TCGETX compatibility
+	linux_TCSETX          = 0x5433,
+	linux_TCSETXF         = 0x5434,
+	linux_TCSETXW         = 0x5435,
+	linux_TIOCSIG         = (1u << 30) | ('T' << 8) | 0x36 | (sizeof(int) << 16), // pty: generate signal
+	linux_TIOCVHANGUP     = 0x5437,
+#define linux_TIOCGPKT        = (2u << 30) | ('T' << 8) | 0x38 | (sizeof(int) << 16), // Get packet mode state
+#define linux_TIOCGPTLCK      = (2u << 30) | ('T' << 8) | 0x39 | (sizeof(int) << 16), // Get Pty lock state
+#define linux_TIOCGEXCL       = (2u << 30) | ('T' << 8) | 0x40 | (sizeof(int) << 16), // Get exclusive mode state
+
+	linux_FIONCLEX        = 0x5450,
+	linux_FIOCLEX         = 0x5451,
+	linux_FIOASYNC        = 0x5452,
+	linux_TIOCSERCONFIG   = 0x5453,
+	linux_TIOCSERGWILD    = 0x5454,
+	linux_TIOCSERSWILD    = 0x5455,
+	linux_TIOCGLCKTRMIOS  = 0x5456,
+	linux_TIOCSLCKTRMIOS  = 0x5457,
+	linux_TIOCSERGSTRUCT  = 0x5458, // For debugging only
+	linux_TIOCSERGETLSR   = 0x5459, // Get line status register
+	linux_TIOCSERGETMULTI = 0x545A, // Get multiport config
+	linux_TIOCSERSETMULTI = 0x545B, // Set multiport config
+
+	linux_TIOCMIWAIT      = 0x545C, // wait for a change on serial input line(s)
+	linux_TIOCGICOUNT     = 0x545D, // read serial port inline interrupt counts
+
+	linux_FIOQSIZE        = 0x5460,
+};
+
+enum
+{
+	// Used for packet mode
+	linux_TIOCPKT_DATA       =  0,
+	linux_TIOCPKT_FLUSHREAD  =  1,
+	linux_TIOCPKT_FLUSHWRITE =  2,
+	linux_TIOCPKT_STOP       =  4,
+	linux_TIOCPKT_START      =  8,
+	linux_TIOCPKT_NOSTOP     = 16,
+	linux_TIOCPKT_DOSTOP     = 32,
+	linux_TIOCPKT_IOCTL      = 64,
+};
+
+enum
+{
+	linux_TIOCSER_TEMT = 0x01, // Transmitter physically empty
+};
+
+enum
+{
 	linux_FP_XSTATE_MAGIC1      = 0x46505853u,
 	linux_FP_XSTATE_MAGIC2      = 0x46505845u,
 };
-#define linux_FP_XSTATE_MAGIC2_SIZE   (sizeof linux_FP_XSTATE_MAGIC2)
+#define linux_FP_XSTATE_MAGIC2_SIZE (sizeof linux_FP_XSTATE_MAGIC2)
 
 enum // Kernel sources do not explicitly define these constants. They correspond to S_IXOTH, S_IWOTH and S_IROTH.
 {
@@ -1050,6 +1169,124 @@ enum
 	linux_SIOCGSTAMPNS = 0x8907, // Get stamp (timespec)
 };
 
+enum
+{
+	// Linux-specific socket ioctls
+	linux_SIOCINQ                = linux_FIONREAD,
+	linux_SIOCOUTQ               = linux_TIOCOUTQ, // output queue size (not sent + not acked)
+
+	linux_SOCK_IOC_TYPE          = 0x89,
+
+	// Routing table calls.
+	linux_SIOCADDRT              = 0x890B, // add routing table entry
+	linux_SIOCDELRT              = 0x890C, // delete routing table entry
+	linux_SIOCRTMSG              = 0x890D, // unused
+
+	// Socket configuration controls.
+	linux_SIOCGIFNAME            = 0x8910, // get iface name
+	linux_SIOCSIFLINK            = 0x8911, // set iface channel
+	linux_SIOCGIFCONF            = 0x8912, // get iface list
+	linux_SIOCGIFFLAGS           = 0x8913, // get flags
+	linux_SIOCSIFFLAGS           = 0x8914, // set flags
+	linux_SIOCGIFADDR            = 0x8915, // get PA address
+	linux_SIOCSIFADDR            = 0x8916, // set PA address
+	linux_SIOCGIFDSTADDR         = 0x8917, // get remote PA address
+	linux_SIOCSIFDSTADDR         = 0x8918, // set remote PA address
+	linux_SIOCGIFBRDADDR         = 0x8919, // get broadcast PA address
+	linux_SIOCSIFBRDADDR         = 0x891a, // set broadcast PA address
+	linux_SIOCGIFNETMASK         = 0x891b, // get network PA mask
+	linux_SIOCSIFNETMASK         = 0x891c, // set network PA mask
+	linux_SIOCGIFMETRIC          = 0x891d, // get metric
+	linux_SIOCSIFMETRIC          = 0x891e, // set metric
+	linux_SIOCGIFMEM             = 0x891f, // get memory address (BSD)
+	linux_SIOCSIFMEM             = 0x8920, // set memory address (BSD)
+	linux_SIOCGIFMTU             = 0x8921, // get MTU size
+	linux_SIOCSIFMTU             = 0x8922, // set MTU size
+	linux_SIOCSIFNAME            = 0x8923, // set interface name
+	linux_SIOCSIFHWADDR          = 0x8924, // set hardware address
+	linux_SIOCGIFENCAP           = 0x8925, // get/set encapsulations
+	linux_SIOCSIFENCAP           = 0x8926,
+	linux_SIOCGIFHWADDR          = 0x8927, // Get hardware address
+	linux_SIOCGIFSLAVE           = 0x8929, // Driver slaving support
+	linux_SIOCSIFSLAVE           = 0x8930,
+	linux_SIOCADDMULTI           = 0x8931, // Multicast address lists
+	linux_SIOCDELMULTI           = 0x8932,
+	linux_SIOCGIFINDEX           = 0x8933, // name -> if_index mapping
+	linux_SIOGIFINDEX            = linux_SIOCGIFINDEX, // misprint compatibility :-)
+	linux_SIOCSIFPFLAGS          = 0x8934, // set/get extended flags set
+	linux_SIOCGIFPFLAGS          = 0x8935,
+	linux_SIOCDIFADDR            = 0x8936, // delete PA address
+	linux_SIOCSIFHWBROADCAST     = 0x8937, // set hardware broadcast addr
+	linux_SIOCGIFCOUNT           = 0x8938, // get number of devices
+
+	linux_SIOCGIFBR              = 0x8940, // Bridging support
+	linux_SIOCSIFBR              = 0x8941, // Set bridging options
+
+	linux_SIOCGIFTXQLEN          = 0x8942, // Get the tx queue length
+	linux_SIOCSIFTXQLEN          = 0x8943, // Set the tx queue length
+
+	// SIOCGIFDIVERT was:          0x8944 // Frame diversion support
+	// SIOCSIFDIVERT was:          0x8945 // Set frame diversion options
+
+	linux_SIOCETHTOOL            = 0x8946, // Ethtool interface
+
+	linux_SIOCGMIIPHY            = 0x8947, // Get address of MII PHY in use.
+	linux_SIOCGMIIREG            = 0x8948, // Read MII PHY register.
+	linux_SIOCSMIIREG            = 0x8949, // Write MII PHY register.
+
+	linux_SIOCWANDEV             = 0x894A, // get/set netdev parameters
+
+	linux_SIOCOUTQNSD            = 0x894B, // output queue size (not sent only)
+	linux_SIOCGSKNS              = 0x894C, // get socket network namespace
+
+	// ARP cache control calls.
+	//                    0x8950 - 0x8952 // obsolete calls, don't re-use
+	linux_SIOCDARP               = 0x8953, // delete ARP table entry
+	linux_SIOCGARP               = 0x8954, // get ARP table entry
+	linux_SIOCSARP               = 0x8955, // set ARP table entry
+
+	// RARP cache control calls.
+	linux_SIOCDRARP              = 0x8960, // delete RARP table entry
+	linux_SIOCGRARP              = 0x8961, // get RARP table entry
+	linux_SIOCSRARP              = 0x8962, // set RARP table entry
+
+	// Driver configuration calls
+	linux_SIOCGIFMAP             = 0x8970, // Get device parameters
+	linux_SIOCSIFMAP             = 0x8971, // Set device parameters
+
+	// DLCI configuration calls
+	linux_SIOCADDDLCI            = 0x8980, // Create new DLCI device
+	linux_SIOCDELDLCI            = 0x8981, // Delete DLCI device
+
+	linux_SIOCGIFVLAN            = 0x8982, // 802.1Q VLAN support
+	linux_SIOCSIFVLAN            = 0x8983, // Set 802.1Q VLAN options
+
+	// bonding calls
+
+	linux_SIOCBONDENSLAVE        = 0x8990, // enslave a device to the bond
+	linux_SIOCBONDRELEASE        = 0x8991, // release a slave from the bond
+	linux_SIOCBONDSETHWADDR      = 0x8992, // set the hw addr of the bond
+	linux_SIOCBONDSLAVEINFOQUERY = 0x8993, // rtn info about slave state
+	linux_SIOCBONDINFOQUERY      = 0x8994, // rtn info about bond state
+	linux_SIOCBONDCHANGEACTIVE   = 0x8995, // update to a new active slave
+
+	// bridge calls
+	linux_SIOCBRADDBR            = 0x89a0, // create new bridge device
+	linux_SIOCBRDELBR            = 0x89a1, // remove bridge device
+	linux_SIOCBRADDIF            = 0x89a2, // add interface to bridge
+	linux_SIOCBRDELIF            = 0x89a3, // remove interface from bridge
+
+	// hardware time stamping: parameters in linux/net_tstamp.h
+	linux_SIOCSHWTSTAMP          = 0x89b0, // set and get config
+	linux_SIOCGHWTSTAMP          = 0x89b1, // get config
+
+	// Device private ioctl calls
+	linux_SIOCDEVPRIVATE         = 0x89F0, // to 89FF
+
+	// These 16 ioctl calls are protocol private
+	linux_SIOCPROTOPRIVATE       = 0x89E0, // to 89EF
+};
+
 #define linux_MSG_OOB              1u
 #define linux_MSG_PEEK             2u
 #define linux_MSG_DONTROUTE        4u
@@ -1080,6 +1317,12 @@ enum
 	linux_SHUT_RD = 0,
 	linux_SHUT_WR = 1,
 	linux_SHUT_RDWR = 2,
+};
+
+enum
+{
+	linux_INET_ADDRSTRLEN  = 16,
+	linux_INET6_ADDRSTRLEN = 48,
 };
 
 enum
@@ -1125,14 +1368,258 @@ enum
 
 enum
 {
-	linux_INET_ADDRSTRLEN  = 16,
-	linux_INET6_ADDRSTRLEN = 48,
+	linux_IP_TOS                  =  1,
+	linux_IP_TTL                  =  2,
+	linux_IP_HDRINCL              =  3,
+	linux_IP_OPTIONS              =  4,
+	linux_IP_ROUTER_ALERT         =  5,
+	linux_IP_RECVOPTS             =  6,
+	linux_IP_RETOPTS              =  7,
+	linux_IP_PKTINFO              =  8,
+	linux_IP_PKTOPTIONS           =  9,
+	linux_IP_MTU_DISCOVER         = 10,
+	linux_IP_RECVERR              = 11,
+	linux_IP_RECVTTL              = 12,
+	linux_IP_RECVTOS              = 13,
+	linux_IP_MTU                  = 14,
+	linux_IP_FREEBIND             = 15,
+	linux_IP_IPSEC_POLICY         = 16,
+	linux_IP_XFRM_POLICY          = 17,
+	linux_IP_PASSSEC              = 18,
+	linux_IP_TRANSPARENT          = 19,
+
+	// BSD compatibility
+	linux_IP_RECVRETOPTS          = linux_IP_RETOPTS,
+
+	// TProxy original addresses
+	linux_IP_ORIGDSTADDR          = 20,
+	linux_IP_RECVORIGDSTADDR      = linux_IP_ORIGDSTADDR,
+
+	linux_IP_MINTTL               = 21,
+	linux_IP_NODEFRAG             = 22,
+	linux_IP_CHECKSUM             = 23,
+	linux_IP_BIND_ADDRESS_NO_PORT = 24,
+	linux_IP_RECVFRAGSIZE         = 25,
 };
 
-#define linux_INADDR_ANY       UINT32_C(0x00000000) // Address to accept any incoming messages.
-#define linux_INADDR_BROADCAST UINT32_C(0xFFFFFFFF) // Address to send to all hosts.
-#define linux_INADDR_NONE      UINT32_C(0xFFFFFFFF) // Address indicating an error return.
-#define linux_INADDR_LOOPBACK  UINT32_C(0x7F000001) // 127.0.0.1
+enum
+{
+	// IP_MTU_DISCOVER values
+	linux_IP_PMTUDISC_DONT      = 0, // Never send DF frames
+	linux_IP_PMTUDISC_WANT      = 1, // Use per route hints
+	linux_IP_PMTUDISC_DO        = 2, // Always DF
+	linux_IP_PMTUDISC_PROBE     = 3, // Ignore dst pmtu
+	/*
+	 * Always use interface mtu (ignores dst pmtu) but don't set DF flag.
+	 * Also incoming ICMP frag_needed notifications will be ignored on
+	 * this socket to prevent accepting spoofed ones.
+	 */
+	linux_IP_PMTUDISC_INTERFACE = 4,
+	// weaker version of IP_PMTUDISC_INTERFACE, which allos packets to get fragmented if they exeed the interface mtu
+	linux_IP_PMTUDISC_OMIT      = 5,
+};
+
+enum
+{
+	linux_IP_MULTICAST_IF           = 32,
+	linux_IP_MULTICAST_TTL          = 33,
+	linux_IP_MULTICAST_LOOP         = 34,
+	linux_IP_ADD_MEMBERSHIP         = 35,
+	linux_IP_DROP_MEMBERSHIP        = 36,
+	linux_IP_UNBLOCK_SOURCE         = 37,
+	linux_IP_BLOCK_SOURCE           = 38,
+	linux_IP_ADD_SOURCE_MEMBERSHIP  = 39,
+	linux_IP_DROP_SOURCE_MEMBERSHIP = 40,
+	linux_IP_MSFILTER               = 41,
+	linux_MCAST_JOIN_GROUP          = 42,
+	linux_MCAST_BLOCK_SOURCE        = 43,
+	linux_MCAST_UNBLOCK_SOURCE      = 44,
+	linux_MCAST_LEAVE_GROUP         = 45,
+	linux_MCAST_JOIN_SOURCE_GROUP   = 46,
+	linux_MCAST_LEAVE_SOURCE_GROUP  = 47,
+	linux_MCAST_MSFILTER            = 48,
+	linux_IP_MULTICAST_ALL          = 49,
+	linux_IP_UNICAST_IF             = 50,
+};
+
+enum
+{
+	linux_MCAST_EXCLUDE = 0,
+	linux_MCAST_INCLUDE = 1,
+};
+
+enum
+{
+	// These need to appear somewhere around here
+	linux_IP_DEFAULT_MULTICAST_TTL  = 1,
+	linux_IP_DEFAULT_MULTICAST_LOOP = 1,
+};
+
+#define	linux_IN_CLASSA_NET          UINT32_C(0xFF000000)
+#define	linux_IN_CLASSA_NSHIFT       24
+#define	linux_IN_CLASSA_HOST         (UINT32_C(0xFFFFFFFF) & ~linux_IN_CLASSA_NET)
+#define	linux_IN_CLASSA_MAX          128
+
+#define	linux_IN_CLASSB_NET          UINT32_C(0xFFFF0000)
+#define	linux_IN_CLASSB_NSHIFT       16
+#define	linux_IN_CLASSB_HOST         (UINT32_C(0xFFFFFFFF) & ~linux_IN_CLASSB_NET)
+#define	linux_IN_CLASSB_MAX          65536
+
+#define	linux_IN_CLASSC_NET          UINT32_C(0xFFFFFF00)
+#define	linux_IN_CLASSC_NSHIFT       8
+#define	linux_IN_CLASSC_HOST         (UINT32_C(0xFFFFFFFF) & ~linux_IN_CLASSC_NET)
+
+#define linux_IN_MULTICAST_NET       UINT32_C(0xF0000000)
+
+// Address to accept any incoming messages.
+#define linux_INADDR_ANY             UINT32_C(0x00000000) // Address to accept any incoming messages.
+
+// Address to send to all hosts.
+#define linux_INADDR_BROADCAST       UINT32_C(0xFFFFFFFF) // Address to send to all hosts.
+
+// Address indicating an error return.
+#define linux_INADDR_NONE            UINT32_C(0xFFFFFFFF) // Address indicating an error return.
+
+// Network number for local host loopback.
+#define	linux_IN_LOOPBACKNET         127 // Network number for local host loopback.
+
+// Address to loopback in software to local host.
+#define linux_INADDR_LOOPBACK        UINT32_C(0x7F000001) // 127.0.0.1
+
+// Defines for Multicast INADDR
+#define linux_INADDR_UNSPEC_GROUP    UINT32_C(0xE0000000) // 224.0.0.0
+#define linux_INADDR_ALLHOSTS_GROUP  UINT32_C(0xE0000001) // 224.0.0.1
+#define linux_INADDR_ALLRTRS_GROUP   UINT32_C(0xE0000002) // 224.0.0.2
+#define linux_INADDR_MAX_LOCAL_GROUP UINT32_C(0xE00000FF) // 224.0.0.255
+
+enum
+{
+	// IPv6 TLV options.
+	linux_IPV6_TLV_PAD1        =   0,
+	linux_IPV6_TLV_PADN        =   1,
+	linux_IPV6_TLV_ROUTERALERT =   5,
+	linux_IPV6_TLV_CALIPSO     =   7, // RFC 5570
+	linux_IPV6_TLV_JUMBO       = 194,
+	linux_IPV6_TLV_HAO         = 201, // home address option
+};
+
+enum
+{
+	// IPV6 socket options
+	linux_IPV6_ADDRFORM               =  1,
+	linux_IPV6_2292PKTINFO            =  2,
+	linux_IPV6_2292HOPOPTS            =  3,
+	linux_IPV6_2292DSTOPTS            =  4,
+	linux_IPV6_2292RTHDR              =  5,
+	linux_IPV6_2292PKTOPTIONS         =  6,
+	linux_IPV6_CHECKSUM               =  7,
+	linux_IPV6_2292HOPLIMIT           =  8,
+	linux_IPV6_NEXTHOP                =  9,
+	linux_IPV6_AUTHHDR                = 10, // obsolete
+	linux_IPV6_FLOWINFO               = 11,
+
+	linux_IPV6_UNICAST_HOPS           = 16,
+	linux_IPV6_MULTICAST_IF           = 17,
+	linux_IPV6_MULTICAST_HOPS         = 18,
+	linux_IPV6_MULTICAST_LOOP         = 19,
+	linux_IPV6_ADD_MEMBERSHIP         = 20,
+	linux_IPV6_DROP_MEMBERSHIP        = 21,
+	linux_IPV6_ROUTER_ALERT           = 22,
+	linux_IPV6_MTU_DISCOVER           = 23,
+	linux_IPV6_MTU                    = 24,
+	linux_IPV6_RECVERR                = 25,
+	linux_IPV6_V6ONLY                 = 26,
+	linux_IPV6_JOIN_ANYCAST           = 27,
+	linux_IPV6_LEAVE_ANYCAST          = 28,
+
+	// Flowlabel
+	linux_IPV6_FLOWLABEL_MGR          = 32,
+	linux_IPV6_FLOWINFO_SEND          = 33,
+
+	linux_IPV6_IPSEC_POLICY           = 34,
+	linux_IPV6_XFRM_POLICY            = 35,
+	linux_IPV6_HDRINCL                = 36,
+
+	// Multicast:
+	// Following socket options are shared between IPv4 and IPv6.
+	//linux_MCAST_JOIN_GROUP            = 42,
+	//linux_MCAST_BLOCK_SOURCE          = 43,
+	//linux_MCAST_UNBLOCK_SOURCE        = 44,
+	//linux_MCAST_LEAVE_GROUP           = 45,
+	//linux_MCAST_JOIN_SOURCE_GROUP     = 46,
+	//linux_MCAST_LEAVE_SOURCE_GROUP    = 47,
+	//linux_MCAST_MSFILTER              = 48,
+
+	linux_IPV6_RECVPKTINFO            = 49, // Note: IPV6_RECVRTHDRDSTOPTS does not exist.
+	linux_IPV6_PKTINFO                = 50,
+	linux_IPV6_RECVHOPLIMIT           = 51,
+	linux_IPV6_HOPLIMIT               = 52,
+	linux_IPV6_RECVHOPOPTS            = 53,
+	linux_IPV6_HOPOPTS                = 54,
+	linux_IPV6_RTHDRDSTOPTS           = 55,
+	linux_IPV6_RECVRTHDR              = 56,
+	linux_IPV6_RTHDR                  = 57,
+	linux_IPV6_RECVDSTOPTS            = 58,
+	linux_IPV6_DSTOPTS                = 59,
+	linux_IPV6_RECVPATHMTU            = 60,
+	linux_IPV6_PATHMTU                = 61,
+	linux_IPV6_DONTFRAG               = 62,
+
+	// Netfilter
+	// Following socket options are used in ip6_tables;
+	//linux_IP6T_SO_SET_REPLACE         = 64,
+	//linux_IP6T_SO_GET_INFO            = 64,
+	//linux_IP6T_SO_SET_ADD_COUNTERS    = 65,
+	//linux_IP6T_SO_GET_ENTRIES         = 65,
+
+	// Advanced API (RFC3542)
+	linux_IPV6_RECVTCLASS             = 66,
+	linux_IPV6_TCLASS                 = 67,
+
+	// Netfilter
+	// Following socket options are used in ip6_tables;
+	// see include/linux/netfilter_ipv6/ip6_tables.h.
+	//linux_IP6T_SO_GET_REVISION_MATCH  = 68,
+	//linux_IP6T_SO_GET_REVISION_TARGET = 69,
+	//linux_IP6T_SO_ORIGINAL_DST        = 80,
+
+	linux_IPV6_AUTOFLOWLABEL          = 70,
+	// RFC5014: Source address selection
+	linux_IPV6_ADDR_PREFERENCES       = 72,
+
+	// RFC5082: Generalized Ttl Security Mechanism
+	linux_IPV6_MINHOPCOUNT            = 73,
+
+	linux_IPV6_ORIGDSTADDR            = 74,
+	linux_IPV6_RECVORIGDSTADDR        = linux_IPV6_ORIGDSTADDR,
+	linux_IPV6_TRANSPARENT            = 75,
+	linux_IPV6_UNICAST_IF             = 76,
+	linux_IPV6_RECVFRAGSIZE           = 77,
+};
+
+enum
+{
+	// IPV6_MTU_DISCOVER values
+	linux_IPV6_PMTUDISC_DONT      = 0,
+	linux_IPV6_PMTUDISC_WANT      = 1,
+	linux_IPV6_PMTUDISC_DO        = 2,
+	linux_IPV6_PMTUDISC_PROBE     = 3,
+	// same as IPV6_PMTUDISC_PROBE, provided for symetry with IPv4 also see comments on IP_PMTUDISC_INTERFACE
+	linux_IPV6_PMTUDISC_INTERFACE = 4,
+	// weaker version of IPV6_PMTUDISC_INTERFACE, which allows packets to get fragmented if they exceed the interface mtu
+	linux_IPV6_PMTUDISC_OMIT      = 5,
+};
+
+enum
+{
+	linux_IPV6_PREFER_SRC_TMP            = 0x0001,
+	linux_IPV6_PREFER_SRC_PUBLIC         = 0x0002,
+	linux_IPV6_PREFER_SRC_PUBTMP_DEFAULT = 0x0100,
+	linux_IPV6_PREFER_SRC_COA            = 0x0004,
+	linux_IPV6_PREFER_SRC_HOME           = 0x0400,
+	linux_IPV6_PREFER_SRC_CGA            = 0x0008,
+	linux_IPV6_PREFER_SRC_NONCGA         = 0x0800,
+};
 
 #define linux_IN6ADDR_ANY_INIT                       { { {    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } } }
 #define linux_IN6ADDR_LOOPBACK_INIT                  { { {    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } }
@@ -1141,6 +1628,11 @@ enum
 #define linux_IN6ADDR_INTERFACELOCAL_ALLNODES_INIT   { { { 0xFF,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } }
 #define linux_IN6ADDR_INTERFACELOCAL_ALLROUTERS_INIT { { { 0xFF,1,0,0,0,0,0,0,0,0,0,0,0,0,0,2 } } }
 #define linux_IN6ADDR_SITELOCAL_ALLROUTERS_INIT      { { { 0xFF,5,0,0,0,0,0,0,0,0,0,0,0,0,0,2 } } }
+
+enum
+{
+	linux_SIOCUNIXFILE = linux_SIOCPROTOPRIVATE + 0, // open a socket file with O_PATH
+};
 
 // Constants
 //------------------------------------------------------------------------------
@@ -1238,6 +1730,41 @@ static inline void linux_FD_CLR(int const fd, linux_fd_set_t* const set)
 static inline bool linux_FD_ISSET(int const fd, linux_fd_set_t* const set)
 {
 	return set->_fds_bits[(unsigned)fd / (CHAR_BIT * sizeof(long))] & (1ul << ((unsigned)fd % (CHAR_BIT * sizeof(long))));
+}
+
+static inline bool linux_IN_CLASSA(uint32_t const addr)
+{
+	return (addr & 0x80000000) == 0;
+}
+
+static inline bool linux_IN_CLASSB(uint32_t const addr)
+{
+	return (addr & 0xC0000000) == 0x80000000;
+}
+
+static inline bool linux_IN_CLASSC(uint32_t const addr)
+{
+	return (addr & 0xE0000000) == 0xC0000000;
+}
+
+static inline bool linux_IN_CLASSD(uint32_t const addr)
+{
+	return (addr & 0xF0000000) == 0xE0000000;
+}
+
+static inline bool linux_IN_MULTICAST(uint32_t const addr)
+{
+	return linux_IN_CLASSD(addr);
+}
+
+static inline bool linux_IN_EXPERIMENTAL(uint32_t const addr)
+{
+	return (addr & 0xF0000000) == 0xF0000000;
+}
+
+static inline bool linux_IN_BADCLASS(uint32_t const addr)
+{
+	return linux_IN_EXPERIMENTAL(addr);
 }
 
 // Status bits
