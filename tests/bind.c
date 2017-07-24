@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <stdint.h>
 #include <arpa/inet.h>
 
 static uint16_t const port = 6112;
