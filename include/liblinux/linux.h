@@ -1340,6 +1340,8 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(listen, linux_fd_t, fd, int, backlog)
 static inline LINUX_DEFINE_SYSCALL3_NORET(getsockname, linux_fd_t, fd, struct linux_sockaddr_t*, usockaddr, int*, usockaddr_len)
 static inline LINUX_DEFINE_SYSCALL3_NORET(getpeername, linux_fd_t, fd, struct linux_sockaddr_t*, usockaddr, int*, usockaddr_len)
 static inline LINUX_DEFINE_SYSCALL4_NORET(socketpair, int, family, int, type, int, protocol, linux_fd_t*, usockvec)
+static inline LINUX_DEFINE_SYSCALL5_NORET(setsockopt, linux_fd_t, fd, int, level, int, optname, void LINUX_SAFE_CONST*, optval, int, optlen)
+static inline LINUX_DEFINE_SYSCALL5_NORET(getsockopt, linux_fd_t, fd, int, level, int, optname, void*, optval, int*, optlen)
 // TODO: Insert more syscalls here first.
 //exit
 static inline LINUX_DEFINE_SYSCALL4_RET(wait4, linux_pid_t, pid, int*, stat_addr, int, options, struct linux_rusage_t*, ru, linux_pid_t)
