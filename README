@@ -1,0 +1,7 @@
+liblinux
+========
+
+WARNING: This is a work in progress. Use of the library is not yet advised.
+
+This library presents a direct way to invoke all Linux syscalls and provides
+all necessary types and structures needed for those syscalls.
