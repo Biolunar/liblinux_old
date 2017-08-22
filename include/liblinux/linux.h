@@ -1634,6 +1634,33 @@ enum
 	linux_SIOCUNIXFILE = linux_SIOCPROTOPRIVATE + 0, // open a socket file with O_PATH
 };
 
+// cloning flags
+#define linux_CSIGNAL              0x000000FFul // signal mask to be sent at exit
+#define linux_CLONE_VM             0x00000100ul // set if VM shared between processes
+#define linux_CLONE_FS             0x00000200ul // set if fs info shared between processes
+#define linux_CLONE_FILES          0x00000400ul // set if open files shared between processes
+#define linux_CLONE_SIGHAND        0x00000800ul // set if signal handlers and blocked signals shared
+//#define linux_CLONE_PID            0x00001000ul
+#define linux_CLONE_PTRACE         0x00002000ul // set if we want to let tracing continue on the child too
+#define linux_CLONE_VFORK          0x00004000ul // set if the parent wants the child to wake it up on mm_release
+#define linux_CLONE_PARENT         0x00008000ul // set if we want to have the same parent as the cloner
+#define linux_CLONE_THREAD         0x00010000ul // Same thread group?
+#define linux_CLONE_NEWNS          0x00020000ul // New mount namespace group
+#define linux_CLONE_SYSVSEM        0x00040000ul // share system V SEM_UNDO semantics
+#define linux_CLONE_SETTLS         0x00080000ul // create a new TLS for the child
+#define linux_CLONE_PARENT_SETTID  0x00100000ul // set the TID in the parent
+#define linux_CLONE_CHILD_CLEARTID 0x00200000ul // clear the TID in the child
+#define linux_CLONE_DETACHED       0x00400000ul // Unused, ignored
+#define linux_CLONE_UNTRACED       0x00800000ul // set if the tracing process can't force CLONE_PTRACE on this clone
+#define linux_CLONE_CHILD_SETTID   0x01000000ul // set the TID in the child
+#define linux_CLONE_NEWCGROUP      0x02000000ul // New cgroup namespace
+#define linux_CLONE_NEWUTS         0x04000000ul // New utsname namespace
+#define linux_CLONE_NEWIPC         0x08000000ul // New ipc namespace
+#define linux_CLONE_NEWUSER        0x10000000ul // New user namespace
+#define linux_CLONE_NEWPID         0x20000000ul // New pid namespace
+#define linux_CLONE_NEWNET         0x40000000ul // New network namespace
+#define linux_CLONE_IO             0x80000000ul // Clone io context
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -1869,7 +1896,7 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(getpeername, linux_fd_t, fd, struct li
 static inline LINUX_DEFINE_SYSCALL4_NORET(socketpair, int, family, int, type, int, protocol, linux_fd_t*, usockvec)
 static inline LINUX_DEFINE_SYSCALL5_NORET(setsockopt, linux_fd_t, fd, int, level, int, optname, void LINUX_SAFE_CONST*, optval, int, optlen)
 static inline LINUX_DEFINE_SYSCALL5_NORET(getsockopt, linux_fd_t, fd, int, level, int, optname, void*, optval, int*, optlen)
-// TODO: Insert more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL5_RET(clone, unsigned long, clone_flags, void*, newsp, linux_pid_t*, parent_tidptr, linux_pid_t*, child_tidptr, unsigned long, tls, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL0_RET(fork, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL0_RET(vfork, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL3_NORET(execve, char const*, filename, char const* const*, argv, char const* const*, envp)
