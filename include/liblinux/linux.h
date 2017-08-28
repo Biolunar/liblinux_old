@@ -487,6 +487,16 @@ struct linux_sockaddr_un_t
 	linux_kernel_sa_family_t sun_family; // AF_UNIX
 	char sun_path[linux_UNIX_PATH_MAX]; // pathname
 };
+#define LINUX_NEW_UTS_LEN 64
+struct linux_new_utsname_t
+{
+	char sysname[LINUX_NEW_UTS_LEN + 1];
+	char nodename[LINUX_NEW_UTS_LEN + 1];
+	char release[LINUX_NEW_UTS_LEN + 1];
+	char version[LINUX_NEW_UTS_LEN + 1];
+	char machine[LINUX_NEW_UTS_LEN + 1];
+	char domainname[LINUX_NEW_UTS_LEN + 1];
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -1903,6 +1913,7 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(execve, char const*, filename, char co
 //exit
 static inline LINUX_DEFINE_SYSCALL4_RET(wait4, linux_pid_t, pid, int*, stat_addr, int, options, struct linux_rusage_t*, ru, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(kill, linux_pid_t, pid, int, sig)
+static inline LINUX_DEFINE_SYSCALL1_NORET(uname, struct linux_new_utsname_t*, name)
 // TODO: Insert more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_NORET(shmdt, void LINUX_SAFE_CONST*, shmaddr)
 
