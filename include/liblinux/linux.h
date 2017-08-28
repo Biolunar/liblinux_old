@@ -23,7 +23,7 @@
 #include <stdalign.h>
 #include <limits.h>
 
-#include <linux_syscall/syscall.h>
+#include <liblinux_syscall/syscall.h>
 
 /* C types
  *
