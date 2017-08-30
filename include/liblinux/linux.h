@@ -339,7 +339,7 @@ struct linux_timeval_t
 	linux_kernel_time_t      tv_sec;  // seconds
 	linux_kernel_suseconds_t tv_usec; // microseconds
 };
-struct linux_ipc64_perm
+struct linux_ipc64_perm_t
 {
 	linux_kernel_key_t key;
 	linux_kernel_uid32_t uid;
@@ -356,7 +356,7 @@ struct linux_ipc64_perm
 };
 struct linux_shmid64_ds
 {
-	struct linux_ipc64_perm shm_perm; // operation perms
+	struct linux_ipc64_perm_t shm_perm; // operation perms
 	size_t shm_segsz; // size of segment (bytes)
 	linux_kernel_time_t shm_atime; // last attach time
 	linux_kernel_time_t shm_dtime; // last detach time
@@ -389,6 +389,45 @@ struct linux_shm_info
 	linux_kernel_ulong_t swap_attempts;
 	linux_kernel_ulong_t swap_successes;
 };
+struct linux_semid64_ds_t
+{
+	struct linux_ipc64_perm_t sem_perm; // permissions
+	linux_kernel_time_t sem_otime; // last semop time
+	linux_kernel_ulong_t _pad1;
+	linux_kernel_time_t sem_ctime; // last change time
+	linux_kernel_ulong_t _pad2;
+	linux_kernel_ulong_t sem_nsems; // no. of semaphores in array
+	linux_kernel_ulong_t _pad3;
+	linux_kernel_ulong_t _pad4;
+};
+struct linux_sembuf_t
+{
+	unsigned short sem_num; // semaphore index in array
+	short sem_op; // semaphore operation
+	short sem_flg; // operation flags
+};
+struct linux_seminfo_t
+{
+	int semmap;
+	int semmni;
+	int semmns;
+	int semmnu;
+	int semmsl;
+	int semopm;
+	int semume;
+	int semusz;
+	int semvmx;
+	int semaem;
+};
+union linux_semun_t
+{
+	int val; // value for SETVAL
+	struct linux_semid64_ds_t* buf; // buffer for IPC_STAT & IPC_SET
+	unsigned short* array; // array for GETALL & SETALL
+	struct linux_seminfo_t* info; // buffer for IPC_INFO
+	void* _pad;
+};
+_Static_assert(sizeof(union linux_semun_t) == sizeof(unsigned long), "union linux_semun_t and unsigned long must have the same size. This is a bug in a liblinux header.");
 struct linux_timespec_t
 {
 	linux_kernel_time_t tv_sec;
@@ -477,7 +516,6 @@ struct linux_user_msghdr_t
 	unsigned int msg_flags; // flags on received message
 	char _pad1[4];
 };
-
 enum
 {
 	linux_UNIX_PATH_MAX = 108,
@@ -893,6 +931,44 @@ enum
 #define linux_SHMMAX   (ULONG_MAX - (1ul << 24)) // max shared seg size (bytes)
 #define linux_SHMALL   (ULONG_MAX - (1ul << 24)) // max shm system wide (pages)
 	linux_SHMSEG = linux_SHMMNI, // max shared segs per process
+};
+
+// semop flags
+enum
+{
+	linux_SEM_UNDO = 0x1000, // undo the operation on exit
+};
+
+enum
+{
+	// semctl Command Definitions.
+	linux_GETPID   = 11, // get sempid
+	linux_GETVAL   = 12, // get semval
+	linux_GETALL   = 13, // get all semval's
+	linux_GETNCNT  = 14, // get semncnt
+	linux_GETZCNT  = 15, // get semzcnt
+	linux_SETVAL   = 16, // set semval
+	linux_SETALL   = 17, // set all semval's
+
+	// ipcs ctl cmds
+	linux_SEM_STAT = 18,
+	linux_SEM_INFO = 19,
+};
+
+enum
+{
+	linux_SEMMNI = 32000, // <= IPCMNI  max # of semaphore identifiers
+	linux_SEMMSL = 32000, // <= INT_MAX max num of semaphores per id
+	linux_SEMMNS = (linux_SEMMNI * linux_SEMMSL), // <= INT_MAX max # of semaphores in system
+	linux_SEMOPM = 500, // <= 1 000 max num of ops per semop call
+	linux_SEMVMX = 32767, // <= 32767 semaphore maximum value
+	linux_SEMAEM = linux_SEMVMX, // adjust on exit max value
+
+	// unused
+	linux_SEMUME = linux_SEMOPM, // max num of undo entries per process
+	linux_SEMMNU = linux_SEMMNS, // num of undo structures system wide
+	linux_SEMMAP = linux_SEMMNS, // # of entries in semaphore map
+	linux_SEMUSZ = 20, // sizeof struct sem_undo
 };
 
 enum
@@ -1914,7 +1990,9 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(execve, char const*, filename, char co
 static inline LINUX_DEFINE_SYSCALL4_RET(wait4, linux_pid_t, pid, int*, stat_addr, int, options, struct linux_rusage_t*, ru, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(kill, linux_pid_t, pid, int, sig)
 static inline LINUX_DEFINE_SYSCALL1_NORET(uname, struct linux_new_utsname_t*, name)
-// TODO: Insert more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL3_RET(semget, linux_key_t, key, int, nsems, int, semflg, int)
+static inline LINUX_DEFINE_SYSCALL3_NORET(semop, int, semid, struct linux_sembuf_t LINUX_SAFE_CONST*, sops, unsigned, nsops)
+static inline LINUX_DEFINE_SYSCALL4_RET(semctl, int, semid, int, semnum, int, cmd, unsigned long, arg, int)
 static inline LINUX_DEFINE_SYSCALL1_NORET(shmdt, void LINUX_SAFE_CONST*, shmaddr)
 
 // Syscalls
