@@ -354,7 +354,7 @@ struct linux_ipc64_perm_t
 	linux_kernel_ulong_t _unused1;
 	linux_kernel_ulong_t _unused2;
 };
-struct linux_shmid64_ds
+struct linux_shmid64_ds_t
 {
 	struct linux_ipc64_perm_t shm_perm; // operation perms
 	size_t shm_segsz; // size of segment (bytes)
@@ -367,7 +367,7 @@ struct linux_shmid64_ds
 	linux_kernel_ulong_t _unused4;
 	linux_kernel_ulong_t _unused5;
 };
-struct linux_shminfo64
+struct linux_shminfo64_t
 {
 	linux_kernel_ulong_t shmmax;
 	linux_kernel_ulong_t shmmin;
@@ -379,7 +379,7 @@ struct linux_shminfo64
 	linux_kernel_ulong_t _unused3;
 	linux_kernel_ulong_t _unused4;
 };
-struct linux_shm_info
+struct linux_shm_info_t
 {
 	int used_ids;
 	unsigned char _pad[4];
@@ -1957,7 +1957,7 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(mincore, void const*, start, size_t, l
 static inline LINUX_DEFINE_SYSCALL3_NORET(madvise, void const*, start, size_t, len, int, behavior)
 static inline LINUX_DEFINE_SYSCALL3_RET(shmget, linux_key_t, key, size_t, size, int, flag, int)
 static inline LINUX_DEFINE_SYSCALL3_RET(shmat, int, shmid, void LINUX_SAFE_CONST*, shmaddr, int, shmflg, void*)
-static inline LINUX_DEFINE_SYSCALL3_RET(shmctl, int, shmid, int, cmd, struct linux_shmid64_ds*, buf, int)
+static inline LINUX_DEFINE_SYSCALL3_RET(shmctl, int, shmid, int, cmd, struct linux_shmid64_ds_t*, buf, int)
 static inline LINUX_DEFINE_SYSCALL1_RET(dup, linux_fd_t, fildes, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_RET(dup2, linux_fd_t, oldfd, linux_fd_t, newfd, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL0_NORET(pause)

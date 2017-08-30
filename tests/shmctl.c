@@ -47,7 +47,7 @@ static enum TestResult test_invalid_id(void)
 	if (linux_shmctl(id, linux_IPC_RMID, 0, 0))
 		return TEST_RESULT_OTHER_FAILURE;
 
-	struct linux_shmid64_ds buf;
+	struct linux_shmid64_ds_t buf;
 	memset(&buf, 0, sizeof buf);
 	if (linux_shmctl(id, linux_IPC_STAT, &buf, 0) != linux_EINVAL)
 		return TEST_RESULT_FAILURE;
@@ -76,7 +76,7 @@ static enum TestResult test_get_info(void)
 
 	int index;
 
-	struct linux_shmid64_ds buf1;
+	struct linux_shmid64_ds_t buf1;
 	memset(&buf1, 0xFF, sizeof buf1);
 	index = 1234;
 	if (linux_shmctl(id, linux_IPC_STAT, &buf1, &index) || index != 0)
@@ -85,19 +85,19 @@ static enum TestResult test_get_info(void)
 		return TEST_RESULT_FAILURE;
 	}
 
-	struct linux_shminfo64 buf2;
+	struct linux_shminfo64_t buf2;
 	memset(&buf2, 0xFF, sizeof buf2);
 	index = 0;
-	if (linux_shmctl(id, linux_IPC_INFO, (struct linux_shmid64_ds*)&buf2, &index) || index == 0)
+	if (linux_shmctl(id, linux_IPC_INFO, (struct linux_shmid64_ds_t*)&buf2, &index) || index == 0)
 	{
 		linux_shmctl(id, linux_IPC_RMID, 0, 0);
 		return TEST_RESULT_FAILURE;
 	}
 
-	struct linux_shm_info buf3;
+	struct linux_shm_info_t buf3;
 	memset(&buf3, 0xFF, sizeof buf3);
 	index = 0;
-	if (linux_shmctl(id, linux_SHM_INFO, (struct linux_shmid64_ds*)&buf3, &index) || index == 0)
+	if (linux_shmctl(id, linux_SHM_INFO, (struct linux_shmid64_ds_t*)&buf3, &index) || index == 0)
 	{
 		linux_shmctl(id, linux_IPC_RMID, 0, 0);
 		return TEST_RESULT_FAILURE;
