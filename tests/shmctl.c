@@ -24,7 +24,7 @@
 
 static enum TestResult test_invalid_buf(void)
 {
-	int id = 1234;
+	linux_shmid_t id = 0;
 	if (linux_shmget(linux_IPC_PRIVATE, linux_SHMMIN, linux_IPC_CREAT | linux_IPC_EXCL | linux_S_IRWXU, &id))
 		return TEST_RESULT_OTHER_FAILURE;
 
@@ -40,7 +40,7 @@ static enum TestResult test_invalid_buf(void)
 
 static enum TestResult test_invalid_id(void)
 {
-	int id = 1234;
+	linux_shmid_t id = 0;
 	if (linux_shmget(linux_IPC_PRIVATE, linux_SHMMIN, linux_IPC_CREAT | linux_IPC_EXCL | linux_S_IRWXU, &id))
 		return TEST_RESULT_OTHER_FAILURE;
 
@@ -57,7 +57,7 @@ static enum TestResult test_invalid_id(void)
 
 static enum TestResult test_remove(void)
 {
-	int id = 1234;
+	linux_shmid_t id = 0;
 	if (linux_shmget(linux_IPC_PRIVATE, linux_SHMMIN, linux_IPC_CREAT | linux_IPC_EXCL | linux_S_IRWXU, &id))
 		return TEST_RESULT_OTHER_FAILURE;
 
@@ -70,7 +70,7 @@ static enum TestResult test_remove(void)
 
 static enum TestResult test_get_info(void)
 {
-	int id = 1234;
+	linux_shmid_t id = 0;
 	if (linux_shmget(linux_IPC_PRIVATE, linux_SHMMIN, linux_IPC_CREAT | linux_IPC_EXCL | linux_S_IRWXU, &id))
 		return TEST_RESULT_OTHER_FAILURE;
 

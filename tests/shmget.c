@@ -23,7 +23,7 @@
 static enum TestResult test_invalid_size(void)
 {
 	enum linux_error_t err = linux_error_none;
-	int id = 1234;
+	linux_shmid_t id = 0;
 
 	err = linux_shmget(linux_IPC_PRIVATE, linux_SHMMIN - 1, linux_IPC_CREAT | linux_IPC_EXCL | linux_S_IRWXU, &id);
 	if (!err)
@@ -48,7 +48,7 @@ static enum TestResult test_invalid_size(void)
 
 static enum TestResult test_invalid_key(void)
 {
-	int id = 1234;
+	linux_shmid_t id = 0;
 
 	enum linux_error_t const err = linux_shmget(-1, linux_SHMMIN, linux_S_IRWXU, &id);
 	if (!err)
@@ -64,7 +64,7 @@ static enum TestResult test_invalid_key(void)
 
 static enum TestResult test_correct_usage(void)
 {
-	int id = 1234;
+	linux_shmid_t id = 0;
 	if (linux_shmget(linux_IPC_PRIVATE, linux_SHMMIN, linux_IPC_CREAT | linux_IPC_EXCL | linux_S_IRWXU, &id))
 		return TEST_RESULT_FAILURE;
 

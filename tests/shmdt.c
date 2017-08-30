@@ -32,7 +32,7 @@ static enum TestResult test_invalid_addr(void)
 
 static enum TestResult test_correct_usage(void)
 {
-	int id = 1234;
+	linux_shmid_t id = 0;
 	if (linux_shmget(linux_IPC_PRIVATE, linux_SHMMIN, linux_IPC_CREAT | linux_IPC_EXCL | linux_S_IRWXU, &id))
 		return TEST_RESULT_OTHER_FAILURE;
 

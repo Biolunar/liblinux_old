@@ -55,6 +55,8 @@
 // Custom types
 
 typedef unsigned int linux_fd_t;
+typedef int linux_shmid_t;
+typedef int linux_semid_t;
 
 // Custom types
 //------------------------------------------------------------------------------
@@ -1955,9 +1957,9 @@ static inline LINUX_DEFINE_SYSCALL5_RET(mremap, void const*, addr, size_t, old_l
 static inline LINUX_DEFINE_SYSCALL3_NORET(msync, void const*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL3_NORET(mincore, void const*, start, size_t, len, unsigned char*, vec)
 static inline LINUX_DEFINE_SYSCALL3_NORET(madvise, void const*, start, size_t, len, int, behavior)
-static inline LINUX_DEFINE_SYSCALL3_RET(shmget, linux_key_t, key, size_t, size, int, flag, int)
-static inline LINUX_DEFINE_SYSCALL3_RET(shmat, int, shmid, void LINUX_SAFE_CONST*, shmaddr, int, shmflg, void*)
-static inline LINUX_DEFINE_SYSCALL3_RET(shmctl, int, shmid, int, cmd, struct linux_shmid64_ds_t*, buf, int)
+static inline LINUX_DEFINE_SYSCALL3_RET(shmget, linux_key_t, key, size_t, size, int, flag, linux_shmid_t)
+static inline LINUX_DEFINE_SYSCALL3_RET(shmat, linux_shmid_t, shmid, void LINUX_SAFE_CONST*, shmaddr, int, shmflg, void*)
+static inline LINUX_DEFINE_SYSCALL3_RET(shmctl, linux_shmid_t, shmid, int, cmd, struct linux_shmid64_ds_t*, buf, int)
 static inline LINUX_DEFINE_SYSCALL1_RET(dup, linux_fd_t, fildes, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_RET(dup2, linux_fd_t, oldfd, linux_fd_t, newfd, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL0_NORET(pause)
@@ -1990,9 +1992,9 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(execve, char const*, filename, char co
 static inline LINUX_DEFINE_SYSCALL4_RET(wait4, linux_pid_t, pid, int*, stat_addr, int, options, struct linux_rusage_t*, ru, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(kill, linux_pid_t, pid, int, sig)
 static inline LINUX_DEFINE_SYSCALL1_NORET(uname, struct linux_new_utsname_t*, name)
-static inline LINUX_DEFINE_SYSCALL3_RET(semget, linux_key_t, key, int, nsems, int, semflg, int)
-static inline LINUX_DEFINE_SYSCALL3_NORET(semop, int, semid, struct linux_sembuf_t LINUX_SAFE_CONST*, sops, unsigned, nsops)
-static inline LINUX_DEFINE_SYSCALL4_RET(semctl, int, semid, int, semnum, int, cmd, unsigned long, arg, int)
+static inline LINUX_DEFINE_SYSCALL3_RET(semget, linux_key_t, key, int, nsems, int, semflg, linux_semid_t)
+static inline LINUX_DEFINE_SYSCALL3_NORET(semop, linux_semid_t, semid, struct linux_sembuf_t LINUX_SAFE_CONST*, sops, unsigned, nsops)
+static inline LINUX_DEFINE_SYSCALL4_RET(semctl, linux_semid_t, semid, int, semnum, int, cmd, unsigned long, arg, int)
 static inline LINUX_DEFINE_SYSCALL1_NORET(shmdt, void LINUX_SAFE_CONST*, shmaddr)
 
 // Syscalls

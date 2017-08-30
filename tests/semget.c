@@ -24,7 +24,7 @@ static enum TestResult test_invalid_number(void)
 {
 	enum linux_error_t err = linux_error_none;
 
-	int id = 0;
+	linux_semid_t id = 0;
 	err = linux_semget(linux_IPC_PRIVATE, -1, linux_IPC_CREAT | linux_IPC_EXCL | linux_S_IRWXU, &id);
 	if (!err)
 	{
@@ -39,7 +39,7 @@ static enum TestResult test_invalid_number(void)
 
 static enum TestResult test_correct_usage(void)
 {
-	int id = 0;
+	linux_semid_t id = 0;
 	if (linux_semget(linux_IPC_PRIVATE, 1, linux_IPC_CREAT | linux_IPC_EXCL | linux_S_IRWXU, &id))
 		return TEST_RESULT_FAILURE;
 

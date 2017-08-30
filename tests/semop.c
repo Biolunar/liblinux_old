@@ -24,7 +24,7 @@ static enum TestResult test_segfault(void)
 {
 	enum TestResult result = TEST_RESULT_SUCCESS;
 
-	int id = 0;
+	linux_semid_t id = 0;
 	if (linux_semget(linux_IPC_PRIVATE, 1, linux_IPC_CREAT | linux_IPC_EXCL | linux_S_IRWXU, &id))
 		return TEST_RESULT_OTHER_FAILURE;
 
@@ -39,7 +39,7 @@ static enum TestResult test_invalid_sem_number(void)
 {
 	enum TestResult result = TEST_RESULT_SUCCESS;
 
-	int id = 0;
+	linux_semid_t id = 0;
 	if (linux_semget(linux_IPC_PRIVATE, 1, linux_IPC_CREAT | linux_IPC_EXCL | linux_S_IRWXU, &id))
 		return TEST_RESULT_OTHER_FAILURE;
 
@@ -74,7 +74,7 @@ static enum TestResult test_invalid_ops_number(void)
 {
 	enum TestResult result = TEST_RESULT_SUCCESS;
 
-	int id = 0;
+	linux_semid_t id = 0;
 	if (linux_semget(linux_IPC_PRIVATE, 1, linux_IPC_CREAT | linux_IPC_EXCL | linux_S_IRWXU, &id))
 		return TEST_RESULT_OTHER_FAILURE;
 
@@ -95,7 +95,7 @@ static enum TestResult test_correct_usage(void)
 {
 	enum TestResult result = TEST_RESULT_SUCCESS;
 
-	int id = 0;
+	linux_semid_t id = 0;
 	if (linux_semget(linux_IPC_PRIVATE, 1, linux_IPC_CREAT | linux_IPC_EXCL | linux_S_IRWXU, &id))
 		return TEST_RESULT_OTHER_FAILURE;
 
