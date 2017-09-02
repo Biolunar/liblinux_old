@@ -57,6 +57,7 @@
 typedef unsigned int linux_fd_t;
 typedef int linux_shmid_t;
 typedef int linux_semid_t;
+typedef int linux_msgid_t;
 
 // Custom types
 //------------------------------------------------------------------------------
@@ -430,6 +431,37 @@ union linux_semun_t
 	void* _pad;
 };
 _Static_assert(sizeof(union linux_semun_t) == sizeof(unsigned long), "union linux_semun_t and unsigned long must have the same size. This is a bug in a liblinux header.");
+struct linux_msqid64_ds_t
+{
+	struct linux_ipc64_perm_t msg_perm;
+	linux_kernel_time_t msg_stime; // last msgsnd time
+	linux_kernel_time_t msg_rtime; // last msgrcv time
+	linux_kernel_time_t msg_ctime; // last change time
+	linux_kernel_ulong_t msg_cbytes; // current number of bytes on queue
+	linux_kernel_ulong_t msg_qnum; // number of messages in queue
+	linux_kernel_ulong_t msg_qbytes; // max number of bytes on queue
+	linux_kernel_pid_t msg_lspid; // pid of last msgsnd
+	linux_kernel_pid_t msg_lrpid; // last receive pid
+	linux_kernel_ulong_t _unused1;
+	linux_kernel_ulong_t _unused2;
+};
+struct linux_msgbuf_t
+{
+	linux_kernel_long_t mtype; // type of message
+	char mtext[]; // message text
+};
+struct linux_msginfo_t
+{
+	int msgpool;
+	int msgmap; 
+	int msgmax; 
+	int msgmnb; 
+	int msgmni; 
+	int msgssz; 
+	int msgtql; 
+	unsigned short msgseg; 
+	char _pad[2];
+};
 struct linux_timespec_t
 {
 	linux_kernel_time_t tv_sec;
@@ -971,6 +1003,36 @@ enum
 	linux_SEMMNU = linux_SEMMNS, // num of undo structures system wide
 	linux_SEMMAP = linux_SEMMNS, // # of entries in semaphore map
 	linux_SEMUSZ = 20, // sizeof struct sem_undo
+};
+
+enum
+{
+	// ipcs ctl commands
+	linux_MSG_STAT = 11,
+	linux_MSG_INFO = 12,
+};
+
+enum
+{
+	// msgrcv options
+	linux_MSG_NOERROR = 010000, // no error if message is too big
+	linux_MSG_EXCEPT  = 020000, // recv any msg except of specified type.
+	linux_MSG_COPY    = 040000, // copy (not remove) all queue messages
+};
+
+enum
+{
+	linux_MSGMNI = 32000, // <= IPCMNI. Max # of msg queue identifiers
+	linux_MSGMAX = 8192, // <= INT_MAX. Max size of message (bytes)
+	linux_MSGMNB = 16384, // <= INT_MAX. Default max size of a message queue
+
+	// unused
+	linux_MSGPOOL = linux_MSGMNI * linux_MSGMNB / 1024, // size in kbytes of message pool
+	linux_MSGTQL = linux_MSGMNB, // number of system message headers
+	linux_MSGMAP = linux_MSGMNB, // number of entries in message map
+	linux_MSGSSZ = 16, // message segment size
+	linux_MSGSEG_ = ((linux_MSGPOOL * 1024) / linux_MSGSSZ), // max no. of segments
+	linux_MSGSEG = (linux_MSGSEG_ <= 0xffff ? linux_MSGSEG_ : 0xffff),
 };
 
 enum
@@ -1995,6 +2057,10 @@ static inline LINUX_DEFINE_SYSCALL1_NORET(uname, struct linux_new_utsname_t*, na
 static inline LINUX_DEFINE_SYSCALL3_RET(semget, linux_key_t, key, int, nsems, int, semflg, linux_semid_t)
 static inline LINUX_DEFINE_SYSCALL3_NORET(semop, linux_semid_t, semid, struct linux_sembuf_t LINUX_SAFE_CONST*, sops, unsigned, nsops)
 static inline LINUX_DEFINE_SYSCALL4_RET(semctl, linux_semid_t, semid, int, semnum, int, cmd, unsigned long, arg, int)
+static inline LINUX_DEFINE_SYSCALL2_RET(msgget, linux_key_t, key, int, msgflg, linux_msgid_t)
+static inline LINUX_DEFINE_SYSCALL4_NORET(msgsnd, linux_msgid_t, msqid, struct linux_msgbuf_t LINUX_SAFE_CONST*, msgp, size_t, msgsz, int, msgflg)
+static inline LINUX_DEFINE_SYSCALL5_RET(msgrcv, linux_msgid_t, msqid, struct linux_msgbuf_t*, msgp, size_t, msgsz, long, msgtyp, int, msgflg, size_t) // TODO: return type?
+static inline LINUX_DEFINE_SYSCALL3_RET(msgctl, linux_msgid_t, msqid, int, cmd, struct linux_msqid64_ds_t*, buf, int)
 static inline LINUX_DEFINE_SYSCALL1_NORET(shmdt, void LINUX_SAFE_CONST*, shmaddr)
 
 // Syscalls
