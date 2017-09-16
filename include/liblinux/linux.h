@@ -559,15 +559,31 @@ struct linux_sockaddr_un_t
 	linux_kernel_sa_family_t sun_family; // AF_UNIX
 	char sun_path[linux_UNIX_PATH_MAX]; // pathname
 };
-#define LINUX_NEW_UTS_LEN 64
+enum
+{
+	linux_NEW_UTS_LEN = 64,
+};
 struct linux_new_utsname_t
 {
-	char sysname[LINUX_NEW_UTS_LEN + 1];
-	char nodename[LINUX_NEW_UTS_LEN + 1];
-	char release[LINUX_NEW_UTS_LEN + 1];
-	char version[LINUX_NEW_UTS_LEN + 1];
-	char machine[LINUX_NEW_UTS_LEN + 1];
-	char domainname[LINUX_NEW_UTS_LEN + 1];
+	char sysname[linux_NEW_UTS_LEN + 1];
+	char nodename[linux_NEW_UTS_LEN + 1];
+	char release[linux_NEW_UTS_LEN + 1];
+	char version[linux_NEW_UTS_LEN + 1];
+	char machine[linux_NEW_UTS_LEN + 1];
+	char domainname[linux_NEW_UTS_LEN + 1];
+};
+struct linux_f_owner_ex_t
+{
+	int type;
+	linux_kernel_pid_t pid;
+};
+struct linux_flock_t
+{
+	short l_type;
+	short l_whence;
+	linux_kernel_off_t l_start;
+	linux_kernel_off_t l_len;
+	linux_kernel_pid_t l_pid;
 };
 
 // Kernel types
@@ -575,6 +591,8 @@ struct linux_new_utsname_t
 
 //------------------------------------------------------------------------------
 // Constants
+
+_Static_assert((unsigned)INT_MIN == 0x80000000u, "Needs a two's complement platform.");
 
 enum
 {
@@ -612,6 +630,111 @@ enum
 	linux_O_TMPFILE_MASK = (linux_O_TMPFILE | linux_O_CREAT),
 
 	linux_O_NDELAY       = linux_O_NONBLOCK,
+};
+
+enum
+{
+	linux_F_DUPFD               =    0, // dup
+	linux_F_GETFD               =    1, // get close_on_exec
+	linux_F_SETFD               =    2, // set/clear close_on_exec
+	linux_F_GETFL               =    3, // get file->f_flags
+	linux_F_SETFL               =    4, // set file->f_flags
+	linux_F_GETLK               =    5,
+	linux_F_SETLK               =    6,
+	linux_F_SETLKW              =    7,
+	linux_F_SETOWN              =    8, // for sockets.
+	linux_F_GETOWN              =    9, // for sockets.
+	linux_F_SETSIG              =   10, // for sockets.
+	linux_F_GETSIG              =   11, // for sockets.
+
+	linux_F_SETOWN_EX           =   15,
+	linux_F_GETOWN_EX           =   16,
+
+	linux_F_GETOWNER_UIDS       =   17,
+
+	linux_F_OFD_GETLK           =   36,
+	linux_F_OFD_SETLK           =   37,
+	linux_F_OFD_SETLKW          =   38,
+
+	linux_F_LINUX_SPECIFIC_BASE = 1024,
+
+	linux_F_SETLEASE            = linux_F_LINUX_SPECIFIC_BASE + 0,
+	linux_F_GETLEASE            = linux_F_LINUX_SPECIFIC_BASE + 1,
+
+	linux_F_DUPFD_CLOEXEC       = linux_F_LINUX_SPECIFIC_BASE + 6, // Create a file descriptor with FD_CLOEXEC set.
+
+	// Request nofications on a directory.
+	// See below for events that may be notified.
+	linux_F_NOTIFY              = linux_F_LINUX_SPECIFIC_BASE + 2,
+
+	// Set and get of pipe page size array
+	linux_F_SETPIPE_SZ          = linux_F_LINUX_SPECIFIC_BASE + 7,
+	linux_F_GETPIPE_SZ          = linux_F_LINUX_SPECIFIC_BASE + 8,
+
+	// Set/Get seals
+	linux_F_ADD_SEALS           = linux_F_LINUX_SPECIFIC_BASE + 9,
+	linux_F_GET_SEALS           = linux_F_LINUX_SPECIFIC_BASE + 10,
+
+	// Set/Get write life time hints. {GET,SET}_RW_HINT operate on the
+	// underlying inode, while {GET,SET}_FILE_RW_HINT operate only on
+	// the specific file.
+	linux_F_GET_RW_HINT         = linux_F_LINUX_SPECIFIC_BASE + 11,
+	linux_F_SET_RW_HINT         = linux_F_LINUX_SPECIFIC_BASE + 12,
+	linux_F_GET_FILE_RW_HINT    = linux_F_LINUX_SPECIFIC_BASE + 13,
+	linux_F_SET_FILE_RW_HINT    = linux_F_LINUX_SPECIFIC_BASE + 14,
+};
+
+enum
+{
+	linux_F_OWNER_TID  = 0,
+	linux_F_OWNER_PID  = 1,
+	linux_F_OWNER_PGRP = 2,
+};
+
+enum
+{
+	linux_FD_CLOEXEC = 1, // actually anything with low bit set goes
+};
+
+enum
+{
+	linux_F_RDLCK = 0,
+	linux_F_WRLCK = 1,
+	linux_F_UNLCK = 2,
+};
+
+// Types of seals
+enum
+{
+	linux_F_SEAL_SEAL   = 0x0001, // prevent further seals from being set
+	linux_F_SEAL_SHRINK = 0x0002, // prevent file from shrinking
+	linux_F_SEAL_GROW   = 0x0004, // prevent file from growing
+	linux_F_SEAL_WRITE  = 0x0008, // prevent writes
+	// (1u << 31) is reserved for signed error codes
+};
+
+// Valid hint values for F_{GET,SET}_RW_HINT. 0 is "not set", or can be
+// used to clear any hints previously set.
+enum
+{
+	linux_RWF_WRITE_LIFE_NOT_SET = 0,
+	linux_RWH_WRITE_LIFE_NONE    = 1,
+	linux_RWH_WRITE_LIFE_SHORT   = 2,
+	linux_RWH_WRITE_LIFE_MEDIUM  = 3,
+	linux_RWH_WRITE_LIFE_LONG    = 4,
+	linux_RWH_WRITE_LIFE_EXTREME = 5,
+};
+
+// Types of directory notifications that may be requested.
+enum
+{
+	linux_DN_ACCESS    = 0x00000001, // File accessed
+	linux_DN_MODIFY    = 0x00000002, // File modified
+	linux_DN_CREATE    = 0x00000004, // File created
+	linux_DN_DELETE    = 0x00000008, // File removed
+	linux_DN_RENAME    = 0x00000010, // File renamed
+	linux_DN_ATTRIB    = 0x00000020, // File changed attibutes
+	linux_DN_MULTISHOT = INT_MIN, // Don't remove notifier // Workaround for the value 0x80000000u as a signed int.
 };
 
 enum
@@ -765,7 +888,6 @@ enum
 #define linux_SIG_IGN ((linux_sighandler_t)1)
 #define linux_SIG_ERR ((linux_sighandler_t)-1)
 
-_Static_assert((unsigned)INT_MIN == 0x80000000u, "Needs a two's complement platform.");
 enum
 {
 	linux_SA_NOCLDSTOP = 0x00000001u,
@@ -2057,11 +2179,12 @@ static inline LINUX_DEFINE_SYSCALL1_NORET(uname, struct linux_new_utsname_t*, na
 static inline LINUX_DEFINE_SYSCALL3_RET(semget, linux_key_t, key, int, nsems, int, semflg, linux_semid_t)
 static inline LINUX_DEFINE_SYSCALL3_NORET(semop, linux_semid_t, semid, struct linux_sembuf_t LINUX_SAFE_CONST*, sops, unsigned, nsops)
 static inline LINUX_DEFINE_SYSCALL4_RET(semctl, linux_semid_t, semid, int, semnum, int, cmd, unsigned long, arg, int)
+static inline LINUX_DEFINE_SYSCALL1_NORET(shmdt, void LINUX_SAFE_CONST*, shmaddr)
 static inline LINUX_DEFINE_SYSCALL2_RET(msgget, linux_key_t, key, int, msgflg, linux_msgid_t)
 static inline LINUX_DEFINE_SYSCALL4_NORET(msgsnd, linux_msgid_t, msqid, struct linux_msgbuf_t LINUX_SAFE_CONST*, msgp, size_t, msgsz, int, msgflg)
-static inline LINUX_DEFINE_SYSCALL5_RET(msgrcv, linux_msgid_t, msqid, struct linux_msgbuf_t*, msgp, size_t, msgsz, long, msgtyp, int, msgflg, size_t) // TODO: return type?
+static inline LINUX_DEFINE_SYSCALL5_RET(msgrcv, linux_msgid_t, msqid, struct linux_msgbuf_t*, msgp, size_t, msgsz, long, msgtyp, int, msgflg, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(msgctl, linux_msgid_t, msqid, int, cmd, struct linux_msqid64_ds_t*, buf, int)
-static inline LINUX_DEFINE_SYSCALL1_NORET(shmdt, void LINUX_SAFE_CONST*, shmaddr)
+static inline LINUX_DEFINE_SYSCALL3_RET(fcntl, linux_fd_t, fd, unsigned int, cmd, uintptr_t, arg, int)
 
 // Syscalls
 //------------------------------------------------------------------------------
