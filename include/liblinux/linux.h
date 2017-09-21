@@ -737,6 +737,20 @@ enum
 	linux_DN_MULTISHOT = INT_MIN, // Don't remove notifier // Workaround for the value 0x80000000u as a signed int.
 };
 
+// operations for bsd flock(), also used by the kernel implementation
+enum
+{
+	linux_LOCK_SH    =   1, // shared lock
+	linux_LOCK_EX    =   2, // exclusive lock
+	linux_LOCK_NB    =   4, // or'd with one of the above to prevent blocking
+	linux_LOCK_UN    =   8, // remove lock
+
+	linux_LOCK_MAND  =  32, // This is a mandatory flock ...
+	linux_LOCK_READ  =  64, // which allows concurrent read operations
+	linux_LOCK_WRITE = 128, // which allows concurrent write operations
+	linux_LOCK_RW    = 192, // which allows concurrent read & write ops
+};
+
 enum
 {
 	linux_S_IFMT   = 00170000,
@@ -2185,6 +2199,7 @@ static inline LINUX_DEFINE_SYSCALL4_NORET(msgsnd, linux_msgid_t, msqid, struct l
 static inline LINUX_DEFINE_SYSCALL5_RET(msgrcv, linux_msgid_t, msqid, struct linux_msgbuf_t*, msgp, size_t, msgsz, long, msgtyp, int, msgflg, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(msgctl, linux_msgid_t, msqid, int, cmd, struct linux_msqid64_ds_t*, buf, int)
 static inline LINUX_DEFINE_SYSCALL3_RET(fcntl, linux_fd_t, fd, unsigned int, cmd, uintptr_t, arg, int)
+static inline LINUX_DEFINE_SYSCALL2_NORET(flock, linux_fd_t, fd, unsigned int, cmd)
 
 // Syscalls
 //------------------------------------------------------------------------------
