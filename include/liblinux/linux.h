@@ -2202,6 +2202,8 @@ static inline LINUX_DEFINE_SYSCALL3_RET(fcntl, linux_fd_t, fd, unsigned int, cmd
 static inline LINUX_DEFINE_SYSCALL2_NORET(flock, linux_fd_t, fd, unsigned int, cmd)
 static inline LINUX_DEFINE_SYSCALL1_NORET(fsync, linux_fd_t, fd)
 static inline LINUX_DEFINE_SYSCALL1_NORET(fdatasync, linux_fd_t, fd)
+static inline LINUX_DEFINE_SYSCALL2_NORET(truncate, char LINUX_SAFE_CONST*, path, long, length)
+static inline LINUX_DEFINE_SYSCALL2_NORET(ftruncate, linux_fd_t, fd, unsigned long, length)
 
 // Syscalls
 //------------------------------------------------------------------------------
