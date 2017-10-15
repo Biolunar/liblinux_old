@@ -585,6 +585,13 @@ struct linux_flock_t
 	linux_kernel_off_t l_len;
 	linux_kernel_pid_t l_pid;
 };
+struct linux_dirent_t
+{
+	unsigned long d_ino;
+	unsigned long d_off;
+	unsigned short d_reclen;
+	char d_name[6]; // TODO: Hack to supress struct padding warning. Use flexible array member when ready.
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -599,6 +606,25 @@ enum
 	linux_stdin  = 0u,
 	linux_stdout = 1u,
 	linux_stderr = 2u,
+};
+
+enum // Limits
+{
+	linux_NR_OPEN        =   1024,
+
+	linux_NGROUPS_MAX    =  65536, // supplemental group IDs are available
+	linux_ARG_MAX        = 131072, // # bytes of args + environ for exec()
+	linux_LINK_MAX       =    127, // # links a file may have
+	linux_MAX_CANON      =    255, // size of the canonical input queue
+	linux_MAX_INPUT      =    255, // size of the type-ahead buffer
+	linux_NAME_MAX       =    255, // # chars in a file name
+	linux_PATH_MAX       =   4096, // # chars in a path name including nul
+	linux_PIPE_BUF       =   4096, // # bytes in atomic write to a pipe
+	linux_XATTR_NAME_MAX =    255, // # chars in an extended attribute name
+	linux_XATTR_SIZE_MAX =  65536, // size of an extended attribute value (64k)
+	linux_XATTR_LIST_MAX =  65536, // size of extended attribute namelist (64k)
+
+	linux_RTSIG_MAX      =     32,
 };
 
 enum
@@ -701,6 +727,19 @@ enum
 	linux_F_RDLCK = 0,
 	linux_F_WRLCK = 1,
 	linux_F_UNLCK = 2,
+};
+
+enum // File types
+{
+	linux_DT_UNKNOWN =  0,
+	linux_DT_FIFO    =  1,
+	linux_DT_CHR     =  2,
+	linux_DT_DIR     =  4,
+	linux_DT_BLK     =  6,
+	linux_DT_REG     =  8,
+	linux_DT_LNK     = 10,
+	linux_DT_SOCK    = 12,
+	linux_DT_WHT     = 14,
 };
 
 // Types of seals
@@ -2204,6 +2243,7 @@ static inline LINUX_DEFINE_SYSCALL1_NORET(fsync, linux_fd_t, fd)
 static inline LINUX_DEFINE_SYSCALL1_NORET(fdatasync, linux_fd_t, fd)
 static inline LINUX_DEFINE_SYSCALL2_NORET(truncate, char LINUX_SAFE_CONST*, path, long, length)
 static inline LINUX_DEFINE_SYSCALL2_NORET(ftruncate, linux_fd_t, fd, unsigned long, length)
+static inline LINUX_DEFINE_SYSCALL3_RET(getdents, linux_fd_t, fd, struct linux_dirent_t*, dirent, unsigned int, count, unsigned int)
 
 // Syscalls
 //------------------------------------------------------------------------------
