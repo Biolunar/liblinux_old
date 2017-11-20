@@ -2251,6 +2251,8 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(rename, char const*, oldname, char con
 static inline LINUX_DEFINE_SYSCALL2_NORET(mkdir, char const*, pathname, linux_umode_t, mode)
 static inline LINUX_DEFINE_SYSCALL1_NORET(rmdir, char const*, pathname)
 static inline LINUX_DEFINE_SYSCALL2_RET(creat, char const*, pathname, linux_umode_t, mode, linux_fd_t)
+static inline LINUX_DEFINE_SYSCALL2_NORET(link, char const*, oldname, char const*, newname)
+static inline LINUX_DEFINE_SYSCALL1_NORET(unlink, char const*, pathname)
 
 // Syscalls
 //------------------------------------------------------------------------------
