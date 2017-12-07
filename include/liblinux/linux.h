@@ -2255,6 +2255,8 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(link, char const*, oldname, char const
 static inline LINUX_DEFINE_SYSCALL1_NORET(unlink, char const*, pathname)
 static inline LINUX_DEFINE_SYSCALL2_NORET(symlink, char const*, oldname, char const*, newname)
 static inline LINUX_DEFINE_SYSCALL3_RET(readlink, char const*, path, char*, buf, int, bufsiz, int)
+static inline LINUX_DEFINE_SYSCALL2_NORET(chmod, char const*, filename, linux_umode_t, mode)
+static inline LINUX_DEFINE_SYSCALL2_NORET(fchmod, linux_fd_t, fd, linux_umode_t, mode)
 
 // Syscalls
 //------------------------------------------------------------------------------
