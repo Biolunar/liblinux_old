@@ -592,6 +592,8 @@ struct linux_dirent_t
 	unsigned short d_reclen;
 	char d_name[6]; // TODO: Hack to supress struct padding warning. Use flexible array member when ready.
 };
+typedef linux_kernel_uid32_t linux_uid_t;
+typedef linux_kernel_gid32_t linux_gid_t;
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -2257,6 +2259,9 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(symlink, char const*, oldname, char co
 static inline LINUX_DEFINE_SYSCALL3_RET(readlink, char const*, path, char*, buf, int, bufsiz, int)
 static inline LINUX_DEFINE_SYSCALL2_NORET(chmod, char const*, filename, linux_umode_t, mode)
 static inline LINUX_DEFINE_SYSCALL2_NORET(fchmod, linux_fd_t, fd, linux_umode_t, mode)
+static inline LINUX_DEFINE_SYSCALL3_NORET(chown, char const*, filename, linux_uid_t, user, linux_gid_t, group)
+static inline LINUX_DEFINE_SYSCALL3_NORET(fchown, linux_fd_t, fd, linux_uid_t, user, linux_gid_t, group)
+static inline LINUX_DEFINE_SYSCALL3_NORET(lchown, char const*, filename, linux_uid_t, user, linux_gid_t, group)
 
 // Syscalls
 //------------------------------------------------------------------------------
