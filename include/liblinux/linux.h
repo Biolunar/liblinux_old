@@ -480,19 +480,19 @@ struct linux_itimerval_t
 struct linux_rusage_t
 {
 	struct linux_timeval_t ru_utime; // user time used
-	struct linux_timeval_t ru_stime; // ystem time used
-	linux_kernel_long_t ru_maxrss; // aximum resident set size
-	linux_kernel_long_t ru_ixrss; // ntegral shared memory size
-	linux_kernel_long_t ru_idrss; // ntegral unshared data size
-	linux_kernel_long_t ru_isrss; // ntegral unshared stack size
-	linux_kernel_long_t ru_minflt; // age reclaims
-	linux_kernel_long_t ru_majflt; // age faults
-	linux_kernel_long_t ru_nswap; // waps
-	linux_kernel_long_t ru_inblock; // lock input operations
-	linux_kernel_long_t ru_oublock; // lock output operations
-	linux_kernel_long_t ru_msgsnd; // essages sent
-	linux_kernel_long_t ru_msgrcv; // essages received
-	linux_kernel_long_t ru_nsignals; // ignals received
+	struct linux_timeval_t ru_stime; // system time used
+	linux_kernel_long_t ru_maxrss; // maximum resident set size
+	linux_kernel_long_t ru_ixrss; // integral shared memory size
+	linux_kernel_long_t ru_idrss; // integral unshared data size
+	linux_kernel_long_t ru_isrss; // integral unshared stack size
+	linux_kernel_long_t ru_minflt; // page reclaims
+	linux_kernel_long_t ru_majflt; // page faults
+	linux_kernel_long_t ru_nswap; // swaps
+	linux_kernel_long_t ru_inblock; // block input operations
+	linux_kernel_long_t ru_oublock; // block output operations
+	linux_kernel_long_t ru_msgsnd; // messages sent
+	linux_kernel_long_t ru_msgrcv; // messages received
+	linux_kernel_long_t ru_nsignals; // signals received
 	linux_kernel_long_t ru_nvcsw; // voluntary context switches
 	linux_kernel_long_t ru_nivcsw; // involuntary context switches
 };
@@ -2021,6 +2021,14 @@ enum
 };
 #define linux_RLIM_INFINITY (~0ul)
 
+enum
+{
+	linux_RUSAGE_SELF     =  0,
+	linux_RUSAGE_CHILDREN = -1,
+	linux_RUSAGE_BOTH     = -2, // sys_wait4() uses this
+	linux_RUSAGE_THREAD   =  1, // only the calling thread
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -2298,6 +2306,7 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(lchown, char const*, filename, linux_u
 static inline LINUX_DEFINE_SYSCALL1_RET(umask, linux_umode_t, mask, linux_umode_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(gettimeofday, struct linux_timeval_t*, tv, struct linux_timezone_t*, tz)
 static inline LINUX_DEFINE_SYSCALL2_NORET(getrlimit, unsigned int, resource, struct linux_rlimit_t*, rlim)
+static inline LINUX_DEFINE_SYSCALL2_NORET(getrusage, int, who, struct linux_rusage_t*, ru)
 
 // Syscalls
 //------------------------------------------------------------------------------
