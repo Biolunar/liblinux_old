@@ -604,6 +604,23 @@ struct linux_rlimit_t
 	linux_kernel_ulong_t rlim_cur;
 	linux_kernel_ulong_t rlim_max;
 };
+struct linux_sysinfo_t
+{
+	linux_kernel_long_t uptime; // Seconds since boot
+	linux_kernel_ulong_t loads[3]; // 1, 5, and 15 minute load averages
+	linux_kernel_ulong_t totalram; // Total usable main memory size
+	linux_kernel_ulong_t freeram; // Available memory size
+	linux_kernel_ulong_t sharedram; // Amount of shared memory
+	linux_kernel_ulong_t bufferram; // Memory used by buffers
+	linux_kernel_ulong_t totalswap; // Total swap space size
+	linux_kernel_ulong_t freeswap; // swap space still available
+	uint16_t procs; // Number of current processes
+	char _pad1[6]; // Explicit padding for m68k
+	linux_kernel_ulong_t totalhigh;	// Total high memory size
+	linux_kernel_ulong_t freehigh;	// Available high memory size
+	uint32_t mem_unit; // Memory unit size in bytes
+	char _pad2[4];
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -2307,6 +2324,7 @@ static inline LINUX_DEFINE_SYSCALL1_RET(umask, linux_umode_t, mask, linux_umode_
 static inline LINUX_DEFINE_SYSCALL2_NORET(gettimeofday, struct linux_timeval_t*, tv, struct linux_timezone_t*, tz)
 static inline LINUX_DEFINE_SYSCALL2_NORET(getrlimit, unsigned int, resource, struct linux_rlimit_t*, rlim)
 static inline LINUX_DEFINE_SYSCALL2_NORET(getrusage, int, who, struct linux_rusage_t*, ru)
+static inline LINUX_DEFINE_SYSCALL1_NORET(sysinfo, struct linux_sysinfo_t*, info)
 
 // Syscalls
 //------------------------------------------------------------------------------
