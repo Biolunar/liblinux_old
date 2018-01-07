@@ -2262,6 +2262,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(fchmod, linux_fd_t, fd, linux_umode_t,
 static inline LINUX_DEFINE_SYSCALL3_NORET(chown, char const*, filename, linux_uid_t, user, linux_gid_t, group)
 static inline LINUX_DEFINE_SYSCALL3_NORET(fchown, linux_fd_t, fd, linux_uid_t, user, linux_gid_t, group)
 static inline LINUX_DEFINE_SYSCALL3_NORET(lchown, char const*, filename, linux_uid_t, user, linux_gid_t, group)
+static inline LINUX_DEFINE_SYSCALL1_RET(umask, linux_umode_t, mask, linux_umode_t)
 
 // Syscalls
 //------------------------------------------------------------------------------
