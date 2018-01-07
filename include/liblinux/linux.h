@@ -78,6 +78,7 @@ typedef unsigned int linux_kernel_gid32_t;
 typedef linux_kernel_uid32_t linux_arch_si_uid_t;
 typedef int linux_kernel_timer_t;
 typedef linux_kernel_long_t linux_kernel_clock_t;
+typedef linux_kernel_clock_t linux_clock_t;
 typedef linux_kernel_clock_t linux_arch_si_clock_t;
 typedef long linux_arch_si_band_t;
 typedef unsigned long linux_sigset_t;
@@ -620,6 +621,13 @@ struct linux_sysinfo_t
 	linux_kernel_ulong_t freehigh;	// Available high memory size
 	uint32_t mem_unit; // Memory unit size in bytes
 	char _pad2[4];
+};
+struct linux_tms_t
+{
+	linux_kernel_clock_t tms_utime;
+	linux_kernel_clock_t tms_stime;
+	linux_kernel_clock_t tms_cutime;
+	linux_kernel_clock_t tms_cstime;
 };
 
 // Kernel types
@@ -2325,6 +2333,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(gettimeofday, struct linux_timeval_t*,
 static inline LINUX_DEFINE_SYSCALL2_NORET(getrlimit, unsigned int, resource, struct linux_rlimit_t*, rlim)
 static inline LINUX_DEFINE_SYSCALL2_NORET(getrusage, int, who, struct linux_rusage_t*, ru)
 static inline LINUX_DEFINE_SYSCALL1_NORET(sysinfo, struct linux_sysinfo_t*, info)
+static inline LINUX_DEFINE_SYSCALL1_RET(times, struct linux_tms_t*, tbuf, linux_clock_t)
 
 // Syscalls
 //------------------------------------------------------------------------------
