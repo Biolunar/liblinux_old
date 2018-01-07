@@ -342,6 +342,11 @@ struct linux_timeval_t
 	linux_kernel_time_t      tv_sec;  // seconds
 	linux_kernel_suseconds_t tv_usec; // microseconds
 };
+struct linux_timezone_t
+{
+	int tz_minuteswest; // minutes west of Greenwich
+	int tz_dsttime; // type of dst correction
+};
 struct linux_ipc64_perm_t
 {
 	linux_kernel_key_t key;
@@ -2263,6 +2268,7 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(chown, char const*, filename, linux_ui
 static inline LINUX_DEFINE_SYSCALL3_NORET(fchown, linux_fd_t, fd, linux_uid_t, user, linux_gid_t, group)
 static inline LINUX_DEFINE_SYSCALL3_NORET(lchown, char const*, filename, linux_uid_t, user, linux_gid_t, group)
 static inline LINUX_DEFINE_SYSCALL1_RET(umask, linux_umode_t, mask, linux_umode_t)
+static inline LINUX_DEFINE_SYSCALL2_NORET(gettimeofday, struct linux_timeval_t*, tv, struct linux_timezone_t*, tz)
 
 // Syscalls
 //------------------------------------------------------------------------------
