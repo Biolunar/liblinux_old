@@ -599,6 +599,11 @@ struct linux_dirent_t
 };
 typedef linux_kernel_uid32_t linux_uid_t;
 typedef linux_kernel_gid32_t linux_gid_t;
+struct linux_rlimit_t
+{
+	linux_kernel_ulong_t rlim_cur;
+	linux_kernel_ulong_t rlim_max;
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -1993,6 +1998,29 @@ enum
 #define linux_CLONE_NEWNET         0x40000000ul // New network namespace
 #define linux_CLONE_IO             0x80000000ul // Clone io context
 
+// Resource limit IDs
+enum
+{
+	linux_RLIMIT_CPU        =  0, // PU time in sec
+	linux_RLIMIT_FSIZE      =  1, // aximum filesize
+	linux_RLIMIT_DATA       =  2, // ax data size
+	linux_RLIMIT_STACK      =  3, // ax stack size
+	linux_RLIMIT_CORE       =  4, // ax core file size
+	linux_RLIMIT_RSS        =  5, // ax resident set size
+	linux_RLIMIT_NPROC      =  6, // ax number of processes
+	linux_RLIMIT_NOFILE     =  7, // ax number of open files
+	linux_RLIMIT_MEMLOCK    =  8, // ax locked-in-memory address space
+	linux_RLIMIT_AS         =  9, // ddress space limit
+	linux_RLIMIT_LOCKS      = 10, // aximum file locks held
+	linux_RLIMIT_SIGPENDING = 11, // ax number of pending signals
+	linux_RLIMIT_MSGQUEUE   = 12, // aximum bytes in POSIX mqueues
+	linux_RLIMIT_NICE       = 13, // ax nice prio allowed to raise to 0-39 for nice level 19 .. -20
+	linux_RLIMIT_RTPRIO     = 14, // aximum realtime priority
+	linux_RLIMIT_RTTIME     = 15, // timeout for RT tasks in us
+	linux_RLIM_NLIMITS      = 16,
+};
+#define linux_RLIM_INFINITY (~0ul)
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -2269,6 +2297,7 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(fchown, linux_fd_t, fd, linux_uid_t, u
 static inline LINUX_DEFINE_SYSCALL3_NORET(lchown, char const*, filename, linux_uid_t, user, linux_gid_t, group)
 static inline LINUX_DEFINE_SYSCALL1_RET(umask, linux_umode_t, mask, linux_umode_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(gettimeofday, struct linux_timeval_t*, tv, struct linux_timezone_t*, tz)
+static inline LINUX_DEFINE_SYSCALL2_NORET(getrlimit, unsigned int, resource, struct linux_rlimit_t*, rlim)
 
 // Syscalls
 //------------------------------------------------------------------------------
