@@ -2054,6 +2054,22 @@ enum
 	linux_RUSAGE_THREAD   =  1, // only the calling thread
 };
 
+// arch_prctl options
+enum
+{
+	linux_ARCH_SET_GS       = 0x1001,
+	linux_ARCH_SET_FS       = 0x1002,
+	linux_ARCH_GET_FS       = 0x1003,
+	linux_ARCH_GET_GS       = 0x1004,
+
+	linux_ARCH_GET_CPUID    = 0x1011,
+	linux_ARCH_SET_CPUID    = 0x1012,
+
+	linux_ARCH_MAP_VDSO_X32 = 0x2001,
+	linux_ARCH_MAP_VDSO_32  = 0x2002,
+	linux_ARCH_MAP_VDSO_64  = 0x2003,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -2334,6 +2350,8 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(getrlimit, unsigned int, resource, str
 static inline LINUX_DEFINE_SYSCALL2_NORET(getrusage, int, who, struct linux_rusage_t*, ru)
 static inline LINUX_DEFINE_SYSCALL1_NORET(sysinfo, struct linux_sysinfo_t*, info)
 static inline LINUX_DEFINE_SYSCALL1_RET(times, struct linux_tms_t*, tbuf, linux_clock_t)
+// TODO: Add more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
 // Syscalls
 //------------------------------------------------------------------------------
