@@ -216,6 +216,7 @@ typedef struct
 {
 	void* ss_sp;
 	int ss_flags;
+	char _pad[4];
 	size_t ss_size;
 } linux_stack_t;
 struct linux_fpx_sw_bytes_t
@@ -628,6 +629,86 @@ struct linux_tms_t
 	linux_kernel_clock_t tms_stime;
 	linux_kernel_clock_t tms_cutime;
 	linux_kernel_clock_t tms_cstime;
+};
+struct linux_ptrace_peeksiginfo_args_t
+{
+	uint64_t off; // from which siginfo to start
+	uint32_t flags;
+	int32_t nr; // how may siginfos to take
+};
+struct linux_user_i387_struct_t
+{
+	unsigned short cwd;
+	unsigned short swd;
+	unsigned short twd; // Note this is not the same as the 32bit/x87/FSAVE twd
+	unsigned short fop;
+	uint64_t rip;
+	uint64_t rdp;
+	uint32_t mxcsr;
+	uint32_t mxcsr_mask;
+	uint32_t st_space[32]; // 8*16 bytes for each FP-reg = 128 bytes
+	uint32_t xmm_space[64]; // 16*16 bytes for each XMM-reg = 256 bytes
+	uint32_t padding[24];
+};
+struct linux_user_regs_struct_t
+{
+	unsigned long r15;
+	unsigned long r14;
+	unsigned long r13;
+	unsigned long r12;
+	unsigned long bp;
+	unsigned long bx;
+	unsigned long r11;
+	unsigned long r10;
+	unsigned long r9;
+	unsigned long r8;
+	unsigned long ax;
+	unsigned long cx;
+	unsigned long dx;
+	unsigned long si;
+	unsigned long di;
+	unsigned long orig_ax;
+	unsigned long ip;
+	unsigned long cs;
+	unsigned long flags;
+	unsigned long sp;
+	unsigned long ss;
+	unsigned long fs_base;
+	unsigned long gs_base;
+	unsigned long ds;
+	unsigned long es;
+	unsigned long fs;
+	unsigned long gs;
+};
+struct linux_user_t
+{
+	// We start with the registers, to mimic the way that "memory" is returned from the ptrace(3,...) function.
+	struct linux_user_regs_struct_t regs; // Where the registers are actually stored
+	// ptrace does not yet supply these.  Someday....
+	int u_fpvalid; // True if math co-processor being used.
+	// for this mess. Not yet used.
+	int pad0;
+	struct linux_user_i387_struct_t i387; // Math Co-processor registers.
+	// The rest of this junk is to help gdb figure out what goes where
+	unsigned long int u_tsize; // Text segment size (pages).
+	unsigned long int u_dsize; // Data segment size (pages).
+	unsigned long int u_ssize; // Stack segment size (pages).
+	unsigned long start_code; // Starting virtual address of text.
+	unsigned long start_stack; // Starting virtual address of stack area.
+	                           // This is actually the bottom of the stack,
+	                           // the top of the stack is always found in the
+	                           // esp register.
+	long int signal; // Signal that caused the core dump.
+	int reserved; // No longer used
+	int pad1;
+	unsigned long u_ar0; // Used by gdb to help find the values for
+	// the registers.
+	struct user_i387_struct* u_fpstate; // Math Co-processor pointer.
+	unsigned long magic; // To uniquely identify a core file
+	char u_comm[32]; // User command that was responsible
+	unsigned long u_debugreg[8];
+	unsigned long error_code; // CPU error code or 0
+	unsigned long fault_address; // CR3 or 0
 };
 
 // Kernel types
@@ -2070,6 +2151,93 @@ enum
 	linux_ARCH_MAP_VDSO_64  = 0x2003,
 };
 
+// ptrace requests
+enum
+{
+	linux_PTRACE_TRACEME            =  0,
+	linux_PTRACE_PEEKTEXT           =  1,
+	linux_PTRACE_PEEKDATA           =  2,
+	linux_PTRACE_PEEKUSR            =  3,
+	linux_PTRACE_POKETEXT           =  4,
+	linux_PTRACE_POKEDATA           =  5,
+	linux_PTRACE_POKEUSR            =  6,
+	linux_PTRACE_CONT               =  7,
+	linux_PTRACE_KILL               =  8,
+	linux_PTRACE_SINGLESTEP         =  9,
+
+	linux_PTRACE_GETREGS            = 12,
+	linux_PTRACE_SETREGS            = 13,
+	linux_PTRACE_GETFPREGS          = 14,
+	linux_PTRACE_SETFPREGS          = 15,
+	linux_PTRACE_ATTACH             = 16,
+	linux_PTRACE_DETACH             = 17,
+	linux_PTRACE_GETFPXREGS         = 18,
+	linux_PTRACE_SETFPXREGS         = 19,
+
+	linux_PTRACE_OLDSETOPTIONS      = 21,
+
+	linux_PTRACE_SYSCALL            = 24,
+	linux_PTRACE_GET_THREAD_AREA    = 25,
+	linux_PTRACE_SET_THREAD_AREA    = 26,
+
+	linux_PTRACE_ARCH_PRCTL         = 30,
+	linux_PTRACE_SYSEMU             = 31,
+	linux_PTRACE_SYSEMU_SINGLESTEP  = 32,
+	linux_PTRACE_SINGLEBLOCK        = 33,
+
+	linux_PTRACE_SETOPTIONS         = 0x4200,
+	linux_PTRACE_GETEVENTMSG        = 0x4201,
+	linux_PTRACE_GETSIGINFO         = 0x4202,
+	linux_PTRACE_SETSIGINFO         = 0x4203,
+	linux_PTRACE_GETREGSET          = 0x4204,
+	linux_PTRACE_SETREGSET          = 0x4205,
+	linux_PTRACE_SEIZE              = 0x4206,
+	linux_PTRACE_INTERRUPT          = 0x4207,
+	linux_PTRACE_LISTEN             = 0x4208,
+	linux_PTRACE_PEEKSIGINFO        = 0x4209,
+	linux_PTRACE_GETSIGMASK         = 0x420A,
+	linux_PTRACE_SETSIGMASK         = 0x420B,
+	linux_PTRACE_SECCOMP_GET_FILTER = 0x420C,
+};
+
+// struct linux_ptrace_peeksiginfo_args_t flags
+enum
+{
+	linux_PTRACE_PEEKSIGINFO_SHARED = (1 << 0),
+};
+
+// ptrace events
+enum
+{
+	linux_PTRACE_EVENT_FORK       =   1,
+	linux_PTRACE_EVENT_VFORK      =   2,
+	linux_PTRACE_EVENT_CLONE      =   3,
+	linux_PTRACE_EVENT_EXEC       =   4,
+	linux_PTRACE_EVENT_VFORK_DONE =   5,
+	linux_PTRACE_EVENT_EXIT       =   6,
+	linux_PTRACE_EVENT_SECCOMP    =   7,
+
+	linux_PTRACE_EVENT_STOP       = 128,
+};
+
+// ptrace options
+enum
+{
+	linux_PTRACE_O_TRACESYSGOOD    = 1,
+	linux_PTRACE_O_TRACEFORK       = 1 << linux_PTRACE_EVENT_FORK,
+	linux_PTRACE_O_TRACEVFORK      = 1 << linux_PTRACE_EVENT_VFORK,
+	linux_PTRACE_O_TRACECLONE      = 1 << linux_PTRACE_EVENT_CLONE,
+	linux_PTRACE_O_TRACEEXEC       = 1 << linux_PTRACE_EVENT_EXEC,
+	linux_PTRACE_O_TRACEVFORKDONE  = 1 << linux_PTRACE_EVENT_VFORK_DONE,
+	linux_PTRACE_O_TRACEEXIT       = 1 << linux_PTRACE_EVENT_EXIT,
+	linux_PTRACE_O_TRACESECCOMP    = 1 << linux_PTRACE_EVENT_SECCOMP,
+
+	linux_PTRACE_O_EXITKILL        = 1 << 20,
+	linux_PTRACE_O_SUSPEND_SECCOMP = 1 << 21,
+
+	linux_PTRACE_O_MASK = 0x000000FF | linux_PTRACE_O_EXITKILL | linux_PTRACE_O_SUSPEND_SECCOMP,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -2350,6 +2518,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(getrlimit, unsigned int, resource, str
 static inline LINUX_DEFINE_SYSCALL2_NORET(getrusage, int, who, struct linux_rusage_t*, ru)
 static inline LINUX_DEFINE_SYSCALL1_NORET(sysinfo, struct linux_sysinfo_t*, info)
 static inline LINUX_DEFINE_SYSCALL1_RET(times, struct linux_tms_t*, tbuf, linux_clock_t)
+static inline LINUX_DEFINE_SYSCALL4_NORET(ptrace, int, request, linux_pid_t, pid, void*, addr, uintptr_t, data)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
