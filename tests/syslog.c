@@ -20,8 +20,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <string.h>
-
 static enum TestResult test_invalid_type(void)
 {
 	if (!linux_syslog(-1, 0, 0, 0))
@@ -51,7 +49,6 @@ static enum TestResult test_correct_usage(void)
 	char* const buf = malloc((unsigned)len);
 	if (!buf)
 		return TEST_RESULT_OTHER_FAILURE;
-	memset(buf, 'x', (unsigned)len);
 
 	int ret;
 	if (linux_syslog(linux_SYSLOG_ACTION_READ_ALL, buf, len, &ret) || ret < 0)
