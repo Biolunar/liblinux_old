@@ -49,7 +49,7 @@ static enum TestResult test_correct_usage(void)
 	{
 		.sa_handler = &handler,
 		.sa_flags = linux_SA_RESTORER,
-		.sa_restorer = &linux_rt_restorer,
+		.sa_restorer = &linux_rt_sigreturn,
 	};
 	linux_sigemptyset(&sa.sa_mask);
 	if (linux_rt_sigaction(linux_SIGALRM, &sa, 0, sizeof(linux_sigset_t)))

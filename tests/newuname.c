@@ -20,24 +20,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static enum TestResult test_invalid_file(void)
+static enum TestResult test_segfault(void)
 {
-	if (linux_lstat("some very non existant name", 0) != linux_ENOENT)
-		return TEST_RESULT_FAILURE;
-
-	if (linux_lstat("", 0) != linux_ENOENT)
-		return TEST_RESULT_FAILURE;
-
-	if (linux_lstat(0, 0) != linux_EFAULT)
+	if (linux_newuname(0) != linux_EFAULT)
 		return TEST_RESULT_FAILURE;
 
 	return TEST_RESULT_SUCCESS;
 }
 
-static enum TestResult test_real_file(void)
+static enum TestResult test_correct_usage(void)
 {
-	struct linux_stat_t stat;
-	if (linux_lstat("/proc/self/maps", &stat))
+	struct linux_new_utsname_t uts;
+	if  (linux_newuname(&uts))
 		return TEST_RESULT_FAILURE;
 
 	return TEST_RESULT_SUCCESS;
@@ -47,10 +41,10 @@ int main(void)
 {
 	int ret = EXIT_SUCCESS;
 
-	printf("Start testing lstat.\n");
-	DO_TEST(invalid_file, &ret);
-	DO_TEST(real_file, &ret);
-	printf("Finished testing lstat.\n");
+	printf("Start testing newuname.\n");
+	DO_TEST(segfault, &ret);
+	DO_TEST(correct_usage, &ret);
+	printf("Finished testing newuname.\n");
 
 	return ret;
 }

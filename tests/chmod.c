@@ -67,7 +67,7 @@ static enum TestResult test_correct_usage(void)
 
 	struct linux_stat_t statbuf;
 	memset(&statbuf, 0, sizeof statbuf);
-	if (linux_fstat(fd, &statbuf))
+	if (linux_newfstat(fd, &statbuf))
 	{
 		ret = TEST_RESULT_OTHER_FAILURE;
 		goto out;

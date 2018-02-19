@@ -22,14 +22,14 @@
 
 static enum TestResult test_invalid_fd(void)
 {
-	if (linux_sendfile(linux_stdout, linux_stderr + 1, 0, sizeof(int), 0) != linux_EBADF)
+	if (linux_sendfile64(linux_stdout, linux_stderr + 1, 0, sizeof(int), 0) != linux_EBADF)
 		return TEST_RESULT_FAILURE;
 
 	linux_fd_t in;
 	if (linux_open("/dev/zero", linux_O_RDONLY, 0, &in))
 		return TEST_RESULT_OTHER_FAILURE;
 
-	if (linux_sendfile(linux_stdin, in, 0, sizeof(int), 0) != linux_EINVAL)
+	if (linux_sendfile64(linux_stdin, in, 0, sizeof(int), 0) != linux_EINVAL)
 	{
 		linux_close(in);
 		return TEST_RESULT_FAILURE;
@@ -87,7 +87,7 @@ static enum TestResult test_correct_usage(void)
 	}
 
 	size_t ret = 0;
-	if (linux_sendfile(out, tmp, 0, sizeof buf, &ret) || ret != sizeof buf)
+	if (linux_sendfile64(out, tmp, 0, sizeof buf, &ret) || ret != sizeof buf)
 	{
 		linux_close(tmp);
 		linux_close(out);
@@ -102,10 +102,10 @@ int main(void)
 {
 	int ret = EXIT_SUCCESS;
 
-	printf("Start testing sendfile.\n");
+	printf("Start testing sendfile64.\n");
 	DO_TEST(invalid_fd, &ret);
 	DO_TEST(correct_usage, &ret);
-	printf("Finished testing sendfile.\n");
+	printf("Finished testing sendfile64.\n");
 
 	return ret;
 }

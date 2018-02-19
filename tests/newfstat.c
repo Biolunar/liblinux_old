@@ -27,7 +27,7 @@
 
 static enum TestResult test_invalid_file(void)
 {
-	if (linux_fstat(linux_stderr + 1, 0) != linux_EBADF)
+	if (linux_newfstat(linux_stderr + 1, 0) != linux_EBADF)
 		return TEST_RESULT_FAILURE;
 
 	return TEST_RESULT_SUCCESS;
@@ -40,7 +40,7 @@ static enum TestResult test_real_file(void)
 		return TEST_RESULT_OTHER_FAILURE;
 
 	struct linux_stat_t stat;
-	if (linux_fstat((linux_fd_t)fd, &stat))
+	if (linux_newfstat((linux_fd_t)fd, &stat))
 	{
 		close(fd);
 		return TEST_RESULT_FAILURE;
@@ -54,10 +54,10 @@ int main(void)
 {
 	int ret = EXIT_SUCCESS;
 
-	printf("Start testing fstat.\n");
+	printf("Start testing newfstat.\n");
 	DO_TEST(invalid_file, &ret);
 	DO_TEST(real_file, &ret);
-	printf("Finished testing fstat.\n");
+	printf("Finished testing newfstat.\n");
 
 	return ret;
 }

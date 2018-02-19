@@ -34,7 +34,7 @@ static enum TestResult test_correct_usage(void)
 	{
 		.sa_handler = &handler,
 		.sa_flags = linux_SA_RESTORER | linux_SA_RESTART,
-		.sa_restorer = linux_rt_restorer,
+		.sa_restorer = linux_rt_sigreturn,
 	};
 	if (linux_rt_sigaction(linux_SIGUSR1, &sa, 0, sizeof(linux_sigset_t)))
 		return TEST_RESULT_OTHER_FAILURE;
