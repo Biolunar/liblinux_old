@@ -2545,6 +2545,9 @@ static inline LINUX_DEFINE_SYSCALL0_RET(getegid, linux_gid_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(setpgid, linux_pid_t, pid, linux_pid_t, pgid)
 static inline LINUX_DEFINE_SYSCALL0_RET(getppid, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL0_RET(getpgrp, linux_pid_t)
+static inline LINUX_DEFINE_SYSCALL0_RET(setsid, linux_pid_t)
+// TODO: Add more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL1_RET(getpgid, linux_pid_t, pid, linux_pid_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
