@@ -2538,6 +2538,7 @@ static inline LINUX_DEFINE_SYSCALL4_NORET(ptrace, int, request, linux_pid_t, pid
 static inline LINUX_DEFINE_SYSCALL0_RET(getuid, linux_uid_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(syslog, int, type, char*, buf, int, len, int)
 static inline LINUX_DEFINE_SYSCALL0_RET(getgid, linux_gid_t)
+static inline LINUX_DEFINE_SYSCALL1_NORET(setuid, linux_uid_t, uid)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
