@@ -52,7 +52,10 @@ static enum TestResult test_correct_usage(void)
 
 	int ret;
 	if (linux_syslog(linux_SYSLOG_ACTION_READ_ALL, buf, len, &ret) || ret < 0)
+	{
+		free(buf);
 		return TEST_RESULT_FAILURE;
+	}
 
 	free(buf);
 	return TEST_RESULT_SUCCESS;
