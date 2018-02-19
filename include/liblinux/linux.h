@@ -2238,6 +2238,22 @@ enum
 	linux_PTRACE_O_MASK = 0x000000FF | linux_PTRACE_O_EXITKILL | linux_PTRACE_O_SUSPEND_SECCOMP,
 };
 
+// syslog types
+enum
+{
+	linux_SYSLOG_ACTION_CLOSE         =  0,
+	linux_SYSLOG_ACTION_OPEN          =  1,
+	linux_SYSLOG_ACTION_READ          =  2,
+	linux_SYSLOG_ACTION_READ_ALL      =  3,
+	linux_SYSLOG_ACTION_READ_CLEAR    =  4,
+	linux_SYSLOG_ACTION_CLEAR         =  5,
+	linux_SYSLOG_ACTION_CONSOLE_OFF   =  6,
+	linux_SYSLOG_ACTION_CONSOLE_ON    =  7,
+	linux_SYSLOG_ACTION_CONSOLE_LEVEL =  8,
+	linux_SYSLOG_ACTION_SIZE_UNREAD   =  9,
+	linux_SYSLOG_ACTION_SIZE_BUFFER   = 10,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -2520,6 +2536,7 @@ static inline LINUX_DEFINE_SYSCALL1_NORET(sysinfo, struct linux_sysinfo_t*, info
 static inline LINUX_DEFINE_SYSCALL1_RET(times, struct linux_tms_t*, tbuf, linux_clock_t)
 static inline LINUX_DEFINE_SYSCALL4_NORET(ptrace, int, request, linux_pid_t, pid, void*, addr, uintptr_t, data)
 static inline LINUX_DEFINE_SYSCALL0_RET(getuid, linux_uid_t)
+static inline LINUX_DEFINE_SYSCALL3_RET(syslog, int, type, char*, buf, int, len, int)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
