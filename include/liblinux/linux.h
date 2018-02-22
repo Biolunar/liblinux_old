@@ -2552,6 +2552,8 @@ static inline LINUX_DEFINE_SYSCALL2_RET(getgroups, int, gidsetsize, linux_gid_t*
 static inline LINUX_DEFINE_SYSCALL2_NORET(setgroups, int, gidsetsize, linux_gid_t LINUX_SAFE_CONST*, grouplist)
 static inline LINUX_DEFINE_SYSCALL3_NORET(setresuid, linux_uid_t, ruid, linux_uid_t, euid, linux_uid_t, suid)
 static inline LINUX_DEFINE_SYSCALL3_NORET(getresuid, linux_uid_t*, ruid, linux_uid_t*, euid, linux_uid_t*, suid)
+static inline LINUX_DEFINE_SYSCALL3_NORET(setresgid, linux_gid_t, rgid, linux_gid_t, egid, linux_gid_t, sgid)
+static inline LINUX_DEFINE_SYSCALL3_NORET(getresgid, linux_gid_t*, rgid, linux_gid_t*, egid, linux_gid_t*, sgid)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(getpgid, linux_pid_t, pid, linux_pid_t)
 // TODO: Add more syscalls here first.
