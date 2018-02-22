@@ -2557,6 +2557,7 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(getresgid, linux_gid_t*, rgid, linux_g
 static inline LINUX_DEFINE_SYSCALL1_RET(getpgid, linux_pid_t, pid, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(setfsuid, linux_uid_t, uid, linux_uid_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(setfsgid, linux_gid_t, gid, linux_gid_t)
+static inline LINUX_DEFINE_SYSCALL1_RET(getsid, linux_pid_t, pid, linux_pid_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
