@@ -710,6 +710,17 @@ struct linux_user_t
 	unsigned long error_code; // CPU error code or 0
 	unsigned long fault_address; // CR3 or 0
 };
+typedef struct linux_user_cap_header_struct_t
+{
+	uint32_t version;
+	linux_pid_t pid;
+} *linux_cap_user_header_t;
+typedef struct linux_user_cap_data_struct_t
+{
+	uint32_t effective;
+	uint32_t permitted;
+	uint32_t inheritable;
+} *linux_cap_user_data_t;
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -2254,6 +2265,61 @@ enum
 	linux_SYSLOG_ACTION_SIZE_BUFFER   = 10,
 };
 
+// capabilities
+enum
+{
+	linux_LINUX_CAPABILITY_VERSION_1 = 0x19980330,
+	linux_LINUX_CAPABILITY_U32S_1    = 1,
+
+	linux_LINUX_CAPABILITY_VERSION_2 = 0x20071026,
+	linux_LINUX_CAPABILITY_U32S_2    = 2,
+
+	linux_LINUX_CAPABILITY_VERSION_3 = 0x20080522,
+	linux_LINUX_CAPABILITY_U32S_3    = 2,
+};
+enum
+{
+	linux_CAP_CHOWN            =  0,
+	linux_CAP_DAC_OVERRIDE     =  1,
+	linux_CAP_DAC_READ_SEARCH  =  2,
+	linux_CAP_FOWNER           =  3,
+	linux_CAP_FSETID           =  4,
+	linux_CAP_KILL             =  5,
+	linux_CAP_SETGID           =  6,
+	linux_CAP_SETUID           =  7,
+	linux_CAP_SETPCAP          =  8,
+	linux_CAP_LINUX_IMMUTABLE  =  9,
+	linux_CAP_NET_BIND_SERVICE = 10,
+	linux_CAP_NET_BROADCAST    = 11,
+	linux_CAP_NET_ADMIN        = 12,
+	linux_CAP_NET_RAW          = 13,
+	linux_CAP_IPC_LOCK         = 14,
+	linux_CAP_IPC_OWNER        = 15,
+	linux_CAP_SYS_MODULE       = 16,
+	linux_CAP_SYS_RAWIO        = 17,
+	linux_CAP_SYS_CHROOT       = 18,
+	linux_CAP_SYS_PTRACE       = 19,
+	linux_CAP_SYS_PACCT        = 20,
+	linux_CAP_SYS_ADMIN        = 21,
+	linux_CAP_SYS_BOOT         = 22,
+	linux_CAP_SYS_NICE         = 23,
+	linux_CAP_SYS_RESOURCE     = 24,
+	linux_CAP_SYS_TIME         = 25,
+	linux_CAP_SYS_TTY_CONFIG   = 26,
+	linux_CAP_MKNOD            = 27,
+	linux_CAP_LEASE            = 28,
+	linux_CAP_AUDIT_WRITE      = 29,
+	linux_CAP_AUDIT_CONTROL    = 30,
+	linux_CAP_SETFCAP          = 31,
+	linux_CAP_MAC_OVERRIDE     = 32,
+	linux_CAP_MAC_ADMIN        = 33,
+	linux_CAP_SYSLOG           = 34,
+	linux_CAP_WAKE_ALARM       = 35,
+	linux_CAP_BLOCK_SUSPEND    = 36,
+	linux_CAP_AUDIT_READ       = 37,
+	linux_CAP_LAST_CAP         = linux_CAP_AUDIT_READ,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -2427,6 +2493,21 @@ static inline bool linux_WIFCONTINUED(int const status)
 	return status == 0xFFFF;
 }
 
+static inline bool linux_cap_valid(int const cap)
+{
+	return cap >= 0 && cap <= linux_CAP_LAST_CAP;
+}
+
+static inline int linux_cap_to_index(int const cap)
+{
+	return cap >> 5;
+}
+
+static inline int linux_cap_to_mask(int const cap)
+{
+	return 1 << (cap & 31);
+}
+
 // Helper functions
 //------------------------------------------------------------------------------
 
@@ -2558,6 +2639,8 @@ static inline LINUX_DEFINE_SYSCALL1_RET(getpgid, linux_pid_t, pid, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(setfsuid, linux_uid_t, uid, linux_uid_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(setfsgid, linux_gid_t, gid, linux_gid_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(getsid, linux_pid_t, pid, linux_pid_t)
+static inline LINUX_DEFINE_SYSCALL2_NORET(capget, struct linux_user_cap_header_struct_t*, header, struct linux_user_cap_data_struct_t*, dataptr)
+static inline LINUX_DEFINE_SYSCALL2_NORET(capset, struct linux_user_cap_header_struct_t*, header, struct linux_user_cap_data_struct_t const*, data)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
