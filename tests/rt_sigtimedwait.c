@@ -55,7 +55,7 @@ static enum TestResult test_correct_usage(void)
 	if (linux_kill(pid, linux_SIGUSR1))
 		return TEST_RESULT_OTHER_FAILURE;
 
-	linux_siginfo_t info;
+	struct linux_siginfo_t info;
 	struct linux_timespec_t const ts =
 	{
 		.tv_sec = 0,
