@@ -17,7 +17,7 @@
 CC       := clang
 CFLAGS   := -std=c11 -pedantic-errors -g -I../include
 WARNINGS := -Weverything -Wno-c99-compat -Wno-switch-enum -Wno-c++98-compat -Wno-c++-compat
-LIBS     := -L/usr/local/lib/liblinux_syscall -llinux_syscall -pthread
+LIBS     := -L/usr/local/lib/liblinux -llinux_syscall -pthread
 
 BUILDDIR := build
 SOURCES  := $(sort $(wildcard *.c))

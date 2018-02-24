@@ -23,7 +23,7 @@
 #include <stdalign.h>
 #include <limits.h>
 
-#include <liblinux_syscall/syscall.h>
+#include <liblinux/syscall.h>
 
 /* C types
  *
@@ -2641,6 +2641,7 @@ static inline LINUX_DEFINE_SYSCALL1_RET(setfsgid, linux_gid_t, gid, linux_gid_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(getsid, linux_pid_t, pid, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(capget, struct linux_user_cap_header_struct_t*, header, struct linux_user_cap_data_struct_t*, dataptr)
 static inline LINUX_DEFINE_SYSCALL2_NORET(capset, struct linux_user_cap_header_struct_t*, header, struct linux_user_cap_data_struct_t const*, data)
+static inline LINUX_DEFINE_SYSCALL2_NORET(rt_sigpending, linux_sigset_t*, set, size_t, sigsetsize)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
