@@ -2660,6 +2660,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(capset, struct linux_user_cap_header_s
 static inline LINUX_DEFINE_SYSCALL2_NORET(rt_sigpending, linux_sigset_t*, set, size_t, sigsetsize)
 static inline LINUX_DEFINE_SYSCALL4_RET(rt_sigtimedwait, linux_sigset_t const*, uthese, struct linux_siginfo_t*, uinfo, struct linux_timespec_t const*, uts, size_t, sigsetsize, int)
 static inline LINUX_DEFINE_SYSCALL3_NORET(rt_sigqueueinfo, linux_pid_t, pid, int, sig, struct linux_siginfo_t*, uinfo)
+static inline LINUX_DEFINE_SYSCALL2_NORET(rt_sigsuspend, linux_sigset_t LINUX_SAFE_CONST*, unewset, size_t, sigsetsize)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
