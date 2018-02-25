@@ -212,7 +212,7 @@ struct linux_siginfo_t
 		} sigsys;
 	} sifields;
 };
-typedef struct
+typedef struct linux_sigaltstack_t
 {
 	void* ss_sp;
 	int ss_flags;
@@ -2334,8 +2334,23 @@ enum
 	linux_SI_DETHREAD =   -7,
 };
 
-#define SI_FROMUSER(siptr)	((siptr)->si_code <= 0)
-#define SI_FROMKERNEL(siptr)	((siptr)->si_code > 0)
+// Sigaltstack constants
+enum
+{
+	linux_MINSIGSTKSZ = 2048,
+	linux_SIGSTKSZ    = 8192,
+};
+
+// Sigaltstack flags
+enum
+{
+	linux_SS_ONSTACK    = 1,
+	linux_SS_DISABLE    = 2,
+
+	linux_SS_AUTODISARM = INT_MIN,
+	linux_SS_FLAG_BITS  = linux_SS_AUTODISARM,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -2524,6 +2539,16 @@ static inline int linux_cap_to_mask(int const cap)
 	return 1 << (cap & 31);
 }
 
+static inline bool linux_si_fromuser(struct linux_siginfo_t const* const siptr)
+{
+	return siptr->si_code <= 0;
+}
+
+static inline bool linux_si_fromkernel(struct linux_siginfo_t const* const siptr)
+{
+	return siptr->si_code > 0;
+}
+
 // Helper functions
 //------------------------------------------------------------------------------
 
@@ -2661,6 +2686,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(rt_sigpending, linux_sigset_t*, set, s
 static inline LINUX_DEFINE_SYSCALL4_RET(rt_sigtimedwait, linux_sigset_t const*, uthese, struct linux_siginfo_t*, uinfo, struct linux_timespec_t const*, uts, size_t, sigsetsize, int)
 static inline LINUX_DEFINE_SYSCALL3_NORET(rt_sigqueueinfo, linux_pid_t, pid, int, sig, struct linux_siginfo_t*, uinfo)
 static inline LINUX_DEFINE_SYSCALL2_NORET(rt_sigsuspend, linux_sigset_t LINUX_SAFE_CONST*, unewset, size_t, sigsetsize)
+static inline LINUX_DEFINE_SYSCALL2_NORET(sigaltstack, struct linux_sigaltstack_t const*, uss, struct linux_sigaltstack_t*, uoss)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
