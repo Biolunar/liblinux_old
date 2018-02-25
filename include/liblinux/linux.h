@@ -726,6 +726,8 @@ struct linux_utimbuf_t
 	linux_kernel_time_t actime;
 	linux_kernel_time_t modtime;
 };
+typedef uint32_t linux_kernel_dev_t;
+typedef linux_kernel_dev_t linux_dev_t;
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -927,16 +929,16 @@ enum
 enum
 {
 	linux_S_IFMT   = 00170000,
-	linux_S_IFSOCK = 0140000,
-	linux_S_IFLNK  = 0120000,
-	linux_S_IFREG  = 0100000,
-	linux_S_IFBLK  = 0060000,
-	linux_S_IFDIR  = 0040000,
-	linux_S_IFCHR  = 0020000,
-	linux_S_IFIFO  = 0010000,
-	linux_S_ISUID  = 0004000,
-	linux_S_ISGID  = 0002000,
-	linux_S_ISVTX  = 0001000,
+	linux_S_IFSOCK =  0140000,
+	linux_S_IFLNK  =  0120000,
+	linux_S_IFREG  =  0100000,
+	linux_S_IFBLK  =  0060000,
+	linux_S_IFDIR  =  0040000,
+	linux_S_IFCHR  =  0020000,
+	linux_S_IFIFO  =  0010000,
+	linux_S_ISUID  =  0004000,
+	linux_S_ISGID  =  0002000,
+	linux_S_ISVTX  =  0001000,
 
 	linux_S_IRWXU  = 00700,
 	linux_S_IRUSR  = 00400,
@@ -2554,6 +2556,23 @@ static inline bool linux_si_fromkernel(struct linux_siginfo_t const* const siptr
 	return siptr->si_code > 0;
 }
 
+static inline uint32_t linux_major(linux_dev_t const dev)
+{
+	return (dev & 0xFFF00) >> 8;
+}
+
+static inline uint32_t linux_minor(linux_dev_t const dev)
+{
+	return (dev & 0xFF) | ((dev >> 12) & 0xFFF00);
+}
+
+static inline linux_dev_t linux_makedev(uint32_t major, uint32_t minor)
+{
+	major &= 0xFFF;
+	minor &= 0xFFFFF;
+	return (minor & 0xFF) | (major << 8) | ((minor & ~UINT32_C(0xFF)) << 12);
+}
+
 // Helper functions
 //------------------------------------------------------------------------------
 
@@ -2693,6 +2712,7 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(rt_sigqueueinfo, linux_pid_t, pid, int
 static inline LINUX_DEFINE_SYSCALL2_NORET(rt_sigsuspend, linux_sigset_t LINUX_SAFE_CONST*, unewset, size_t, sigsetsize)
 static inline LINUX_DEFINE_SYSCALL2_NORET(sigaltstack, struct linux_sigaltstack_t const*, uss, struct linux_sigaltstack_t*, uoss)
 static inline LINUX_DEFINE_SYSCALL2_NORET(utime, char LINUX_SAFE_CONST*, filename, struct linux_utimbuf_t LINUX_SAFE_CONST*, times)
+static inline LINUX_DEFINE_SYSCALL3_NORET(mknod, char const*, filename, linux_umode_t, mode, linux_dev_t, dev)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
