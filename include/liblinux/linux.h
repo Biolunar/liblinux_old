@@ -721,6 +721,11 @@ typedef struct linux_user_cap_data_struct_t
 	uint32_t permitted;
 	uint32_t inheritable;
 } *linux_cap_user_data_t;
+struct linux_utimbuf_t
+{
+	linux_kernel_time_t actime;
+	linux_kernel_time_t modtime;
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -2687,6 +2692,7 @@ static inline LINUX_DEFINE_SYSCALL4_RET(rt_sigtimedwait, linux_sigset_t const*, 
 static inline LINUX_DEFINE_SYSCALL3_NORET(rt_sigqueueinfo, linux_pid_t, pid, int, sig, struct linux_siginfo_t*, uinfo)
 static inline LINUX_DEFINE_SYSCALL2_NORET(rt_sigsuspend, linux_sigset_t LINUX_SAFE_CONST*, unewset, size_t, sigsetsize)
 static inline LINUX_DEFINE_SYSCALL2_NORET(sigaltstack, struct linux_sigaltstack_t const*, uss, struct linux_sigaltstack_t*, uoss)
+static inline LINUX_DEFINE_SYSCALL2_NORET(utime, char LINUX_SAFE_CONST*, filename, struct linux_utimbuf_t LINUX_SAFE_CONST*, times)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
