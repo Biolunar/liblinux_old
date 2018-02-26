@@ -728,6 +728,17 @@ struct linux_utimbuf_t
 };
 typedef uint32_t linux_kernel_dev_t;
 typedef linux_kernel_dev_t linux_dev_t;
+typedef int linux_kernel_daddr_t;
+typedef linux_kernel_ulong_t linux_kernel_ino_t;
+struct linux_ustat_t
+{
+	linux_kernel_daddr_t f_tfree;
+	char _pad1[4];
+	linux_kernel_ino_t f_tinode;
+	char f_fname[6];
+	char f_fpack[6];
+	char _pad2[4];
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -2758,6 +2769,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(sigaltstack, struct linux_sigaltstack_
 static inline LINUX_DEFINE_SYSCALL2_NORET(utime, char LINUX_SAFE_CONST*, filename, struct linux_utimbuf_t LINUX_SAFE_CONST*, times)
 static inline LINUX_DEFINE_SYSCALL3_NORET(mknod, char const*, filename, linux_umode_t, mode, linux_dev_t, dev)
 static inline LINUX_DEFINE_SYSCALL1_RET(personality, unsigned int, personality, unsigned int)
+static inline LINUX_DEFINE_SYSCALL2_NORET(ustat, linux_dev_t, dev, struct linux_ustat_t*, ubuf)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
