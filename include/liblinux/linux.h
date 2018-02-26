@@ -2358,6 +2358,50 @@ enum
 	linux_SS_FLAG_BITS  = linux_SS_AUTODISARM,
 };
 
+// Personality flags
+enum
+{
+	linux_UNAME26            = 0x0020000,
+	linux_ADDR_NO_RANDOMIZE  = 0x0040000,
+	linux_FDPIC_FUNCPTRS     = 0x0080000,
+	linux_MMAP_PAGE_ZERO     = 0x0100000,
+	linux_ADDR_COMPAT_LAYOUT = 0x0200000,
+	linux_READ_IMPLIES_EXEC  = 0x0400000,
+	linux_ADDR_LIMIT_32BIT   = 0x0800000,
+	linux_SHORT_INODE        = 0x1000000,
+	linux_WHOLE_SECONDS      = 0x2000000,
+	linux_STICKY_TIMEOUTS    = 0x4000000,
+	linux_ADDR_LIMIT_3GB     = 0x8000000,
+};
+
+// Personality types
+enum
+{
+	linux_PER_LINUX       = 0x0000,
+	linux_PER_LINUX_32BIT = 0x0000 | linux_ADDR_LIMIT_32BIT,
+	linux_PER_LINUX_FDPIC = 0x0000 | linux_FDPIC_FUNCPTRS,
+	linux_PER_SVR4        = 0x0001 | linux_STICKY_TIMEOUTS | linux_MMAP_PAGE_ZERO,
+	linux_PER_SVR3        = 0x0002 | linux_STICKY_TIMEOUTS | linux_SHORT_INODE,
+	linux_PER_SCOSVR3     = 0x0003 | linux_STICKY_TIMEOUTS | linux_WHOLE_SECONDS | linux_SHORT_INODE,
+	linux_PER_OSR5        = 0x0003 | linux_STICKY_TIMEOUTS | linux_WHOLE_SECONDS,
+	linux_PER_WYSEV386    = 0x0004 | linux_STICKY_TIMEOUTS | linux_SHORT_INODE,
+	linux_PER_ISCR4       = 0x0005 | linux_STICKY_TIMEOUTS,
+	linux_PER_BSD         = 0x0006,
+	linux_PER_SUNOS       = 0x0006 | linux_STICKY_TIMEOUTS,
+	linux_PER_XENIX       = 0x0007 | linux_STICKY_TIMEOUTS | linux_SHORT_INODE,
+	linux_PER_LINUX32     = 0x0008,
+	linux_PER_LINUX32_3GB = 0x0008 | linux_ADDR_LIMIT_3GB,
+	linux_PER_IRIX32      = 0x0009 | linux_STICKY_TIMEOUTS,
+	linux_PER_IRIXN32     = 0x000A | linux_STICKY_TIMEOUTS,
+	linux_PER_IRIX64      = 0x000B | linux_STICKY_TIMEOUTS,
+	linux_PER_RISCOS      = 0x000C,
+	linux_PER_SOLARIS     = 0x000D | linux_STICKY_TIMEOUTS,
+	linux_PER_UW7         = 0x000E | linux_STICKY_TIMEOUTS | linux_MMAP_PAGE_ZERO,
+	linux_PER_OSF4        = 0x000F,
+	linux_PER_HPUX        = 0x0010,
+	linux_PER_MASK        = 0x00FF,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -2713,6 +2757,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(rt_sigsuspend, linux_sigset_t LINUX_SA
 static inline LINUX_DEFINE_SYSCALL2_NORET(sigaltstack, struct linux_sigaltstack_t const*, uss, struct linux_sigaltstack_t*, uoss)
 static inline LINUX_DEFINE_SYSCALL2_NORET(utime, char LINUX_SAFE_CONST*, filename, struct linux_utimbuf_t LINUX_SAFE_CONST*, times)
 static inline LINUX_DEFINE_SYSCALL3_NORET(mknod, char const*, filename, linux_umode_t, mode, linux_dev_t, dev)
+static inline LINUX_DEFINE_SYSCALL1_RET(personality, unsigned int, personality, unsigned int)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
