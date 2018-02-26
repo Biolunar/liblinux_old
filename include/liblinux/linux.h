@@ -2896,6 +2896,7 @@ static inline LINUX_DEFINE_SYSCALL1_RET(personality, unsigned int, personality, 
 static inline LINUX_DEFINE_SYSCALL2_NORET(ustat, linux_dev_t, dev, struct linux_ustat_t*, ubuf)
 static inline LINUX_DEFINE_SYSCALL2_NORET(statfs, char const*, path, struct linux_statfs_t*, buf)
 static inline LINUX_DEFINE_SYSCALL2_NORET(fstatfs, linux_fd_t, fd, struct linux_statfs_t*, buf)
+static inline LINUX_DEFINE_SYSCALL3_RET(sysfs, int, option, uintptr_t, arg1, uintptr_t, arg2, int)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
