@@ -2537,6 +2537,23 @@ enum
 	linux_ZSMALLOC_MAGIC        = 0x58295829,
 };
 
+// getpriority and setpriority constants
+enum
+{
+	linux_PRIO_MIN   = -20,
+	linux_PRIO_MAX   =  20,
+
+	linux_MAX_NICE   =  19,
+	linux_MIN_NICE   = -20,
+	linux_NICE_WIDTH = linux_MAX_NICE - linux_MIN_NICE + 1,
+};
+enum
+{
+	linux_PRIO_PROCESS = 0,
+	linux_PRIO_PGRP    = 1,
+	linux_PRIO_USER    = 2,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -2897,6 +2914,8 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(ustat, linux_dev_t, dev, struct linux_
 static inline LINUX_DEFINE_SYSCALL2_NORET(statfs, char const*, path, struct linux_statfs_t*, buf)
 static inline LINUX_DEFINE_SYSCALL2_NORET(fstatfs, linux_fd_t, fd, struct linux_statfs_t*, buf)
 static inline LINUX_DEFINE_SYSCALL3_RET(sysfs, int, option, uintptr_t, arg1, uintptr_t, arg2, int)
+static inline LINUX_DEFINE_SYSCALL2_RET(getpriority, int, which, int, who, long)
+static inline LINUX_DEFINE_SYSCALL3_NORET(setpriority, int, which, int, who, int, niceval)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
