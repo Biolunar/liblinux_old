@@ -739,6 +739,26 @@ struct linux_ustat_t
 	char f_fpack[6];
 	char _pad2[4];
 };
+typedef struct
+{
+	int val[2];
+} linux_kernel_fsid_t;
+typedef linux_kernel_long_t linux_statfs_word;
+struct linux_statfs_t
+{
+	linux_statfs_word f_type;
+	linux_statfs_word f_bsize;
+	linux_statfs_word f_blocks;
+	linux_statfs_word f_bfree;
+	linux_statfs_word f_bavail;
+	linux_statfs_word f_files;
+	linux_statfs_word f_ffree;
+	linux_kernel_fsid_t f_fsid;
+	linux_statfs_word f_namelen;
+	linux_statfs_word f_frsize;
+	linux_statfs_word f_flags;
+	linux_statfs_word f_spare[4];
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -2413,6 +2433,110 @@ enum
 	linux_PER_MASK        = 0x00FF,
 };
 
+// statfs and fstatfs flags
+enum
+{
+	linux_ST_RDONLY      = 0x0001,
+	linux_ST_NOSUID      = 0x0002,
+	linux_ST_NODEV       = 0x0004,
+	linux_ST_NOEXEC      = 0x0008,
+	linux_ST_SYNCHRONOUS = 0x0010,
+	linux_ST_VALID       = 0x0020,
+	linux_ST_MANDLOCK    = 0x0040,
+	// 0x0080 used for ST_WRITE in glibc
+	// 0x0100 used for ST_APPEND in glibc
+	// 0x0200 used for ST_IMMUTABLE in glibc
+	linux_ST_NOATIME     = 0x0400,
+	linux_ST_NODIRATIME  = 0x0800,
+	linux_ST_RELATIME    = 0x1000,
+};
+
+// statfs and fstatfs types
+enum
+{
+	linux_ADFS_SUPER_MAGIC      = 0xADF5,
+	linux_AFFS_SUPER_MAGIC      = 0xADFF,
+	linux_AFS_SUPER_MAGIC       = 0x5346414F,
+	linux_AUTOFS_SUPER_MAGIC    = 0x0187,
+	linux_CODA_SUPER_MAGIC      = 0x73757245,
+	linux_CRAMFS_MAGIC          = 0x28CD3D45,
+	linux_CRAMFS_MAGIC_WEND     = 0x453DCD28,
+	linux_DEBUGFS_MAGIC         = 0x64626720,
+	linux_SECURITYFS_MAGIC      = 0x73636673,
+	linux_SELINUX_MAGIC         = -109248628, // 0xF97CFF8C
+	linux_SMACK_MAGIC           = 0x43415D53,
+	linux_RAMFS_MAGIC           = -2054924042, // 0x858458F6
+	linux_TMPFS_MAGIC           = 0x01021994,
+	linux_HUGETLBFS_MAGIC       = -109248628, // 0x958458F6
+	linux_SQUASHFS_MAGIC        = 0x73717368,
+	linux_ECRYPTFS_SUPER_MAGIC  = 0xF15F,
+	linux_EFS_SUPER_MAGIC       = 0x414a53,
+	linux_EXT2_SUPER_MAGIC      = 0xEF53,
+	linux_EXT3_SUPER_MAGIC      = 0xEF53,
+	linux_XENFS_SUPER_MAGIC     = -1413867148, // 0xABBA1974
+	linux_EXT4_SUPER_MAGIC      = 0xEF53,
+	linux_BTRFS_SUPER_MAGIC     = -1859950530, // 0x9123683E
+	linux_NILFS_SUPER_MAGIC     = 0x3434,
+	linux_F2FS_SUPER_MAGIC      = -218816496, // 0xF2F52010
+	linux_HPFS_SUPER_MAGIC      = -107616183, // 0xF995E849
+	linux_ISOFS_SUPER_MAGIC     = 0x9660,
+	linux_JFFS2_SUPER_MAGIC     = 0x72B6,
+	linux_PSTOREFS_MAGIC        = 0x6165676C,
+	linux_EFIVARFS_MAGIC        = -564231708, // 0xDE5E81E4
+	linux_HOSTFS_SUPER_MAGIC    = 0x00C0FFEE,
+	linux_OVERLAYFS_SUPER_MAGIC = 0x794C7630,
+
+	linux_MINIX_SUPER_MAGIC     = 0x137F,
+	linux_MINIX_SUPER_MAGIC2    = 0x138F,
+	linux_MINIX2_SUPER_MAGIC    = 0x2468,
+	linux_MINIX2_SUPER_MAGIC2   = 0x2478,
+	linux_MINIX3_SUPER_MAGIC    = 0x4D5A,
+
+	linux_MSDOS_SUPER_MAGIC     = 0x4D44,
+	linux_NCP_SUPER_MAGIC       = 0x564C,
+	linux_NFS_SUPER_MAGIC       = 0x6969,
+	linux_OCFS2_SUPER_MAGIC     = 0x7461636F,
+	linux_OPENPROM_SUPER_MAGIC  = 0x9FA1,
+	linux_QNX4_SUPER_MAGIC      = 0x002F,
+	linux_QNX6_SUPER_MAGIC      = 0x68191122,
+	linux_AFS_FS_MAGIC          = 0x6B414653,
+
+	linux_REISERFS_SUPER_MAGIC  = 0x52654973,
+
+	linux_SMB_SUPER_MAGIC       = 0x517B,
+	linux_CGROUP_SUPER_MAGIC    = 0x27E0EB,
+	linux_CGROUP2_SUPER_MAGIC   = 0x63677270,
+
+	linux_RDTGROUP_SUPER_MAGIC  = 0x7655821,
+
+	linux_STACK_END_MAGIC       = 0x57AC6E9D,
+
+	linux_TRACEFS_MAGIC         = 0x74726163,
+
+	linux_V9FS_MAGIC            = 0x01021997,
+
+	linux_BDEVFS_MAGIC          = 0x62646576,
+	linux_DAXFS_MAGIC           = 0x64646178,
+	linux_BINFMTFS_MAGIC        = 0x42494E4D,
+	linux_DEVPTS_SUPER_MAGIC    = 0x1CD1,
+	linux_FUTEXFS_SUPER_MAGIC   = 0xBAD1DEA,
+	linux_PIPEFS_MAGIC          = 0x50495045,
+	linux_PROC_SUPER_MAGIC      = 0x9FA0,
+	linux_SOCKFS_MAGIC          = 0x534F434B,
+	linux_SYSFS_MAGIC           = 0x62656572,
+	linux_USBDEVICE_SUPER_MAGIC = 0x9FA2,
+	linux_MTD_INODE_FS_MAGIC    = 0x11307854,
+	linux_ANON_INODE_FS_MAGIC   = 0x09041934,
+	linux_BTRFS_TEST_MAGIC      = 0x73727279,
+	linux_NSFS_MAGIC            = 0x6E736673,
+	linux_BPF_FS_MAGIC          = -889304559, // 0xCAFE4A11
+	linux_AAFS_MAGIC            = 0x5A3C69F0,
+
+	linux_UDF_SUPER_MAGIC       = 0x15013346,
+	linux_BALLOON_KVM_MAGIC     = 0x13661366,
+	linux_ZSMALLOC_MAGIC        = 0x58295829,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -2770,6 +2894,8 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(utime, char LINUX_SAFE_CONST*, filenam
 static inline LINUX_DEFINE_SYSCALL3_NORET(mknod, char const*, filename, linux_umode_t, mode, linux_dev_t, dev)
 static inline LINUX_DEFINE_SYSCALL1_RET(personality, unsigned int, personality, unsigned int)
 static inline LINUX_DEFINE_SYSCALL2_NORET(ustat, linux_dev_t, dev, struct linux_ustat_t*, ubuf)
+static inline LINUX_DEFINE_SYSCALL2_NORET(statfs, char const*, path, struct linux_statfs_t*, buf)
+static inline LINUX_DEFINE_SYSCALL2_NORET(fstatfs, linux_fd_t, fd, struct linux_statfs_t*, buf)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
