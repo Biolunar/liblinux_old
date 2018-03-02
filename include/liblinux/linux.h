@@ -2938,6 +2938,9 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(sched_setparam, linux_pid_t, pid, stru
 static inline LINUX_DEFINE_SYSCALL2_NORET(sched_getparam, linux_pid_t, pid, struct linux_sched_param_t*, param)
 static inline LINUX_DEFINE_SYSCALL3_NORET(sched_setscheduler, linux_pid_t, pid, int, policy, struct linux_sched_param_t LINUX_SAFE_CONST*, param)
 static inline LINUX_DEFINE_SYSCALL1_RET(sched_getscheduler, linux_pid_t, pid, int)
+static inline LINUX_DEFINE_SYSCALL1_RET(sched_get_priority_max, int, policy, int)
+static inline LINUX_DEFINE_SYSCALL1_RET(sched_get_priority_min, int, policy, int)
+static inline LINUX_DEFINE_SYSCALL2_NORET(sched_rr_get_interval, linux_pid_t, pid, struct linux_timespec_t*, interval)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
