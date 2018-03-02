@@ -759,6 +759,10 @@ struct linux_statfs_t
 	linux_statfs_word f_flags;
 	linux_statfs_word f_spare[4];
 };
+struct linux_sched_param_t
+{
+	int sched_priority;
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -2554,6 +2558,20 @@ enum
 	linux_PRIO_USER    = 2,
 };
 
+// Scheduling policies
+enum
+{
+	linux_SCHED_NORMAL        = 0,
+	linux_SCHED_FIFO          = 1,
+	linux_SCHED_RR            = 2,
+	linux_SCHED_BATCH         = 3,
+	//linux_SCHED_ISO           = 4, // reserved but not implemented yet
+	linux_SCHED_IDLE          = 5,
+	linux_SCHED_DEADLINE      = 6,
+
+	linux_SCHED_RESET_ON_FORK = 0x40000000,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -2916,6 +2934,10 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(fstatfs, linux_fd_t, fd, struct linux_
 static inline LINUX_DEFINE_SYSCALL3_RET(sysfs, int, option, uintptr_t, arg1, uintptr_t, arg2, int)
 static inline LINUX_DEFINE_SYSCALL2_RET(getpriority, int, which, int, who, long)
 static inline LINUX_DEFINE_SYSCALL3_NORET(setpriority, int, which, int, who, int, niceval)
+static inline LINUX_DEFINE_SYSCALL2_NORET(sched_setparam, linux_pid_t, pid, struct linux_sched_param_t LINUX_SAFE_CONST*, param)
+static inline LINUX_DEFINE_SYSCALL2_NORET(sched_getparam, linux_pid_t, pid, struct linux_sched_param_t*, param)
+static inline LINUX_DEFINE_SYSCALL3_NORET(sched_setscheduler, linux_pid_t, pid, int, policy, struct linux_sched_param_t LINUX_SAFE_CONST*, param)
+static inline LINUX_DEFINE_SYSCALL1_RET(sched_getscheduler, linux_pid_t, pid, int)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 
