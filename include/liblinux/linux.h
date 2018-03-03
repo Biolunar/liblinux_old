@@ -2572,6 +2572,20 @@ enum
 	linux_SCHED_RESET_ON_FORK = 0x40000000,
 };
 
+// Flags for mlock
+enum
+{
+	linux_MLOCK_ONFAULT = 0x01,
+};
+
+// Flags for mlockall
+enum
+{
+	linux_MCL_CURRENT = 1,
+	linux_MCL_FUTURE  = 2,
+	linux_MCL_ONFAULT = 4,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -2941,8 +2955,14 @@ static inline LINUX_DEFINE_SYSCALL1_RET(sched_getscheduler, linux_pid_t, pid, in
 static inline LINUX_DEFINE_SYSCALL1_RET(sched_get_priority_max, int, policy, int)
 static inline LINUX_DEFINE_SYSCALL1_RET(sched_get_priority_min, int, policy, int)
 static inline LINUX_DEFINE_SYSCALL2_NORET(sched_rr_get_interval, linux_pid_t, pid, struct linux_timespec_t*, interval)
+static inline LINUX_DEFINE_SYSCALL2_NORET(mlock, void const*, start, size_t, len)
+static inline LINUX_DEFINE_SYSCALL2_NORET(munlock, void const*, start, size_t, len)
+static inline LINUX_DEFINE_SYSCALL1_NORET(mlockall, int, flags)
+static inline LINUX_DEFINE_SYSCALL0_NORET(munlockall)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
+// TODO: Add more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
 // Syscalls
 //------------------------------------------------------------------------------
