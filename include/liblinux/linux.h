@@ -2983,6 +2983,7 @@ static inline enum linux_error_t linux_modify_ldt(int const func, void* const pt
 		*result = ret;
 	return linux_error_none;
 }
+static inline LINUX_DEFINE_SYSCALL2_NORET(pivot_root, char const*, new_root, char const*, put_old)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 // TODO: Add more syscalls here first.
