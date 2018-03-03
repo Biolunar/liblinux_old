@@ -24,9 +24,9 @@ int main(void)
 {
 	int ret = EXIT_SUCCESS;
 
-	printf("Start testing setgroups.\n");
+	printf("Start testing vhangup.\n");
 	printf("\tNo tests available, because this syscall need privileges.\n");
-	printf("Finished testing setgroups.\n");
+	printf("Finished testing vhangup.\n");
 
 	return ret;
 }

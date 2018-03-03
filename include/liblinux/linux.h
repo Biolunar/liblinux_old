@@ -2959,6 +2959,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(mlock, void const*, start, size_t, len
 static inline LINUX_DEFINE_SYSCALL2_NORET(munlock, void const*, start, size_t, len)
 static inline LINUX_DEFINE_SYSCALL1_NORET(mlockall, int, flags)
 static inline LINUX_DEFINE_SYSCALL0_NORET(munlockall)
+static inline LINUX_DEFINE_SYSCALL0_NORET(vhangup)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 // TODO: Add more syscalls here first.
