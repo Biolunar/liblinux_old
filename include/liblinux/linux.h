@@ -777,6 +777,17 @@ struct linux_user_desc_t
 	unsigned int lm:1;
 	char _pad[3];
 };
+struct linux_sysctl_args_t
+{
+	int* name;
+	int nlen;
+	char _pad1[4];
+	void* oldval;
+	size_t* oldlenp;
+	void* newval;
+	size_t newlen;
+	unsigned long _pad2[4];
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -2600,6 +2611,811 @@ enum
 	linux_MCL_ONFAULT = 4,
 };
 
+// sysctl
+enum
+{
+	linux_CTL_MAXNAME = 10,
+};
+enum // Top-level names
+{
+	linux_CTL_KERN    =    1,
+	linux_CTL_VM      =    2,
+	linux_CTL_NET     =    3,
+	linux_CTL_PROC    =    4,
+	linux_CTL_FS      =    5,
+	linux_CTL_DEBUG   =    6,
+	linux_CTL_DEV     =    7,
+	linux_CTL_BUS     =    8,
+	linux_CTL_ABI     =    9,
+	linux_CTL_CPU     =   10,
+	linux_CTL_ARLAN   =  254,
+	linux_CTL_S390DBF = 5677,
+	linux_CTL_SUNRPC  = 7249,
+	linux_CTL_PM      = 9899,
+	linux_CTL_FRV     = 9898,
+};
+enum // CTL_BUS names
+{
+	linux_CTL_BUS_ISA = 1,
+};
+enum // /proc/sys/fs/inotify/
+{
+	linux_INOTIFY_MAX_USER_INSTANCES = 1,
+	linux_INOTIFY_MAX_USER_WATCHES   = 2,
+	linux_INOTIFY_MAX_QUEUED_EVENTS  = 3,
+};
+enum // CTL_KERN names
+{
+	linux_KERN_OSTYPE                  =  1,
+	linux_KERN_OSRELEASE               =  2,
+	linux_KERN_OSREV                   =  3,
+	linux_KERN_VERSION                 =  4,
+	linux_KERN_SECUREMASK              =  5,
+	linux_KERN_PROF                    =  6,
+	linux_KERN_NODENAME                =  7,
+	linux_KERN_DOMAINNAME              =  8,
+
+	linux_KERN_PANIC                   = 15,
+	linux_KERN_REALROOTDEV             = 16,
+
+	linux_KERN_SPARC_REBOOT            = 21,
+	linux_KERN_CTLALTDEL               = 22,
+	linux_KERN_PRINTK                  = 23,
+	linux_KERN_NAMETRANS               = 24,
+	linux_KERN_PPC_HTABRECLAIM         = 25,
+	linux_KERN_PPC_ZEROPAGED           = 26,
+	linux_KERN_PPC_POWERSAVE_NAP       = 27,
+	linux_KERN_MODPROBE                = 28,
+	linux_KERN_SG_BIG_BUFF             = 29,
+	linux_KERN_ACCT                    = 30,
+	linux_KERN_PPC_L2CR                = 31,
+
+	linux_KERN_RTSIGNR                 = 32,
+	linux_KERN_RTSIGMAX                = 33,
+
+	linux_KERN_SHMMAX                  = 34,
+	linux_KERN_MSGMAX                  = 35,
+	linux_KERN_MSGMNB                  = 36,
+	linux_KERN_MSGPOOL                 = 37,
+	linux_KERN_SYSRQ                   = 38,
+	linux_KERN_MAX_THREADS             = 39,
+	linux_KERN_RANDOM                  = 40,
+	linux_KERN_SHMALL                  = 41,
+	linux_KERN_MSGMNI                  = 42,
+	linux_KERN_SEM                     = 43,
+	linux_KERN_SPARC_STOP_A            = 44,
+	linux_KERN_SHMMNI                  = 45,
+	linux_KERN_OVERFLOWUID             = 46,
+	linux_KERN_OVERFLOWGID             = 47,
+	linux_KERN_SHMPATH                 = 48,
+	linux_KERN_HOTPLUG                 = 49,
+	linux_KERN_IEEE_EMULATION_WARNINGS = 50,
+	linux_KERN_S390_USER_DEBUG_LOGGING = 51,
+	linux_KERN_CORE_USES_PID           = 52,
+	linux_KERN_TAINTED                 = 53,
+	linux_KERN_CADPID                  = 54,
+	linux_KERN_PIDMAX                  = 55,
+	linux_KERN_CORE_PATTERN            = 56,
+	linux_KERN_PANIC_ON_OOPS           = 57,
+	linux_KERN_HPPA_PWRSW              = 58,
+	linux_KERN_HPPA_UNALIGNED          = 59,
+	linux_KERN_PRINTK_RATELIMIT        = 60,
+	linux_KERN_PRINTK_RATELIMIT_BURST  = 61,
+	linux_KERN_PTY                     = 62,
+	linux_KERN_NGROUPS_MAX             = 63,
+	linux_KERN_SPARC_SCONS_PWROFF      = 64,
+	linux_KERN_HZ_TIMER                = 65,
+	linux_KERN_UNKNOWN_NMI_PANIC       = 66,
+	linux_KERN_BOOTLOADER_TYPE         = 67,
+	linux_KERN_RANDOMIZE               = 68,
+	linux_KERN_SETUID_DUMPABLE         = 69,
+	linux_KERN_SPIN_RETRY              = 70,
+	linux_KERN_ACPI_VIDEO_FLAGS        = 71,
+	linux_KERN_IA64_UNALIGNED          = 72,
+	linux_KERN_COMPAT_LOG              = 73,
+	linux_KERN_MAX_LOCK_DEPTH          = 74,
+	linux_KERN_NMI_WATCHDOG            = 75,
+	linux_KERN_PANIC_ON_NMI            = 76,
+	linux_KERN_PANIC_ON_WARN           = 77,
+};
+enum // CTL_VM names
+{
+	linux_VM_UNUSED1                  =  1,
+	linux_VM_UNUSED2                  =  2,
+	linux_VM_UNUSED3                  =  3,
+	linux_VM_UNUSED4                  =  4,
+	linux_VM_OVERCOMMIT_MEMORY        =  5,
+	linux_VM_UNUSED5                  =  6,
+	linux_VM_UNUSED7                  =  7,
+	linux_VM_UNUSED8                  =  8,
+	linux_VM_UNUSED9                  =  9,
+	linux_VM_PAGE_CLUSTER             = 10,
+	linux_VM_DIRTY_BACKGROUND         = 11,
+	linux_VM_DIRTY_RATIO              = 12,
+	linux_VM_DIRTY_WB_CS              = 13,
+	linux_VM_DIRTY_EXPIRE_CS          = 14,
+	linux_VM_NR_PDFLUSH_THREADS       = 15,
+	linux_VM_OVERCOMMIT_RATIO         = 16,
+	linux_VM_PAGEBUF                  = 17,
+	linux_VM_HUGETLB_PAGES            = 18,
+	linux_VM_SWAPPINESS               = 19,
+	linux_VM_LOWMEM_RESERVE_RATIO     = 20,
+	linux_VM_MIN_FREE_KBYTES          = 21,
+	linux_VM_MAX_MAP_COUNT            = 22,
+	linux_VM_LAPTOP_MODE              = 23,
+	linux_VM_BLOCK_DUMP               = 24,
+	linux_VM_HUGETLB_GROUP            = 25,
+	linux_VM_VFS_CACHE_PRESSURE       = 26,
+	linux_VM_LEGACY_VA_LAYOUT         = 27,
+	linux_VM_SWAP_TOKEN_TIMEOUT       = 28,
+	linux_VM_DROP_PAGECACHE           = 29,
+	linux_VM_PERCPU_PAGELIST_FRACTION = 30,
+	linux_VM_ZONE_RECLAIM_MODE        = 31,
+	linux_VM_MIN_UNMAPPED             = 32,
+	linux_VM_PANIC_ON_OOM             = 33,
+	linux_VM_VDSO_ENABLED             = 34,
+	linux_VM_MIN_SLAB                 = 35,
+};
+enum // CTL_NET names
+{
+	linux_NET_CORE      =   1,
+	linux_NET_ETHER     =   2,
+	linux_NET_802       =   3,
+	linux_NET_UNIX      =   4,
+	linux_NET_IPV4      =   5,
+	linux_NET_IPX       =   6,
+	linux_NET_ATALK     =   7,
+	linux_NET_NETROM    =   8,
+	linux_NET_AX25      =   9,
+	linux_NET_BRIDGE    =  10,
+	linux_NET_ROSE      =  11,
+	linux_NET_IPV6      =  12,
+	linux_NET_X25       =  13,
+	linux_NET_TR        =  14,
+	linux_NET_DECNET    =  15,
+	linux_NET_ECONET    =  16,
+	linux_NET_SCTP      =  17,
+	linux_NET_LLC       =  18,
+	linux_NET_NETFILTER =  19,
+	linux_NET_DCCP      =  20,
+	linux_NET_IRDA      = 412,
+};
+enum // /proc/sys/kernel/random
+{
+	linux_RANDOM_POOLSIZE      = 1,
+	linux_RANDOM_ENTROPY_COUNT = 2,
+	linux_RANDOM_READ_THRESH   = 3,
+	linux_RANDOM_WRITE_THRESH  = 4,
+	linux_RANDOM_BOOT_ID       = 5,
+	linux_RANDOM_UUID          = 6,
+};
+enum // /proc/sys/kernel/pty
+{
+	linux_PTY_MAX = 1,
+	linux_PTY_NR  = 2,
+};
+enum // /proc/sys/bus/isa
+{
+	linux_BUS_ISA_MEM_BASE   = 1,
+	linux_BUS_ISA_PORT_BASE  = 2,
+	linux_BUS_ISA_PORT_SHIFT = 3,
+};
+enum // /proc/sys/net/core
+{
+	linux_NET_CORE_WMEM_MAX        =  1,
+	linux_NET_CORE_RMEM_MAX        =  2,
+	linux_NET_CORE_WMEM_DEFAULT    =  3,
+	linux_NET_CORE_RMEM_DEFAULT    =  4,
+	//linux_NET_CORE_DESTROY_DELAY
+	linux_NET_CORE_MAX_BACKLOG     =  6,
+	linux_NET_CORE_FASTROUTE       =  7,
+	linux_NET_CORE_MSG_COST        =  8,
+	linux_NET_CORE_MSG_BURST       =  9,
+	linux_NET_CORE_OPTMEM_MAX      = 10,
+	linux_NET_CORE_HOT_LIST_LENGTH = 11,
+	linux_NET_CORE_DIVERT_VERSION  = 12,
+	linux_NET_CORE_NO_CONG_THRESH  = 13,
+	linux_NET_CORE_NO_CONG         = 14,
+	linux_NET_CORE_LO_CONG         = 15,
+	linux_NET_CORE_MOD_CONG        = 16,
+	linux_NET_CORE_DEV_WEIGHT      = 17,
+	linux_NET_CORE_SOMAXCONN       = 18,
+	linux_NET_CORE_BUDGET          = 19,
+	linux_NET_CORE_AEVENT_ETIME    = 20,
+	linux_NET_CORE_AEVENT_RSEQTH   = 21,
+	linux_NET_CORE_WARNINGS        = 22,
+};
+enum // /proc/sys/net/unix
+{
+	linux_NET_UNIX_DESTROY_DELAY  = 1,
+	linux_NET_UNIX_DELETE_DELAY   = 2,
+	linux_NET_UNIX_MAX_DGRAM_QLEN = 3,
+};
+enum // /proc/sys/net/netfilter
+{
+	linux_NET_NF_CONNTRACK_MAX                            =  1,
+	linux_NET_NF_CONNTRACK_TCP_TIMEOUT_SYN_SENT           =  2,
+	linux_NET_NF_CONNTRACK_TCP_TIMEOUT_SYN_RECV           =  3,
+	linux_NET_NF_CONNTRACK_TCP_TIMEOUT_ESTABLISHED        =  4,
+	linux_NET_NF_CONNTRACK_TCP_TIMEOUT_FIN_WAIT           =  5,
+	linux_NET_NF_CONNTRACK_TCP_TIMEOUT_CLOSE_WAIT         =  6,
+	linux_NET_NF_CONNTRACK_TCP_TIMEOUT_LAST_ACK           =  7,
+	linux_NET_NF_CONNTRACK_TCP_TIMEOUT_TIME_WAIT          =  8,
+	linux_NET_NF_CONNTRACK_TCP_TIMEOUT_CLOSE              =  9,
+	linux_NET_NF_CONNTRACK_UDP_TIMEOUT                    = 10,
+	linux_NET_NF_CONNTRACK_UDP_TIMEOUT_STREAM             = 11,
+	linux_NET_NF_CONNTRACK_ICMP_TIMEOUT                   = 12,
+	linux_NET_NF_CONNTRACK_GENERIC_TIMEOUT                = 13,
+	linux_NET_NF_CONNTRACK_BUCKETS                        = 14,
+	linux_NET_NF_CONNTRACK_LOG_INVALID                    = 15,
+	linux_NET_NF_CONNTRACK_TCP_TIMEOUT_MAX_RETRANS        = 16,
+	linux_NET_NF_CONNTRACK_TCP_LOOSE                      = 17,
+	linux_NET_NF_CONNTRACK_TCP_BE_LIBERAL                 = 18,
+	linux_NET_NF_CONNTRACK_TCP_MAX_RETRANS                = 19,
+	linux_NET_NF_CONNTRACK_SCTP_TIMEOUT_CLOSED            = 20,
+	linux_NET_NF_CONNTRACK_SCTP_TIMEOUT_COOKIE_WAIT       = 21,
+	linux_NET_NF_CONNTRACK_SCTP_TIMEOUT_COOKIE_ECHOED     = 22,
+	linux_NET_NF_CONNTRACK_SCTP_TIMEOUT_ESTABLISHED       = 23,
+	linux_NET_NF_CONNTRACK_SCTP_TIMEOUT_SHUTDOWN_SENT     = 24,
+	linux_NET_NF_CONNTRACK_SCTP_TIMEOUT_SHUTDOWN_RECD     = 25,
+	linux_NET_NF_CONNTRACK_SCTP_TIMEOUT_SHUTDOWN_ACK_SENT = 26,
+	linux_NET_NF_CONNTRACK_COUNT                          = 27,
+	linux_NET_NF_CONNTRACK_ICMPV6_TIMEOUT                 = 28,
+	linux_NET_NF_CONNTRACK_FRAG6_TIMEOUT                  = 29,
+	linux_NET_NF_CONNTRACK_FRAG6_LOW_THRESH               = 30,
+	linux_NET_NF_CONNTRACK_FRAG6_HIGH_THRESH              = 31,
+	linux_NET_NF_CONNTRACK_CHECKSUM                       = 32,
+};
+enum // /proc/sys/net/ipv4
+{
+	linux_NET_IPV4_FORWARD                           =  8,
+	linux_NET_IPV4_DYNADDR                           =  9,
+
+	linux_NET_IPV4_CONF                              = 16,
+	linux_NET_IPV4_NEIGH                             = 17,
+	linux_NET_IPV4_ROUTE                             = 18,
+	linux_NET_IPV4_FIB_HASH                          = 19,
+	linux_NET_IPV4_NETFILTER                         = 20,
+
+	linux_NET_IPV4_TCP_TIMESTAMPS                    = 33,
+	linux_NET_IPV4_TCP_WINDOW_SCALING                = 34,
+	linux_NET_IPV4_TCP_SACK                          = 35,
+	linux_NET_IPV4_TCP_RETRANS_COLLAPSE              = 36,
+	linux_NET_IPV4_DEFAULT_TTL                       = 37,
+	linux_NET_IPV4_AUTOCONFIG                        = 38,
+	linux_NET_IPV4_NO_PMTU_DISC                      = 39,
+	linux_NET_IPV4_TCP_SYN_RETRIES                   = 40,
+	linux_NET_IPV4_IPFRAG_HIGH_THRESH                = 41,
+	linux_NET_IPV4_IPFRAG_LOW_THRESH                 = 42,
+	linux_NET_IPV4_IPFRAG_TIME                       = 43,
+	linux_NET_IPV4_TCP_MAX_KA_PROBES                 = 44,
+	linux_NET_IPV4_TCP_KEEPALIVE_TIME                = 45,
+	linux_NET_IPV4_TCP_KEEPALIVE_PROBES              = 46,
+	linux_NET_IPV4_TCP_RETRIES1                      = 47,
+	linux_NET_IPV4_TCP_RETRIES2                      = 48,
+	linux_NET_IPV4_TCP_FIN_TIMEOUT                   = 49,
+	linux_NET_IPV4_IP_MASQ_DEBUG                     = 50,
+	linux_NET_TCP_SYNCOOKIES                         = 51,
+	linux_NET_TCP_STDURG                             = 52,
+	linux_NET_TCP_RFC1337                            = 53,
+	linux_NET_TCP_SYN_TAILDROP                       = 54,
+	linux_NET_TCP_MAX_SYN_BACKLOG                    = 55,
+	linux_NET_IPV4_LOCAL_PORT_RANGE                  = 56,
+	linux_NET_IPV4_ICMP_ECHO_IGNORE_ALL              = 57,
+	linux_NET_IPV4_ICMP_ECHO_IGNORE_BROADCASTS       = 58,
+	linux_NET_IPV4_ICMP_SOURCEQUENCH_RATE            = 59,
+	linux_NET_IPV4_ICMP_DESTUNREACH_RATE             = 60,
+	linux_NET_IPV4_ICMP_TIMEEXCEED_RATE              = 61,
+	linux_NET_IPV4_ICMP_PARAMPROB_RATE               = 62,
+	linux_NET_IPV4_ICMP_ECHOREPLY_RATE               = 63,
+	linux_NET_IPV4_ICMP_IGNORE_BOGUS_ERROR_RESPONSES = 64,
+	linux_NET_IPV4_IGMP_MAX_MEMBERSHIPS              = 65,
+	linux_NET_TCP_TW_RECYCLE                         = 66,
+	linux_NET_IPV4_ALWAYS_DEFRAG                     = 67,
+	linux_NET_IPV4_TCP_KEEPALIVE_INTVL               = 68,
+	linux_NET_IPV4_INET_PEER_THRESHOLD               = 69,
+	linux_NET_IPV4_INET_PEER_MINTTL                  = 70,
+	linux_NET_IPV4_INET_PEER_MAXTTL                  = 71,
+	linux_NET_IPV4_INET_PEER_GC_MINTIME              = 72,
+	linux_NET_IPV4_INET_PEER_GC_MAXTIME              = 73,
+	linux_NET_TCP_ORPHAN_RETRIES                     = 74,
+	linux_NET_TCP_ABORT_ON_OVERFLOW                  = 75,
+	linux_NET_TCP_SYNACK_RETRIES                     = 76,
+	linux_NET_TCP_MAX_ORPHANS                        = 77,
+	linux_NET_TCP_MAX_TW_BUCKETS                     = 78,
+	linux_NET_TCP_FACK                               = 79,
+	linux_NET_TCP_REORDERING                         = 80,
+	linux_NET_TCP_ECN                                = 81,
+	linux_NET_TCP_DSACK                              = 82,
+	linux_NET_TCP_MEM                                = 83,
+	linux_NET_TCP_WMEM                               = 84,
+	linux_NET_TCP_RMEM                               = 85,
+	linux_NET_TCP_APP_WIN                            = 86,
+	linux_NET_TCP_ADV_WIN_SCALE                      = 87,
+	linux_NET_IPV4_NONLOCAL_BIND                     = 88,
+	linux_NET_IPV4_ICMP_RATELIMIT                    = 89,
+	linux_NET_IPV4_ICMP_RATEMASK                     = 90,
+	linux_NET_TCP_TW_REUSE                           = 91,
+	linux_NET_TCP_FRTO                               = 92,
+	linux_NET_TCP_LOW_LATENCY                        = 93,
+	linux_NET_IPV4_IPFRAG_SECRET_INTERVAL            = 94,
+	linux_NET_IPV4_IGMP_MAX_MSF                      = 96,
+	linux_NET_TCP_NO_METRICS_SAVE                    = 97,
+	linux_NET_TCP_DEFAULT_WIN_SCALE                  = 105,
+	linux_NET_TCP_MODERATE_RCVBUF                    = 106,
+	linux_NET_TCP_TSO_WIN_DIVISOR                    = 107,
+	linux_NET_TCP_BIC_BETA                           = 108,
+	linux_NET_IPV4_ICMP_ERRORS_USE_INBOUND_IFADDR    = 109,
+	linux_NET_TCP_CONG_CONTROL                       = 110,
+	linux_NET_TCP_ABC                                = 111,
+	linux_NET_IPV4_IPFRAG_MAX_DIST                   = 112,
+	linux_NET_TCP_MTU_PROBING                        = 113,
+	linux_NET_TCP_BASE_MSS                           = 114,
+	linux_NET_IPV4_TCP_WORKAROUND_SIGNED_WINDOWS     = 115,
+	linux_NET_TCP_DMA_COPYBREAK                      = 116,
+	linux_NET_TCP_SLOW_START_AFTER_IDLE              = 117,
+	linux_NET_CIPSOV4_CACHE_ENABLE                   = 118,
+	linux_NET_CIPSOV4_CACHE_BUCKET_SIZE              = 119,
+	linux_NET_CIPSOV4_RBM_OPTFMT                     = 120,
+	linux_NET_CIPSOV4_RBM_STRICTVALID                = 121,
+	linux_NET_TCP_AVAIL_CONG_CONTROL                 = 122,
+	linux_NET_TCP_ALLOWED_CONG_CONTROL               = 123,
+	linux_NET_TCP_MAX_SSTHRESH                       = 124,
+	linux_NET_TCP_FRTO_RESPONSE                      = 125,
+};
+enum
+{
+	linux_NET_IPV4_ROUTE_FLUSH              =  1,
+	linux_NET_IPV4_ROUTE_MIN_DELAY          =  2,
+	linux_NET_IPV4_ROUTE_MAX_DELAY          =  3,
+	linux_NET_IPV4_ROUTE_GC_THRESH          =  4,
+	linux_NET_IPV4_ROUTE_MAX_SIZE           =  5,
+	linux_NET_IPV4_ROUTE_GC_MIN_INTERVAL    =  6,
+	linux_NET_IPV4_ROUTE_GC_TIMEOUT         =  7,
+	linux_NET_IPV4_ROUTE_GC_INTERVAL        =  8,
+	linux_NET_IPV4_ROUTE_REDIRECT_LOAD      =  9,
+	linux_NET_IPV4_ROUTE_REDIRECT_NUMBER    = 10,
+	linux_NET_IPV4_ROUTE_REDIRECT_SILENCE   = 11,
+	linux_NET_IPV4_ROUTE_ERROR_COST         = 12,
+	linux_NET_IPV4_ROUTE_ERROR_BURST        = 13,
+	linux_NET_IPV4_ROUTE_GC_ELASTICITY      = 14,
+	linux_NET_IPV4_ROUTE_MTU_EXPIRES        = 15,
+	linux_NET_IPV4_ROUTE_MIN_PMTU           = 16,
+	linux_NET_IPV4_ROUTE_MIN_ADVMSS         = 17,
+	linux_NET_IPV4_ROUTE_SECRET_INTERVAL    = 18,
+	linux_NET_IPV4_ROUTE_GC_MIN_INTERVAL_MS = 19,
+};
+enum
+{
+	linux_NET_PROTO_CONF_ALL     = -2,
+	linux_NET_PROTO_CONF_DEFAULT = -3,
+};
+enum
+{
+	linux_NET_IPV4_CONF_FORWARDING          =  1,
+	linux_NET_IPV4_CONF_MC_FORWARDING       =  2,
+	linux_NET_IPV4_CONF_PROXY_ARP           =  3,
+	linux_NET_IPV4_CONF_ACCEPT_REDIRECTS    =  4,
+	linux_NET_IPV4_CONF_SECURE_REDIRECTS    =  5,
+	linux_NET_IPV4_CONF_SEND_REDIRECTS      =  6,
+	linux_NET_IPV4_CONF_SHARED_MEDIA        =  7,
+	linux_NET_IPV4_CONF_RP_FILTER           =  8,
+	linux_NET_IPV4_CONF_ACCEPT_SOURCE_ROUTE =  9,
+	linux_NET_IPV4_CONF_BOOTP_RELAY         = 10,
+	linux_NET_IPV4_CONF_LOG_MARTIANS        = 11,
+	linux_NET_IPV4_CONF_TAG                 = 12,
+	linux_NET_IPV4_CONF_ARPFILTER           = 13,
+	linux_NET_IPV4_CONF_MEDIUM_ID           = 14,
+	linux_NET_IPV4_CONF_NOXFRM              = 15,
+	linux_NET_IPV4_CONF_NOPOLICY            = 16,
+	linux_NET_IPV4_CONF_FORCE_IGMP_VERSION  = 17,
+	linux_NET_IPV4_CONF_ARP_ANNOUNCE        = 18,
+	linux_NET_IPV4_CONF_ARP_IGNORE          = 19,
+	linux_NET_IPV4_CONF_PROMOTE_SECONDARIES = 20,
+	linux_NET_IPV4_CONF_ARP_ACCEPT          = 21,
+	linux_NET_IPV4_CONF_ARP_NOTIFY          = 22,
+};
+enum // /proc/sys/net/ipv4/netfilter
+{
+	linux_NET_IPV4_NF_CONNTRACK_MAX                            =  1,
+	linux_NET_IPV4_NF_CONNTRACK_TCP_TIMEOUT_SYN_SENT           =  2,
+	linux_NET_IPV4_NF_CONNTRACK_TCP_TIMEOUT_SYN_RECV           =  3,
+	linux_NET_IPV4_NF_CONNTRACK_TCP_TIMEOUT_ESTABLISHED        =  4,
+	linux_NET_IPV4_NF_CONNTRACK_TCP_TIMEOUT_FIN_WAIT           =  5,
+	linux_NET_IPV4_NF_CONNTRACK_TCP_TIMEOUT_CLOSE_WAIT         =  6,
+	linux_NET_IPV4_NF_CONNTRACK_TCP_TIMEOUT_LAST_ACK           =  7,
+	linux_NET_IPV4_NF_CONNTRACK_TCP_TIMEOUT_TIME_WAIT          =  8,
+	linux_NET_IPV4_NF_CONNTRACK_TCP_TIMEOUT_CLOSE              =  9,
+	linux_NET_IPV4_NF_CONNTRACK_UDP_TIMEOUT                    = 10,
+	linux_NET_IPV4_NF_CONNTRACK_UDP_TIMEOUT_STREAM             = 11,
+	linux_NET_IPV4_NF_CONNTRACK_ICMP_TIMEOUT                   = 12,
+	linux_NET_IPV4_NF_CONNTRACK_GENERIC_TIMEOUT                = 13,
+	linux_NET_IPV4_NF_CONNTRACK_BUCKETS                        = 14,
+	linux_NET_IPV4_NF_CONNTRACK_LOG_INVALID                    = 15,
+	linux_NET_IPV4_NF_CONNTRACK_TCP_TIMEOUT_MAX_RETRANS        = 16,
+	linux_NET_IPV4_NF_CONNTRACK_TCP_LOOSE                      = 17,
+	linux_NET_IPV4_NF_CONNTRACK_TCP_BE_LIBERAL                 = 18,
+	linux_NET_IPV4_NF_CONNTRACK_TCP_MAX_RETRANS                = 19,
+	linux_NET_IPV4_NF_CONNTRACK_SCTP_TIMEOUT_CLOSED            = 20,
+	linux_NET_IPV4_NF_CONNTRACK_SCTP_TIMEOUT_COOKIE_WAIT       = 21,
+	linux_NET_IPV4_NF_CONNTRACK_SCTP_TIMEOUT_COOKIE_ECHOED     = 22,
+	linux_NET_IPV4_NF_CONNTRACK_SCTP_TIMEOUT_ESTABLISHED       = 23,
+	linux_NET_IPV4_NF_CONNTRACK_SCTP_TIMEOUT_SHUTDOWN_SENT     = 24,
+	linux_NET_IPV4_NF_CONNTRACK_SCTP_TIMEOUT_SHUTDOWN_RECD     = 25,
+	linux_NET_IPV4_NF_CONNTRACK_SCTP_TIMEOUT_SHUTDOWN_ACK_SENT = 26,
+	linux_NET_IPV4_NF_CONNTRACK_COUNT                          = 27,
+	linux_NET_IPV4_NF_CONNTRACK_CHECKSUM                       = 28,
+};
+enum // /proc/sys/net/ipv6
+{
+	linux_NET_IPV6_CONF                    = 16,
+	linux_NET_IPV6_NEIGH                   = 17,
+	linux_NET_IPV6_ROUTE                   = 18,
+	linux_NET_IPV6_ICMP                    = 19,
+	linux_NET_IPV6_BINDV6ONLY              = 20,
+	linux_NET_IPV6_IP6FRAG_HIGH_THRESH     = 21,
+	linux_NET_IPV6_IP6FRAG_LOW_THRESH      = 22,
+	linux_NET_IPV6_IP6FRAG_TIME            = 23,
+	linux_NET_IPV6_IP6FRAG_SECRET_INTERVAL = 24,
+	linux_NET_IPV6_MLD_MAX_MSF             = 25,
+};
+enum
+{
+	linux_NET_IPV6_ROUTE_FLUSH              =  1,
+	linux_NET_IPV6_ROUTE_GC_THRESH          =  2,
+	linux_NET_IPV6_ROUTE_MAX_SIZE           =  3,
+	linux_NET_IPV6_ROUTE_GC_MIN_INTERVAL    =  4,
+	linux_NET_IPV6_ROUTE_GC_TIMEOUT         =  5,
+	linux_NET_IPV6_ROUTE_GC_INTERVAL        =  6,
+	linux_NET_IPV6_ROUTE_GC_ELASTICITY      =  7,
+	linux_NET_IPV6_ROUTE_MTU_EXPIRES        =  8,
+	linux_NET_IPV6_ROUTE_MIN_ADVMSS         =  9,
+	linux_NET_IPV6_ROUTE_GC_MIN_INTERVAL_MS = 10,
+};
+enum
+{
+	linux_NET_IPV6_FORWARDING                 =  1,
+	linux_NET_IPV6_HOP_LIMIT                  =  2,
+	linux_NET_IPV6_MTU                        =  3,
+	linux_NET_IPV6_ACCEPT_RA                  =  4,
+	linux_NET_IPV6_ACCEPT_REDIRECTS           =  5,
+	linux_NET_IPV6_AUTOCONF                   =  6,
+	linux_NET_IPV6_DAD_TRANSMITS              =  7,
+	linux_NET_IPV6_RTR_SOLICITS               =  8,
+	linux_NET_IPV6_RTR_SOLICIT_INTERVAL       =  9,
+	linux_NET_IPV6_RTR_SOLICIT_DELAY          = 10,
+	linux_NET_IPV6_USE_TEMPADDR               = 11,
+	linux_NET_IPV6_TEMP_VALID_LFT             = 12,
+	linux_NET_IPV6_TEMP_PREFERED_LFT          = 13,
+	linux_NET_IPV6_REGEN_MAX_RETRY            = 14,
+	linux_NET_IPV6_MAX_DESYNC_FACTOR          = 15,
+	linux_NET_IPV6_MAX_ADDRESSES              = 16,
+	linux_NET_IPV6_FORCE_MLD_VERSION          = 17,
+	linux_NET_IPV6_ACCEPT_RA_DEFRTR           = 18,
+	linux_NET_IPV6_ACCEPT_RA_PINFO            = 19,
+	linux_NET_IPV6_ACCEPT_RA_RTR_PREF         = 20,
+	linux_NET_IPV6_RTR_PROBE_INTERVAL         = 21,
+	linux_NET_IPV6_ACCEPT_RA_RT_INFO_MAX_PLEN = 22,
+	linux_NET_IPV6_PROXY_NDP                  = 23,
+	linux_NET_IPV6_ACCEPT_SOURCE_ROUTE        = 25,
+	linux_NET_IPV6_ACCEPT_RA_FROM_LOCAL       = 26,
+	linux_NET_IPV6_ACCEPT_RA_RT_INFO_MIN_PLEN = 27,
+};
+enum // /proc/sys/net/ipv6/icmp
+{
+	linux_NET_IPV6_ICMP_RATELIMIT = 1,
+};
+enum // /proc/sys/net/<protocol>/neigh/<dev>
+{
+	linux_NET_NEIGH_MCAST_SOLICIT     =  1,
+	linux_NET_NEIGH_UCAST_SOLICIT     =  2,
+	linux_NET_NEIGH_APP_SOLICIT       =  3,
+	linux_NET_NEIGH_RETRANS_TIME      =  4,
+	linux_NET_NEIGH_REACHABLE_TIME    =  5,
+	linux_NET_NEIGH_DELAY_PROBE_TIME  =  6,
+	linux_NET_NEIGH_GC_STALE_TIME     =  7,
+	linux_NET_NEIGH_UNRES_QLEN        =  8,
+	linux_NET_NEIGH_PROXY_QLEN        =  9,
+	linux_NET_NEIGH_ANYCAST_DELAY     = 10,
+	linux_NET_NEIGH_PROXY_DELAY       = 11,
+	linux_NET_NEIGH_LOCKTIME          = 12,
+	linux_NET_NEIGH_GC_INTERVAL       = 13,
+	linux_NET_NEIGH_GC_THRESH1        = 14,
+	linux_NET_NEIGH_GC_THRESH2        = 15,
+	linux_NET_NEIGH_GC_THRESH3        = 16,
+	linux_NET_NEIGH_RETRANS_TIME_MS   = 17,
+	linux_NET_NEIGH_REACHABLE_TIME_MS = 18,
+};
+enum // /proc/sys/net/dccp
+{
+	linux_NET_DCCP_DEFAULT = 1,
+};
+enum // /proc/sys/net/ipx
+{
+	linux_NET_IPX_PPROP_BROADCASTING = 1,
+	linux_NET_IPX_FORWARDING         = 2,
+};
+enum // /proc/sys/net/llc
+{
+	linux_NET_LLC2        = 1,
+	linux_NET_LLC_STATION = 2,
+};
+enum // /proc/sys/net/llc/llc2
+{
+	linux_NET_LLC2_TIMEOUT = 1,
+};
+enum // /proc/sys/net/llc/station
+{
+	linux_NET_LLC_STATION_ACK_TIMEOUT = 1,
+};
+enum // /proc/sys/net/llc/llc2/timeout
+{
+	linux_NET_LLC2_ACK_TIMEOUT  = 1,
+	linux_NET_LLC2_P_TIMEOUT    = 2,
+	linux_NET_LLC2_REJ_TIMEOUT  = 3,
+	linux_NET_LLC2_BUSY_TIMEOUT = 4,
+};
+enum // /proc/sys/net/appletalk
+{
+	linux_NET_ATALK_AARP_EXPIRY_TIME      = 1,
+	linux_NET_ATALK_AARP_TICK_TIME        = 2,
+	linux_NET_ATALK_AARP_RETRANSMIT_LIMIT = 3,
+	linux_NET_ATALK_AARP_RESOLVE_TIME     = 4,
+};
+enum // /proc/sys/net/netrom
+{
+	linux_NET_NETROM_DEFAULT_PATH_QUALITY            =  1,
+	linux_NET_NETROM_OBSOLESCENCE_COUNT_INITIALISER  =  2,
+	linux_NET_NETROM_NETWORK_TTL_INITIALISER         =  3,
+	linux_NET_NETROM_TRANSPORT_TIMEOUT               =  4,
+	linux_NET_NETROM_TRANSPORT_MAXIMUM_TRIES         =  5,
+	linux_NET_NETROM_TRANSPORT_ACKNOWLEDGE_DELAY     =  6,
+	linux_NET_NETROM_TRANSPORT_BUSY_DELAY            =  7,
+	linux_NET_NETROM_TRANSPORT_REQUESTED_WINDOW_SIZE =  8,
+	linux_NET_NETROM_TRANSPORT_NO_ACTIVITY_TIMEOUT   =  9,
+	linux_NET_NETROM_ROUTING_CONTROL                 = 10,
+	linux_NET_NETROM_LINK_FAILS_COUNT                = 11,
+	linux_NET_NETROM_RESET                           = 12,
+};
+enum // /proc/sys/net/ax25
+{
+	linux_NET_AX25_IP_DEFAULT_MODE    =  1,
+	linux_NET_AX25_DEFAULT_MODE       =  2,
+	linux_NET_AX25_BACKOFF_TYPE       =  3,
+	linux_NET_AX25_CONNECT_MODE       =  4,
+	linux_NET_AX25_STANDARD_WINDOW    =  5,
+	linux_NET_AX25_EXTENDED_WINDOW    =  6,
+	linux_NET_AX25_T1_TIMEOUT         =  7,
+	linux_NET_AX25_T2_TIMEOUT         =  8,
+	linux_NET_AX25_T3_TIMEOUT         =  9,
+	linux_NET_AX25_IDLE_TIMEOUT       = 10,
+	linux_NET_AX25_N2                 = 11,
+	linux_NET_AX25_PACLEN             = 12,
+	linux_NET_AX25_PROTOCOL           = 13,
+	linux_NET_AX25_DAMA_SLAVE_TIMEOUT = 14
+};
+enum // /proc/sys/net/rose
+{
+	linux_NET_ROSE_RESTART_REQUEST_TIMEOUT =  1,
+	linux_NET_ROSE_CALL_REQUEST_TIMEOUT    =  2,
+	linux_NET_ROSE_RESET_REQUEST_TIMEOUT   =  3,
+	linux_NET_ROSE_CLEAR_REQUEST_TIMEOUT   =  4,
+	linux_NET_ROSE_ACK_HOLD_BACK_TIMEOUT   =  5,
+	linux_NET_ROSE_ROUTING_CONTROL         =  6,
+	linux_NET_ROSE_LINK_FAIL_TIMEOUT       =  7,
+	linux_NET_ROSE_MAX_VCS                 =  8,
+	linux_NET_ROSE_WINDOW_SIZE             =  9,
+	linux_NET_ROSE_NO_ACTIVITY_TIMEOUT     = 10
+};
+enum // /proc/sys/net/x25
+{
+	linux_NET_X25_RESTART_REQUEST_TIMEOUT = 1,
+	linux_NET_X25_CALL_REQUEST_TIMEOUT    = 2,
+	linux_NET_X25_RESET_REQUEST_TIMEOUT   = 3,
+	linux_NET_X25_CLEAR_REQUEST_TIMEOUT   = 4,
+	linux_NET_X25_ACK_HOLD_BACK_TIMEOUT   = 5,
+	linux_NET_X25_FORWARD                 = 6,
+};
+enum // /proc/sys/net/token-ring
+{
+	linux_NET_TR_RIF_TIMEOUT = 1,
+};
+enum // /proc/sys/net/decnet/
+{
+	linux_NET_DECNET_NODE_TYPE       =   1,
+	linux_NET_DECNET_NODE_ADDRESS    =   2,
+	linux_NET_DECNET_NODE_NAME       =   3,
+	linux_NET_DECNET_DEFAULT_DEVICE  =   4,
+	linux_NET_DECNET_TIME_WAIT       =   5,
+	linux_NET_DECNET_DN_COUNT        =   6,
+	linux_NET_DECNET_DI_COUNT        =   7,
+	linux_NET_DECNET_DR_COUNT        =   8,
+	linux_NET_DECNET_DST_GC_INTERVAL =   9,
+	linux_NET_DECNET_CONF            =  10,
+	linux_NET_DECNET_NO_FC_MAX_CWND  =  11,
+	linux_NET_DECNET_MEM             =  12,
+	linux_NET_DECNET_RMEM            =  13,
+	linux_NET_DECNET_WMEM            =  14,
+	linux_NET_DECNET_DEBUG_LEVEL     = 255,
+};
+enum // /proc/sys/net/decnet/conf/<dev>
+{
+	linux_NET_DECNET_CONF_LOOPBACK = -2,
+	linux_NET_DECNET_CONF_DDCMP    = -3,
+	linux_NET_DECNET_CONF_PPP      = -4,
+	linux_NET_DECNET_CONF_X25      = -5,
+	linux_NET_DECNET_CONF_GRE      = -6,
+	linux_NET_DECNET_CONF_ETHER    = -7,
+};
+enum // /proc/sys/net/decnet/conf/<dev>/
+{
+	linux_NET_DECNET_CONF_DEV_PRIORITY   = 1,
+	linux_NET_DECNET_CONF_DEV_T1         = 2,
+	linux_NET_DECNET_CONF_DEV_T2         = 3,
+	linux_NET_DECNET_CONF_DEV_T3         = 4,
+	linux_NET_DECNET_CONF_DEV_FORWARDING = 5,
+	linux_NET_DECNET_CONF_DEV_BLKSIZE    = 6,
+	linux_NET_DECNET_CONF_DEV_STATE      = 7,
+};
+enum // /proc/sys/net/sctp
+{
+	linux_NET_SCTP_RTO_INITIAL             =  1,
+	linux_NET_SCTP_RTO_MIN                 =  2,
+	linux_NET_SCTP_RTO_MAX                 =  3,
+	linux_NET_SCTP_RTO_ALPHA               =  4,
+	linux_NET_SCTP_RTO_BETA                =  5,
+	linux_NET_SCTP_VALID_COOKIE_LIFE       =  6,
+	linux_NET_SCTP_ASSOCIATION_MAX_RETRANS =  7,
+	linux_NET_SCTP_PATH_MAX_RETRANS        =  8,
+	linux_NET_SCTP_MAX_INIT_RETRANSMITS    =  9,
+	linux_NET_SCTP_HB_INTERVAL             = 10,
+	linux_NET_SCTP_PRESERVE_ENABLE         = 11,
+	linux_NET_SCTP_MAX_BURST               = 12,
+	linux_NET_SCTP_ADDIP_ENABLE		 = 13,
+	linux_NET_SCTP_PRSCTP_ENABLE		 = 14,
+	linux_NET_SCTP_SNDBUF_POLICY		 = 15,
+	linux_NET_SCTP_SACK_TIMEOUT		 = 16,
+	linux_NET_SCTP_RCVBUF_POLICY		 = 17,
+};
+enum // /proc/sys/net/bridge
+{
+	linux_NET_BRIDGE_NF_CALL_ARPTABLES      = 1,
+	linux_NET_BRIDGE_NF_CALL_IPTABLES       = 2,
+	linux_NET_BRIDGE_NF_CALL_IP6TABLES      = 3,
+	linux_NET_BRIDGE_NF_FILTER_VLAN_TAGGED  = 4,
+	linux_NET_BRIDGE_NF_FILTER_PPPOE_TAGGED = 5,
+};
+enum // proc/sys/net/irda
+{
+	linux_NET_IRDA_DISCOVERY          =  1,
+	linux_NET_IRDA_DEVNAME            =  2,
+	linux_NET_IRDA_DEBUG              =  3,
+	linux_NET_IRDA_FAST_POLL          =  4,
+	linux_NET_IRDA_DISCOVERY_SLOTS    =  5,
+	linux_NET_IRDA_DISCOVERY_TIMEOUT  =  6,
+	linux_NET_IRDA_SLOT_TIMEOUT       =  7,
+	linux_NET_IRDA_MAX_BAUD_RATE      =  8,
+	linux_NET_IRDA_MIN_TX_TURN_TIME   =  9,
+	linux_NET_IRDA_MAX_TX_DATA_SIZE   = 10,
+	linux_NET_IRDA_MAX_TX_WINDOW      = 11,
+	linux_NET_IRDA_MAX_NOREPLY_TIME   = 12,
+	linux_NET_IRDA_WARN_NOREPLY_TIME  = 13,
+	linux_NET_IRDA_LAP_KEEPALIVE_TIME = 14,
+};
+enum // CTL_FS names
+{
+	linux_FS_NRINODE     =   1,
+	linux_FS_STATINODE   =   2,
+	linux_FS_MAXINODE    =   3,
+	linux_FS_NRDQUOT     =   4,
+	linux_FS_MAXDQUOT    =   5,
+	linux_FS_NRFILE      =   6,
+	linux_FS_MAXFILE     =   7,
+	linux_FS_DENTRY      =   8,
+	linux_FS_NRSUPER     =   9,
+	linux_FS_MAXSUPER    =  10,
+	linux_FS_OVERFLOWUID =  11,
+	linux_FS_OVERFLOWGID =  12,
+	linux_FS_LEASES      =  13,
+	linux_FS_DIR_NOTIFY  =  14,
+	linux_FS_LEASE_TIME  =  15,
+	linux_FS_DQSTATS     =  16,
+	linux_FS_XFS         =  17,
+	linux_FS_AIO_NR      =  18,
+	linux_FS_AIO_MAX_NR  =  19,
+	linux_FS_INOTIFY     =  20,
+	linux_FS_OCFS2       = 988,
+};
+enum // /proc/sys/fs/quota/
+{
+	linux_FS_DQ_LOOKUPS    = 1,
+	linux_FS_DQ_DROPS      = 2,
+	linux_FS_DQ_READS      = 3,
+	linux_FS_DQ_WRITES     = 4,
+	linux_FS_DQ_CACHE_HITS = 5,
+	linux_FS_DQ_ALLOCATED  = 6,
+	linux_FS_DQ_FREE       = 7,
+	linux_FS_DQ_SYNCS      = 8,
+	linux_FS_DQ_WARNINGS   = 9,
+};
+enum // CTL_DEV names
+{
+	linux_DEV_CDROM   = 1,
+	linux_DEV_HWMON   = 2,
+	linux_DEV_PARPORT = 3,
+	linux_DEV_RAID    = 4,
+	linux_DEV_MAC_HID = 5,
+	linux_DEV_SCSI    = 6,
+	linux_DEV_IPMI    = 7,
+};
+enum // /proc/sys/dev/cdrom
+{
+	linux_DEV_CDROM_INFO        = 1,
+	linux_DEV_CDROM_AUTOCLOSE   = 2,
+	linux_DEV_CDROM_AUTOEJECT   = 3,
+	linux_DEV_CDROM_DEBUG       = 4,
+	linux_DEV_CDROM_LOCK        = 5,
+	linux_DEV_CDROM_CHECK_MEDIA = 6,
+};
+enum // /proc/sys/dev/parport
+{
+	linux_DEV_PARPORT_DEFAULT = -3,
+};
+enum // /proc/sys/dev/raid
+{
+	linux_DEV_RAID_SPEED_LIMIT_MIN = 1,
+	linux_DEV_RAID_SPEED_LIMIT_MAX = 2,
+};
+enum // /proc/sys/dev/parport/default
+{
+	linux_DEV_PARPORT_DEFAULT_TIMESLICE = 1,
+	linux_DEV_PARPORT_DEFAULT_SPINTIME  = 2,
+};
+enum // /proc/sys/dev/parport/parport n
+{
+	linux_DEV_PARPORT_SPINTIME  =  1,
+	linux_DEV_PARPORT_BASE_ADDR =  2,
+	linux_DEV_PARPORT_IRQ       =  3,
+	linux_DEV_PARPORT_DMA       =  4,
+	linux_DEV_PARPORT_MODES     =  5,
+	linux_DEV_PARPORT_DEVICES   =  6,
+	linux_DEV_PARPORT_AUTOPROBE = 16,
+};
+enum // /proc/sys/dev/parport/parport n/devices/
+{
+	linux_DEV_PARPORT_DEVICES_ACTIVE = -3,
+};
+enum // /proc/sys/dev/parport/parport n/devices/device n
+{
+	linux_DEV_PARPORT_DEVICE_TIMESLICE = 1,
+};
+enum // /proc/sys/dev/mac_hid
+{
+	linux_DEV_MAC_HID_KEYBOARD_SENDS_LINUX_KEYCODES = 1,
+	linux_DEV_MAC_HID_KEYBOARD_LOCK_KEYCODES        = 2,
+	linux_DEV_MAC_HID_MOUSE_BUTTON_EMULATION        = 3,
+	linux_DEV_MAC_HID_MOUSE_BUTTON2_KEYCODE         = 4,
+	linux_DEV_MAC_HID_MOUSE_BUTTON3_KEYCODE         = 5,
+	linux_DEV_MAC_HID_ADB_MOUSE_SENDS_KEYCODES      = 6,
+};
+enum // /proc/sys/dev/scsi
+{
+	linux_DEV_SCSI_LOGGING_LEVEL = 1,
+};
+enum // /proc/sys/dev/ipmi
+{
+	linux_DEV_IPMI_POWEROFF_POWERCYCLE = 1,
+};
+enum // /proc/sys/abi
+{
+	linux_ABI_DEFHANDLER_COFF   = 1,
+	linux_ABI_DEFHANDLER_ELF    = 2,
+	linux_ABI_DEFHANDLER_LCALL7 = 3,
+	linux_ABI_DEFHANDLER_LIBCSO = 4,
+	linux_ABI_TRACE             = 5,
+	linux_ABI_FAKE_UTSNAME      = 6,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -2984,6 +3800,7 @@ static inline enum linux_error_t linux_modify_ldt(int const func, void* const pt
 	return linux_error_none;
 }
 static inline LINUX_DEFINE_SYSCALL2_NORET(pivot_root, char const*, new_root, char const*, put_old)
+static inline LINUX_DEFINE_SYSCALL1_NORET(sysctl, struct linux_sysctl_args_t*, args)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 // TODO: Add more syscalls here first.
