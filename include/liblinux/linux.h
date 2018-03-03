@@ -763,6 +763,20 @@ struct linux_sched_param_t
 {
 	int sched_priority;
 };
+struct linux_user_desc_t
+{
+	unsigned int entry_number;
+	unsigned int base_addr;
+	unsigned int limit;
+	unsigned int seg_32bit:1;
+	unsigned int contents:2;
+	unsigned int read_exec_only:1;
+	unsigned int limit_in_pages:1;
+	unsigned int seg_not_present:1;
+	unsigned int useable:1;
+	unsigned int lm:1;
+	char _pad[3];
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -2960,6 +2974,15 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(munlock, void const*, start, size_t, l
 static inline LINUX_DEFINE_SYSCALL1_NORET(mlockall, int, flags)
 static inline LINUX_DEFINE_SYSCALL0_NORET(munlockall)
 static inline LINUX_DEFINE_SYSCALL0_NORET(vhangup)
+static inline enum linux_error_t linux_modify_ldt(int const func, void* const ptr, unsigned long const bytecount, int* const result)
+{
+	int const ret = (int)linux_syscall3((intptr_t)func, (intptr_t)ptr, (intptr_t)bytecount, linux_syscall_name_modify_ldt);
+	if (linux_syscall_returned_error(ret))
+		return (enum linux_error_t)-ret;
+	if (result)
+		*result = ret;
+	return linux_error_none;
+}
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 // TODO: Add more syscalls here first.
