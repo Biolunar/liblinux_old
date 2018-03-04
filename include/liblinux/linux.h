@@ -3701,6 +3701,20 @@ enum
 	linux_UMOUNT_UNUSED   = INT_MIN, // 0x80000000
 };
 
+// swap flags
+enum
+{
+	linux_SWAP_FLAG_PREFER        = 0x8000,
+	linux_SWAP_FLAG_PRIO_MASK     = 0x7fff,
+	linux_SWAP_FLAG_PRIO_SHIFT    = 0,
+	linux_SWAP_FLAG_DISCARD       = 0x10000,
+	linux_SWAP_FLAG_DISCARD_ONCE  = 0x20000,
+	linux_SWAP_FLAG_DISCARD_PAGES = 0x40000,
+
+	linux_SWAP_FLAGS_VALID        = linux_SWAP_FLAG_PRIO_MASK | linux_SWAP_FLAG_PREFER | linux_SWAP_FLAG_DISCARD | linux_SWAP_FLAG_DISCARD_ONCE | linux_SWAP_FLAG_DISCARD_PAGES,
+	linux_SWAP_BATCH              = 64,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -4096,6 +4110,8 @@ static inline LINUX_DEFINE_SYSCALL1_NORET(acct, char const*, name)
 static inline LINUX_DEFINE_SYSCALL2_NORET(settimeofday, struct linux_timeval_t LINUX_SAFE_CONST*, tv, struct linux_timezone_t LINUX_SAFE_CONST*, tz)
 static inline LINUX_DEFINE_SYSCALL5_NORET(mount, char LINUX_SAFE_CONST*, dev_name, char LINUX_SAFE_CONST*, dir_name, char LINUX_SAFE_CONST*, type, unsigned long, flags, void LINUX_SAFE_CONST*, data)
 static inline LINUX_DEFINE_SYSCALL2_NORET(umount, char LINUX_SAFE_CONST*, name, int, flags)
+static inline LINUX_DEFINE_SYSCALL2_NORET(swapon, char const*, specialfile, int, swap_flags)
+static inline LINUX_DEFINE_SYSCALL1_NORET(swapoff, char const*, specialfile)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
