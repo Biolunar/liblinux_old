@@ -4046,6 +4046,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, ar
 static inline LINUX_DEFINE_SYSCALL1_RET(adjtimex, struct linux_timex_t*, txc_p, int)
 static inline LINUX_DEFINE_SYSCALL2_NORET(setrlimit, unsigned int, resource, struct linux_rlimit_t LINUX_SAFE_CONST*, rlim)
 static inline LINUX_DEFINE_SYSCALL1_NORET(chroot, char const*, filename)
+static inline LINUX_DEFINE_SYSCALL0_NORET(sync)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
