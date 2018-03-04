@@ -3416,6 +3416,149 @@ enum // /proc/sys/abi
 	linux_ABI_FAKE_UTSNAME      = 6,
 };
 
+// prctl
+enum
+{
+	linux_PR_SET_PDEATHSIG            =  1,
+	linux_PR_GET_PDEATHSIG            =  2,
+	linux_PR_GET_DUMPABLE             =  3,
+	linux_PR_SET_DUMPABLE             =  4,
+	linux_PR_GET_UNALIGN              =  5,
+	linux_PR_SET_UNALIGN              =  6,
+	linux_PR_GET_KEEPCAPS             =  7,
+	linux_PR_SET_KEEPCAPS             =  8,
+	linux_PR_GET_FPEMU                =  9,
+	linux_PR_SET_FPEMU                = 10,
+	linux_PR_GET_FPEXC                = 11,
+	linux_PR_SET_FPEXC                = 12,
+	linux_PR_GET_TIMING               = 13,
+	linux_PR_SET_TIMING               = 14,
+	linux_PR_SET_NAME                 = 15,
+	linux_PR_GET_NAME                 = 16,
+
+	linux_PR_GET_ENDIAN               = 19,
+	linux_PR_SET_ENDIAN               = 20,
+	linux_PR_GET_SECCOMP              = 21,
+	linux_PR_SET_SECCOMP              = 22,
+	linux_PR_CAPBSET_READ             = 23,
+	linux_PR_CAPBSET_DROP             = 24,
+	linux_PR_GET_TSC                  = 25,
+	linux_PR_SET_TSC                  = 26,
+	linux_PR_GET_SECUREBITS           = 27,
+	linux_PR_SET_SECUREBITS           = 28,
+	linux_PR_SET_TIMERSLACK           = 29,
+	linux_PR_GET_TIMERSLACK           = 30,
+	linux_PR_TASK_PERF_EVENTS_DISABLE = 31,
+	linux_PR_TASK_PERF_EVENTS_ENABLE  = 32,
+	linux_PR_MCE_KILL                 = 33,
+	linux_PR_MCE_KILL_GET             = 34,
+	linux_PR_SET_MM                   = 35,
+	linux_PR_SET_CHILD_SUBREAPER      = 36,
+	linux_PR_GET_CHILD_SUBREAPER      = 37,
+	linux_PR_SET_NO_NEW_PRIVS         = 38,
+	linux_PR_GET_NO_NEW_PRIVS         = 39,
+	linux_PR_GET_TID_ADDRESS          = 40,
+	linux_PR_SET_THP_DISABLE          = 41,
+	linux_PR_GET_THP_DISABLE          = 42,
+	linux_PR_MPX_ENABLE_MANAGEMENT    = 43,
+	linux_PR_MPX_DISABLE_MANAGEMENT   = 44,
+	linux_PR_SET_FP_MODE              = 45,
+	linux_PR_GET_FP_MODE              = 46,
+	linux_PR_CAP_AMBIENT              = 47,
+
+	linux_PR_SVE_SET_VL               = 50,
+	linux_PR_SVE_GET_VL               = 51,
+
+	linux_PR_SET_PTRACER              = 0x59616d61,
+};
+enum
+{
+	linux_PR_UNALIGN_NOPRINT = 1,
+	linux_PR_UNALIGN_SIGBUS  = 2,
+};
+enum
+{
+	linux_PR_FPEMU_NOPRINT = 1,
+	linux_PR_FPEMU_SIGFPE  = 2,
+};
+enum
+{
+	linux_PR_FP_EXC_SW_ENABLE = 0x80,
+	linux_PR_FP_EXC_DIV       = 0x010000,
+	linux_PR_FP_EXC_OVF       = 0x020000,
+	linux_PR_FP_EXC_UND       = 0x040000,
+	linux_PR_FP_EXC_RES       = 0x080000,
+	linux_PR_FP_EXC_INV       = 0x100000,
+	linux_PR_FP_EXC_DISABLED  = 0,
+	linux_PR_FP_EXC_NONRECOV  = 1,
+	linux_PR_FP_EXC_ASYNC     = 2,
+	linux_PR_FP_EXC_PRECISE   = 3,
+};
+enum
+{
+	linux_PR_TIMING_STATISTICAL = 0,
+	linux_PR_TIMING_TIMESTAMP   = 1,
+};
+enum
+{
+	linux_PR_ENDIAN_BIG        = 0,
+	linux_PR_ENDIAN_LITTLE     = 1,
+	linux_PR_ENDIAN_PPC_LITTLE = 2,
+};
+enum
+{
+	linux_PR_TSC_ENABLE  = 1,
+	linux_PR_TSC_SIGSEGV = 2,
+};
+enum
+{
+	linux_PR_MCE_KILL_CLEAR = 0,
+	linux_PR_MCE_KILL_SET   = 1,
+};
+enum
+{
+	linux_PR_MCE_KILL_LATE    = 0,
+	linux_PR_MCE_KILL_EARLY   = 1,
+	linux_PR_MCE_KILL_DEFAULT = 2,
+};
+enum
+{
+	linux_PR_SET_MM_START_CODE  =  1,
+	linux_PR_SET_MM_END_CODE    =  2,
+	linux_PR_SET_MM_START_DATA  =  3,
+	linux_PR_SET_MM_END_DATA    =  4,
+	linux_PR_SET_MM_START_STACK =  5,
+	linux_PR_SET_MM_START_BRK   =  6,
+	linux_PR_SET_MM_BRK         =  7,
+	linux_PR_SET_MM_ARG_START   =  8,
+	linux_PR_SET_MM_ARG_END     =  9,
+	linux_PR_SET_MM_ENV_START   = 10,
+	linux_PR_SET_MM_ENV_END     = 11,
+	linux_PR_SET_MM_AUXV        = 12,
+	linux_PR_SET_MM_EXE_FILE    = 13,
+	linux_PR_SET_MM_MAP         = 14,
+	linux_PR_SET_MM_MAP_SIZE    = 15,
+};
+#define linux_PR_SET_PTRACER_ANY ((unsigned long)-1)
+enum
+{
+	linux_PR_FP_MODE_FR  = (1 << 0),
+	linux_PR_FP_MODE_FRE = (1 << 1),
+};
+enum
+{
+	linux_PR_CAP_AMBIENT_IS_SET    = 1,
+	linux_PR_CAP_AMBIENT_RAISE     = 2,
+	linux_PR_CAP_AMBIENT_LOWER     = 3,
+	linux_PR_CAP_AMBIENT_CLEAR_ALL = 4,
+};
+enum
+{
+	linux_PR_SVE_SET_VL_ONEXEC = 1 << 18,
+	linux_PR_SVE_VL_LEN_MASK   = 0xffff,
+	linux_PR_SVE_VL_INHERIT    = 1 << 17,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -3801,7 +3944,7 @@ static inline enum linux_error_t linux_modify_ldt(int const func, void* const pt
 }
 static inline LINUX_DEFINE_SYSCALL2_NORET(pivot_root, char const*, new_root, char const*, put_old)
 static inline LINUX_DEFINE_SYSCALL1_NORET(sysctl, struct linux_sysctl_args_t*, args)
-// TODO: Add more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL5_RET(prctl, int, option, uintptr_t, arg2, uintptr_t, arg3, uintptr_t, arg4, uintptr_t, arg5, long)
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
