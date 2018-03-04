@@ -4138,6 +4138,8 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(sethostname, char LINUX_SAFE_CONST*, n
 static inline LINUX_DEFINE_SYSCALL2_NORET(setdomainname, char LINUX_SAFE_CONST*, name, int, len)
 static inline LINUX_DEFINE_SYSCALL1_NORET(iopl, unsigned int, level)
 static inline LINUX_DEFINE_SYSCALL3_NORET(ioperm, unsigned long, from, unsigned long, num, int, on)
+static inline LINUX_DEFINE_SYSCALL3_NORET(init_module, void LINUX_SAFE_CONST*, umod, size_t, len, char const*, uargs)
+static inline LINUX_DEFINE_SYSCALL3_NORET(delete_module, char const*, name_user, unsigned int, flags)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
