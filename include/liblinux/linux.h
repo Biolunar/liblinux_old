@@ -4137,6 +4137,7 @@ static inline LINUX_DEFINE_SYSCALL4_NORET(reboot, int, magic1, int, magic2, unsi
 static inline LINUX_DEFINE_SYSCALL2_NORET(sethostname, char LINUX_SAFE_CONST*, name, int, len)
 static inline LINUX_DEFINE_SYSCALL2_NORET(setdomainname, char LINUX_SAFE_CONST*, name, int, len)
 static inline LINUX_DEFINE_SYSCALL1_NORET(iopl, unsigned int, level)
+static inline LINUX_DEFINE_SYSCALL3_NORET(ioperm, unsigned long, from, unsigned long, num, int, on)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
