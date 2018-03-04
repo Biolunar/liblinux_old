@@ -3715,6 +3715,27 @@ enum
 	linux_SWAP_BATCH              = 64,
 };
 
+// reboot
+enum
+{
+	linux_LINUX_REBOOT_MAGIC1  = -18751827, // 0xFEE1DEAD
+	linux_LINUX_REBOOT_MAGIC2  = 672274793,
+	linux_LINUX_REBOOT_MAGIC2A =  85072278,
+	linux_LINUX_REBOOT_MAGIC2B = 369367448,
+	linux_LINUX_REBOOT_MAGIC2C = 537993216,
+};
+enum
+{
+	linux_LINUX_REBOOT_CMD_RESTART    = 0x01234567,
+	linux_LINUX_REBOOT_CMD_HALT       = -839974621, // 0xCDEF0123
+	linux_LINUX_REBOOT_CMD_CAD_ON     = -1985229329, // 0x89ABCDEF
+	linux_LINUX_REBOOT_CMD_CAD_OFF    = 0x00000000,
+	linux_LINUX_REBOOT_CMD_POWER_OFF  = 0x4321FEDC,
+	linux_LINUX_REBOOT_CMD_RESTART2   = -1582119980, // 0xA1B2C3D4
+	linux_LINUX_REBOOT_CMD_SW_SUSPEND = -805241630, // 0xD000FCE2
+	linux_LINUX_REBOOT_CMD_KEXEC      = 0x45584543,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -4112,6 +4133,7 @@ static inline LINUX_DEFINE_SYSCALL5_NORET(mount, char LINUX_SAFE_CONST*, dev_nam
 static inline LINUX_DEFINE_SYSCALL2_NORET(umount, char LINUX_SAFE_CONST*, name, int, flags)
 static inline LINUX_DEFINE_SYSCALL2_NORET(swapon, char const*, specialfile, int, swap_flags)
 static inline LINUX_DEFINE_SYSCALL1_NORET(swapoff, char const*, specialfile)
+static inline LINUX_DEFINE_SYSCALL4_NORET(reboot, int, magic1, int, magic2, unsigned int, cmd, void LINUX_SAFE_CONST*, arg)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
