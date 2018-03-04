@@ -788,6 +788,38 @@ struct linux_sysctl_args_t
 	size_t newlen;
 	unsigned long _pad2[4];
 };
+struct linux_timex_t
+{
+	unsigned int modes;
+	char _pad1[4];
+	linux_kernel_long_t offset;
+	linux_kernel_long_t freq;
+	linux_kernel_long_t maxerror;
+	linux_kernel_long_t esterror;
+	int status;
+	char _pad2[4];
+	linux_kernel_long_t constant;
+	linux_kernel_long_t precision;
+	linux_kernel_long_t tolerance;
+	struct linux_timeval_t time;
+	linux_kernel_long_t tick;
+
+	linux_kernel_long_t ppsfreq;
+	linux_kernel_long_t jitter;
+	int shift;
+	char _pad3[4];
+	linux_kernel_long_t stabil;
+	linux_kernel_long_t jitcnt;
+	linux_kernel_long_t calcnt;
+	linux_kernel_long_t errcnt;
+	linux_kernel_long_t stbcnt;
+
+	int tai;
+
+	int  :32; int  :32; int  :32; int  :32;
+	int  :32; int  :32; int  :32; int  :32;
+	int  :32; int  :32; int  :32;
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -3559,6 +3591,71 @@ enum
 	linux_PR_SVE_VL_INHERIT    = 1 << 17,
 };
 
+// adjtimex
+enum // Mode codes (timex.mode)
+{
+	linux_ADJ_OFFSET            = 0x0001,
+	linux_ADJ_FREQUENCY         = 0x0002,
+	linux_ADJ_MAXERROR          = 0x0004,
+	linux_ADJ_ESTERROR          = 0x0008,
+	linux_ADJ_STATUS            = 0x0010,
+	linux_ADJ_TIMECONST         = 0x0020,
+	linux_ADJ_TAI               = 0x0080,
+	linux_ADJ_SETOFFSET         = 0x0100,
+	linux_ADJ_MICRO             = 0x1000,
+	linux_ADJ_NANO              = 0x2000,
+	linux_ADJ_TICK              = 0x4000,
+
+	linux_ADJ_OFFSET_SINGLESHOT = 0x8001,
+	linux_ADJ_OFFSET_SS_READ    = 0xa001,
+};
+enum // NTP userland likes the MOD_ prefix better
+{
+	linux_MOD_OFFSET    = linux_ADJ_OFFSET,
+	linux_MOD_FREQUENCY = linux_ADJ_FREQUENCY,
+	linux_MOD_MAXERROR  = linux_ADJ_MAXERROR,
+	linux_MOD_ESTERROR  = linux_ADJ_ESTERROR,
+	linux_MOD_STATUS    = linux_ADJ_STATUS,
+	linux_MOD_TIMECONST = linux_ADJ_TIMECONST,
+	linux_MOD_TAI       = linux_ADJ_TAI,
+	linux_MOD_MICRO     = linux_ADJ_MICRO,
+	linux_MOD_NANO      = linux_ADJ_NANO,
+};
+enum // Status codes (timex.status)
+{
+	linux_STA_PLL       = 0x0001,
+	linux_STA_PPSFREQ   = 0x0002,
+	linux_STA_PPSTIME   = 0x0004,
+	linux_STA_FLL       = 0x0008,
+
+	linux_STA_INS       = 0x0010,
+	linux_STA_DEL       = 0x0020,
+	linux_STA_UNSYNC    = 0x0040,
+	linux_STA_FREQHOLD  = 0x0080,
+
+	linux_STA_PPSSIGNAL = 0x0100,
+	linux_STA_PPSJITTER = 0x0200,
+	linux_STA_PPSWANDER = 0x0400,
+	linux_STA_PPSERROR  = 0x0800,
+
+	linux_STA_CLOCKERR  = 0x1000,
+	linux_STA_NANO      = 0x2000,
+	linux_STA_MODE      = 0x4000,
+	linux_STA_CLK       = 0x8000,
+
+	linux_STA_RONLY     = linux_STA_PPSSIGNAL | linux_STA_PPSJITTER | linux_STA_PPSWANDER | linux_STA_PPSERROR | linux_STA_CLOCKERR | linux_STA_NANO | linux_STA_MODE | linux_STA_CLK,
+};
+enum // Clock states (time_state)
+{
+	linux_TIME_OK    = 0,
+	linux_TIME_INS   = 1,
+	linux_TIME_DEL   = 2,
+	linux_TIME_OOP   = 3,
+	linux_TIME_WAIT  = 4,
+	linux_TIME_ERROR = 5,
+	linux_TIME_BAD   = linux_TIME_ERROR,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -3946,6 +4043,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(pivot_root, char const*, new_root, cha
 static inline LINUX_DEFINE_SYSCALL1_NORET(sysctl, struct linux_sysctl_args_t*, args)
 static inline LINUX_DEFINE_SYSCALL5_RET(prctl, int, option, uintptr_t, arg2, uintptr_t, arg3, uintptr_t, arg4, uintptr_t, arg5, long)
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
+static inline LINUX_DEFINE_SYSCALL1_RET(adjtimex, struct linux_timex_t*, txc_p, int)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
