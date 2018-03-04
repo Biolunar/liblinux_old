@@ -4048,6 +4048,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(setrlimit, unsigned int, resource, str
 static inline LINUX_DEFINE_SYSCALL1_NORET(chroot, char const*, filename)
 static inline LINUX_DEFINE_SYSCALL0_NORET(sync)
 static inline LINUX_DEFINE_SYSCALL1_NORET(acct, char const*, name)
+static inline LINUX_DEFINE_SYSCALL2_NORET(settimeofday, struct linux_timeval_t LINUX_SAFE_CONST*, tv, struct linux_timezone_t LINUX_SAFE_CONST*, tz)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
