@@ -4432,6 +4432,7 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(init_module, void LINUX_SAFE_CONST*, u
 static inline LINUX_DEFINE_SYSCALL2_NORET(delete_module, char const*, name_user, unsigned int, flags)
 static inline LINUX_DEFINE_SYSCALL4_NORET(quotactl, unsigned int, cmd, char const*, special, linux_qid_t, id, void*, addr)
 static inline LINUX_DEFINE_SYSCALL0_RET(gettid, linux_pid_t)
+static inline LINUX_DEFINE_SYSCALL3_NORET(readahead, linux_fd_t, fd, linux_loff_t, offset, size_t, count)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
