@@ -3656,6 +3656,51 @@ enum // Clock states (time_state)
 	linux_TIME_BAD   = linux_TIME_ERROR,
 };
 
+// mount flags
+enum
+{
+	linux_MS_RDONLY      =     1,
+	linux_MS_NOSUID      =     2,
+	linux_MS_NODEV       =     4,
+	linux_MS_NOEXEC      =     8,
+	linux_MS_SYNCHRONOUS =    16,
+	linux_MS_REMOUNT     =    32,
+	linux_MS_MANDLOCK    =    64,
+	linux_MS_DIRSYNC     =   128,
+	linux_MS_NOATIME     =  1024,
+	linux_MS_NODIRATIME  =  2048,
+	linux_MS_BIND        =  4096,
+	linux_MS_MOVE        =  8192,
+	linux_MS_REC         = 16384,
+	linux_MS_VERBOSE     = 32768,
+	linux_MS_SILENT      = 32768,
+	linux_MS_POSIXACL    = 1 << 16,
+	linux_MS_UNBINDABLE  = 1 << 17,
+	linux_MS_PRIVATE     = 1 << 18,
+	linux_MS_SLAVE       = 1 << 19,
+	linux_MS_SHARED      = 1 << 20,
+	linux_MS_RELATIME    = 1 << 21,
+	linux_MS_KERNMOUNT   = 1 << 22,
+	linux_MS_I_VERSION   = 1 << 23,
+	linux_MS_STRICTATIME = 1 << 24,
+	linux_MS_LAZYTIME    = 1 << 25,
+
+	linux_MS_RMT_MASK    = linux_MS_RDONLY | linux_MS_SYNCHRONOUS | linux_MS_MANDLOCK | linux_MS_I_VERSION | linux_MS_LAZYTIME,
+
+	linux_MS_MGC_VAL     = -1058209792, // 0xC0ED0000
+	linux_MS_MGC_MSK     = -65536, // 0xFFFF0000
+};
+
+// Umount options
+enum
+{
+	linux_MNT_FORCE       = 0x00000001,
+	linux_MNT_DETACH      = 0x00000002,
+	linux_MNT_EXPIRE      = 0x00000004,
+	linux_UMOUNT_NOFOLLOW = 0x00000008,
+	linux_UMOUNT_UNUSED   = INT_MIN, // 0x80000000
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -4049,6 +4094,8 @@ static inline LINUX_DEFINE_SYSCALL1_NORET(chroot, char const*, filename)
 static inline LINUX_DEFINE_SYSCALL0_NORET(sync)
 static inline LINUX_DEFINE_SYSCALL1_NORET(acct, char const*, name)
 static inline LINUX_DEFINE_SYSCALL2_NORET(settimeofday, struct linux_timeval_t LINUX_SAFE_CONST*, tv, struct linux_timezone_t LINUX_SAFE_CONST*, tz)
+static inline LINUX_DEFINE_SYSCALL5_NORET(mount, char LINUX_SAFE_CONST*, dev_name, char LINUX_SAFE_CONST*, dir_name, char LINUX_SAFE_CONST*, type, unsigned long, flags, void LINUX_SAFE_CONST*, data)
+static inline LINUX_DEFINE_SYSCALL2_NORET(umount, char LINUX_SAFE_CONST*, name, int, flags)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
