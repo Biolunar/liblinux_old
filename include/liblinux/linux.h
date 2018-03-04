@@ -820,6 +820,108 @@ struct linux_timex_t
 	int  :32; int  :32; int  :32; int  :32;
 	int  :32; int  :32; int  :32;
 };
+typedef linux_kernel_uid32_t linux_qid_t;
+struct linux_if_dqblk_t
+{
+	uint64_t dqb_bhardlimit;
+	uint64_t dqb_bsoftlimit;
+	uint64_t dqb_curspace;
+	uint64_t dqb_ihardlimit;
+	uint64_t dqb_isoftlimit;
+	uint64_t dqb_curinodes;
+	uint64_t dqb_btime;
+	uint64_t dqb_itime;
+	uint32_t dqb_valid;
+	char _pad[4];
+};
+struct linux_if_nextdqblk_t
+{
+	uint64_t dqb_bhardlimit;
+	uint64_t dqb_bsoftlimit;
+	uint64_t dqb_curspace;
+	uint64_t dqb_ihardlimit;
+	uint64_t dqb_isoftlimit;
+	uint64_t dqb_curinodes;
+	uint64_t dqb_btime;
+	uint64_t dqb_itime;
+	uint32_t dqb_valid;
+	uint32_t dqb_id;
+};
+struct linux_if_dqinfo_t
+{
+	uint64_t dqi_bgrace;
+	uint64_t dqi_igrace;
+	uint32_t dqi_flags;
+	uint32_t dqi_valid;
+};
+struct linux_fs_disk_quota_t
+{
+	int8_t d_version;
+	int8_t d_flags;
+	uint16_t d_fieldmask;
+	uint32_t d_id;
+	uint64_t d_blk_hardlimit;
+	uint64_t d_blk_softlimit;
+	uint64_t d_ino_hardlimit;
+	uint64_t d_ino_softlimit;
+	uint64_t d_bcount;
+	uint64_t d_icount;
+	int32_t d_itimer;
+	int32_t d_btimer;
+	uint16_t d_iwarns;
+	uint16_t d_bwarns;
+	int32_t d_padding2;
+	uint64_t d_rtb_hardlimit;
+	uint64_t d_rtb_softlimit;
+	uint64_t d_rtbcount;
+	int32_t d_rtbtimer;
+	uint16_t d_rtbwarns;
+	int16_t d_padding3;
+	char d_padding4[8];
+};
+struct linux_fs_qfilestat_t
+{
+	uint64_t qfs_ino;
+	uint64_t qfs_nblks;
+	uint32_t qfs_nextents;
+};
+struct linux_fs_quota_stat_t
+{
+	int8_t qs_version;
+	uint16_t qs_flags;
+	int8_t qs_pad;
+	struct linux_fs_qfilestat_t qs_uquota;
+	struct linux_fs_qfilestat_t qs_gquota;
+	uint32_t qs_incoredqs;
+	int32_t qs_btimelimit;
+	int32_t qs_itimelimit;
+	int32_t qs_rtbtimelimit;
+	uint16_t qs_bwarnlimit;
+	uint16_t qs_iwarnlimit;
+};
+struct linux_fs_qfilestatv_t
+{
+	uint64_t qfs_ino;
+	uint64_t qfs_nblks;
+	uint32_t qfs_nextents;
+	uint32_t qfs_pad;
+};
+struct linux_fs_quota_statv_t
+{
+	int8_t qs_version;
+	uint8_t qs_pad1;
+	uint16_t qs_flags;
+	uint32_t qs_incoredqs;
+	struct linux_fs_qfilestatv_t qs_uquota;
+	struct linux_fs_qfilestatv_t qs_gquota;
+	struct linux_fs_qfilestatv_t qs_pquota;
+	int32_t qs_btimelimit;
+	int32_t qs_itimelimit;
+	int32_t qs_rtbtimelimit;
+	uint16_t qs_bwarnlimit;
+	uint16_t qs_iwarnlimit;
+	uint64_t qs_pad2[8];
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -3736,6 +3838,189 @@ enum
 	linux_LINUX_REBOOT_CMD_KEXEC      = 0x45584543,
 };
 
+// quotactl
+enum
+{
+	linux_MAXQUOTAS = 3,
+	linux_USRQUOTA  = 0,
+	linux_GRPQUOTA  = 1,
+	linux_PRJQUOTA  = 2,
+};
+enum
+{
+	linux_SUBCMDMASK  = 0x00FF,
+	linux_SUBCMDSHIFT = 8,
+};
+enum
+{
+	linux_Q_SYNC         = 0x800001,
+	linux_Q_QUOTAON      = 0x800002,
+	linux_Q_QUOTAOFF     = 0x800003,
+	linux_Q_GETFMT       = 0x800004,
+	linux_Q_GETINFO      = 0x800005,
+	linux_Q_SETINFO      = 0x800006,
+	linux_Q_GETQUOTA     = 0x800007,
+	linux_Q_SETQUOTA     = 0x800008,
+	linux_Q_GETNEXTQUOTA = 0x800009,
+};
+enum // Quota format type IDs
+{
+	linux_QFMT_VFS_OLD = 1,
+	linux_QFMT_VFS_V0  = 2,
+	linux_QFMT_OCFS2   = 3,
+	linux_QFMT_VFS_V1  = 4,
+};
+enum // Size of block in which space limits are passed through the quota interface
+{
+	linux_QIF_DQBLKSIZE_BITS = 10,
+	linux_QIF_DQBLKSIZE      = 1 << linux_QIF_DQBLKSIZE_BITS,
+};
+enum
+{
+	linux_QIF_BLIMITS_B = 0,
+	linux_QIF_SPACE_B,
+	linux_QIF_ILIMITS_B,
+	linux_QIF_INODES_B,
+	linux_QIF_BTIME_B,
+	linux_QIF_ITIME_B,
+};
+enum
+{
+	linux_QIF_BLIMITS = 1 << linux_QIF_BLIMITS_B,
+	linux_QIF_SPACE   = 1 << linux_QIF_SPACE_B,
+	linux_QIF_ILIMITS = 1 << linux_QIF_ILIMITS_B,
+	linux_QIF_INODES  = 1 << linux_QIF_INODES_B,
+	linux_QIF_BTIME   = 1 << linux_QIF_BTIME_B,
+	linux_QIF_ITIME   = 1 << linux_QIF_ITIME_B,
+	linux_QIF_LIMITS  = linux_QIF_BLIMITS | linux_QIF_ILIMITS,
+	linux_QIF_USAGE   = linux_QIF_SPACE | linux_QIF_INODES,
+	linux_QIF_TIMES   = linux_QIF_BTIME | linux_QIF_ITIME,
+	linux_QIF_ALL     = linux_QIF_LIMITS | linux_QIF_USAGE | linux_QIF_TIMES,
+};
+enum
+{
+	linux_IIF_BGRACE = 1,
+	linux_IIF_IGRACE = 2,
+	linux_IIF_FLAGS  = 4,
+	linux_IIF_ALL    = linux_IIF_BGRACE | linux_IIF_IGRACE | linux_IIF_FLAGS,
+};
+enum
+{
+	linux_DQF_ROOT_SQUASH_B =  0,
+	linux_DQF_SYS_FILE_B    = 16,
+};
+enum // Definitions for quota netlink interface
+{
+	linux_QUOTA_NL_NOWARN        =  0,
+	linux_QUOTA_NL_IHARDWARN     =  1,
+	linux_QUOTA_NL_ISOFTLONGWARN =  2,
+	linux_QUOTA_NL_ISOFTWARN     =  3,
+	linux_QUOTA_NL_BHARDWARN     =  4,
+	linux_QUOTA_NL_BSOFTLONGWARN =  5,
+	linux_QUOTA_NL_BSOFTWARN     =  6,
+	linux_QUOTA_NL_IHARDBELOW    =  7,
+	linux_QUOTA_NL_ISOFTBELOW    =  8,
+	linux_QUOTA_NL_BHARDBELOW    =  9,
+	linux_QUOTA_NL_BSOFTBELOW    = 10,
+};
+enum
+{
+	linux_QUOTA_NL_C_UNSPEC,
+	linux_QUOTA_NL_C_WARNING,
+	linux_QUOTA_NL_C_MAX = linux_QUOTA_NL_C_WARNING,
+};
+enum
+{
+	linux_QUOTA_NL_A_UNSPEC,
+	linux_QUOTA_NL_A_QTYPE,
+	linux_QUOTA_NL_A_EXCESS_ID,
+	linux_QUOTA_NL_A_WARNING,
+	linux_QUOTA_NL_A_DEV_MAJOR,
+	linux_QUOTA_NL_A_DEV_MINOR,
+	linux_QUOTA_NL_A_CAUSED_ID,
+	linux_QUOTA_NL_A_PAD,
+	linux_QUOTA_NL_A_MAX = linux_QUOTA_NL_A_PAD,
+};
+#define linux_XQM_CMD(x)     (('X' << 8) + (x))
+#define linux_XQM_COMMAND(x) (((x) & (0xFF << 8)) == ('X' << 8))
+enum // quotactl for the XFS Quota Manager
+{
+	linux_XQM_USRQUOTA  = 0,
+	linux_XQM_GRPQUOTA  = 1,
+	linux_XQM_PRJQUOTA  = 2,
+	linux_XQM_MAXQUOTAS = 3,
+};
+enum
+{
+	linux_Q_XQUOTAON      = linux_XQM_CMD(1),
+	linux_Q_XQUOTAOFF     = linux_XQM_CMD(2),
+	linux_Q_XGETQUOTA     = linux_XQM_CMD(3),
+	linux_Q_XSETQLIM      = linux_XQM_CMD(4),
+	linux_Q_XGETQSTAT     = linux_XQM_CMD(5),
+	linux_Q_XQUOTARM      = linux_XQM_CMD(6),
+	linux_Q_XQUOTASYNC    = linux_XQM_CMD(7),
+	linux_Q_XGETQSTATV    = linux_XQM_CMD(8),
+	linux_Q_XGETNEXTQUOTA = linux_XQM_CMD(9),
+};
+enum
+{
+	linux_FS_DQUOT_VERSION = 1,
+};
+enum
+{
+	linux_FS_DQ_ISOFT      = 1 << 0,
+	linux_FS_DQ_IHARD      = 1 << 1,
+	linux_FS_DQ_BSOFT      = 1 << 2,
+	linux_FS_DQ_BHARD      = 1 << 3,
+	linux_FS_DQ_RTBSOFT    = 1 << 4,
+	linux_FS_DQ_RTBHARD    = 1 << 5,
+	linux_FS_DQ_LIMIT_MASK = linux_FS_DQ_ISOFT | linux_FS_DQ_IHARD | linux_FS_DQ_BSOFT | linux_FS_DQ_BHARD | linux_FS_DQ_RTBSOFT | linux_FS_DQ_RTBHARD,
+};
+enum
+{
+	linux_FS_DQ_BTIMER     = 1 << 6,
+	linux_FS_DQ_ITIMER     = 1 << 7,
+	linux_FS_DQ_RTBTIMER   = 1 << 8,
+	linux_FS_DQ_TIMER_MASK = linux_FS_DQ_BTIMER | linux_FS_DQ_ITIMER | linux_FS_DQ_RTBTIMER,
+};
+enum
+{
+	linux_FS_DQ_BWARNS     = 1 <<  9,
+	linux_FS_DQ_IWARNS     = 1 << 10,
+	linux_FS_DQ_RTBWARNS   = 1 << 11,
+	linux_FS_DQ_WARNS_MASK = linux_FS_DQ_BWARNS | linux_FS_DQ_IWARNS | linux_FS_DQ_RTBWARNS,
+};
+enum
+{
+	linux_FS_DQ_BCOUNT    = 1 << 12,
+	linux_FS_DQ_ICOUNT    = 1 << 13,
+	linux_FS_DQ_RTBCOUNT  = 1 << 14,
+	linux_FS_DQ_ACCT_MASK = linux_FS_DQ_BCOUNT | linux_FS_DQ_ICOUNT | linux_FS_DQ_RTBCOUNT,
+};
+enum
+{
+	linux_FS_QUOTA_UDQ_ACCT = 1 << 0,
+	linux_FS_QUOTA_UDQ_ENFD = 1 << 1,
+	linux_FS_QUOTA_GDQ_ACCT = 1 << 2,
+	linux_FS_QUOTA_GDQ_ENFD = 1 << 3,
+	linux_FS_QUOTA_PDQ_ACCT = 1 << 4,
+	linux_FS_QUOTA_PDQ_ENFD = 1 << 5,
+};
+enum
+{
+	linux_FS_USER_QUOTA  = 1 << 0,
+	linux_FS_PROJ_QUOTA  = 1 << 1,
+	linux_FS_GROUP_QUOTA = 1 << 2,
+};
+enum
+{
+	linux_FS_QSTAT_VERSION = 1,
+};
+enum
+{
+	linux_FS_QSTATV_VERSION1 = 1,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -3951,6 +4236,11 @@ static inline linux_dev_t linux_makedev(uint32_t major, uint32_t minor)
 	return (minor & 0xFF) | (major << 8) | ((minor & ~UINT32_C(0xFF)) << 12);
 }
 
+static inline unsigned int linux_QCMD(unsigned int const cmd, unsigned int const type)
+{
+	return (cmd << linux_SUBCMDSHIFT) | (type & linux_SUBCMDMASK);
+}
+
 // Helper functions
 //------------------------------------------------------------------------------
 
@@ -4139,7 +4429,8 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(setdomainname, char LINUX_SAFE_CONST*,
 static inline LINUX_DEFINE_SYSCALL1_NORET(iopl, unsigned int, level)
 static inline LINUX_DEFINE_SYSCALL3_NORET(ioperm, unsigned long, from, unsigned long, num, int, on)
 static inline LINUX_DEFINE_SYSCALL3_NORET(init_module, void LINUX_SAFE_CONST*, umod, size_t, len, char const*, uargs)
-static inline LINUX_DEFINE_SYSCALL3_NORET(delete_module, char const*, name_user, unsigned int, flags)
+static inline LINUX_DEFINE_SYSCALL2_NORET(delete_module, char const*, name_user, unsigned int, flags)
+static inline LINUX_DEFINE_SYSCALL4_NORET(quotactl, unsigned int, cmd, char const*, special, linux_qid_t, id, void*, addr)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
