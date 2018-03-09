@@ -4488,6 +4488,9 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(readahead, linux_fd_t, fd, linux_loff_
 static inline LINUX_DEFINE_SYSCALL5_NORET(setxattr, char const*, path, char const*, name, void const*, value, size_t, size, int, flags)
 static inline LINUX_DEFINE_SYSCALL5_NORET(lsetxattr, char const*, path, char const*, name, void const*, value, size_t, size, int, flags)
 static inline LINUX_DEFINE_SYSCALL5_NORET(fsetxattr, linux_fd_t, fd, char const*, name, void const*, value, size_t, size, int, flags)
+static inline LINUX_DEFINE_SYSCALL4_RET(getxattr, char const*, path, char const*, name, void*, value, size_t, size, size_t)
+static inline LINUX_DEFINE_SYSCALL4_RET(lgetxattr, char const*, path, char const*, name, void*, value, size_t, size, size_t)
+static inline LINUX_DEFINE_SYSCALL4_RET(fgetxattr, linux_fd_t, fd, char const*, name, void*, value, size_t, size, size_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
