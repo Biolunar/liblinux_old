@@ -4021,6 +4021,58 @@ enum
 	linux_FS_QSTATV_VERSION1 = 1,
 };
 
+// xattr
+enum
+{
+	linux_XATTR_CREATE  = 0x1,
+	linux_XATTR_REPLACE = 0x2,
+};
+// Namespaces
+#define linux_XATTR_OS2_PREFIX "os2."
+#define linux_XATTR_MAC_OSX_PREFIX "osx."
+#define linux_XATTR_BTRFS_PREFIX "btrfs."
+#define linux_XATTR_SECURITY_PREFIX	"security."
+#define linux_XATTR_SYSTEM_PREFIX "system."
+#define linux_XATTR_TRUSTED_PREFIX "trusted."
+#define linux_XATTR_USER_PREFIX "user."
+enum
+{
+	linux_XATTR_OS2_PREFIX_LEN      = sizeof(linux_XATTR_OS2_PREFIX) - 1,
+	linux_XATTR_MAC_OSX_PREFIX_LEN  = sizeof(linux_XATTR_MAC_OSX_PREFIX) - 1,
+	linux_XATTR_BTRFS_PREFIX_LEN    = sizeof(linux_XATTR_BTRFS_PREFIX) - 1,
+	linux_XATTR_SECURITY_PREFIX_LEN = sizeof(linux_XATTR_SECURITY_PREFIX) - 1,
+	linux_XATTR_SYSTEM_PREFIX_LEN   = sizeof(linux_XATTR_SYSTEM_PREFIX) - 1,
+	linux_XATTR_TRUSTED_PREFIX_LEN  = sizeof(linux_XATTR_TRUSTED_PREFIX) - 1,
+	linux_XATTR_USER_PREFIX_LEN     = sizeof(linux_XATTR_USER_PREFIX) - 1,
+};
+// Security namespace
+#define linux_XATTR_EVM_SUFFIX             "evm"
+#define linux_XATTR_NAME_EVM               linux_XATTR_SECURITY_PREFIX linux_XATTR_EVM_SUFFIX
+#define linux_XATTR_IMA_SUFFIX             "ima"
+#define linux_XATTR_NAME_IMA               linux_XATTR_SECURITY_PREFIX linux_XATTR_IMA_SUFFIX
+#define linux_XATTR_SELINUX_SUFFIX         "selinux"
+#define linux_XATTR_NAME_SELINUX           linux_XATTR_SECURITY_PREFIX linux_XATTR_SELINUX_SUFFIX
+#define linux_XATTR_SMACK_SUFFIX           "SMACK64"
+#define linux_XATTR_SMACK_IPIN             "SMACK64IPIN"
+#define linux_XATTR_SMACK_IPOUT            "SMACK64IPOUT"
+#define linux_XATTR_SMACK_EXEC             "SMACK64EXEC"
+#define linux_XATTR_SMACK_TRANSMUTE        "SMACK64TRANSMUTE"
+#define linux_XATTR_SMACK_MMAP             "SMACK64MMAP"
+#define linux_XATTR_NAME_SMACK             linux_XATTR_SECURITY_PREFIX linux_XATTR_SMACK_SUFFIX
+#define linux_XATTR_NAME_SMACKIPIN         linux_XATTR_SECURITY_PREFIX linux_XATTR_SMACK_IPIN
+#define linux_XATTR_NAME_SMACKIPOUT        linux_XATTR_SECURITY_PREFIX linux_XATTR_SMACK_IPOUT
+#define linux_XATTR_NAME_SMACKEXEC         linux_XATTR_SECURITY_PREFIX linux_XATTR_SMACK_EXEC
+#define linux_XATTR_NAME_SMACKTRANSMUTE    linux_XATTR_SECURITY_PREFIX linux_XATTR_SMACK_TRANSMUTE
+#define linux_XATTR_NAME_SMACKMMAP         linux_XATTR_SECURITY_PREFIX linux_XATTR_SMACK_MMAP
+#define linux_XATTR_APPARMOR_SUFFIX        "apparmor"
+#define linux_XATTR_NAME_APPARMOR          linux_XATTR_SECURITY_PREFIX linux_XATTR_APPARMOR_SUFFIX
+#define linux_XATTR_CAPS_SUFFIX            "capability"
+#define linux_XATTR_NAME_CAPS              linux_XATTR_SECURITY_PREFIX linux_XATTR_CAPS_SUFFIX
+#define linux_XATTR_POSIX_ACL_ACCESS       "posix_acl_access"
+#define linux_XATTR_NAME_POSIX_ACL_ACCESS  linux_XATTR_SYSTEM_PREFIX linux_XATTR_POSIX_ACL_ACCESS
+#define linux_XATTR_POSIX_ACL_DEFAULT      "posix_acl_default"
+#define linux_XATTR_NAME_POSIX_ACL_DEFAULT linux_XATTR_SYSTEM_PREFIX linux_XATTR_POSIX_ACL_DEFAULT
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -4433,6 +4485,9 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(delete_module, char const*, name_user,
 static inline LINUX_DEFINE_SYSCALL4_NORET(quotactl, unsigned int, cmd, char const*, special, linux_qid_t, id, void*, addr)
 static inline LINUX_DEFINE_SYSCALL0_RET(gettid, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL3_NORET(readahead, linux_fd_t, fd, linux_loff_t, offset, size_t, count)
+static inline LINUX_DEFINE_SYSCALL5_NORET(setxattr, char const*, path, char const*, name, void const*, value, size_t, size, int, flags)
+static inline LINUX_DEFINE_SYSCALL5_NORET(lsetxattr, char const*, path, char const*, name, void const*, value, size_t, size, int, flags)
+static inline LINUX_DEFINE_SYSCALL5_NORET(fsetxattr, linux_fd_t, fd, char const*, name, void const*, value, size_t, size, int, flags)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
