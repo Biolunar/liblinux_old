@@ -42,7 +42,7 @@ static enum TestResult test_invalid_fs_id(void)
 {
 	int num;
 	if (linux_sysfs(3, 0, 0, &num) || num < 0)
-		return TEST_RESULT_OTHER_FAILURE;
+		return TEST_RESULT_FAILURE;
 
 	char buf[512];
 	if (linux_sysfs(2, (unsigned)num, (uintptr_t)buf, 0) != linux_EINVAL)
