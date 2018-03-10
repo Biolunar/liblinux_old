@@ -91,6 +91,7 @@ typedef int linux_kernel_key_t;
 typedef linux_kernel_key_t linux_key_t;
 typedef unsigned short linux_kernel_sa_family_t;
 typedef linux_kernel_sa_family_t linux_sa_family_t;
+typedef linux_kernel_time_t linux_time_t;
 struct linux_stat_t
 {
 	linux_kernel_ulong_t st_dev;
@@ -4498,6 +4499,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(removexattr, char const*, path, char c
 static inline LINUX_DEFINE_SYSCALL2_NORET(lremovexattr, char const*, path, char const*, name)
 static inline LINUX_DEFINE_SYSCALL2_NORET(fremovexattr, linux_fd_t, fd, char const*, name)
 static inline LINUX_DEFINE_SYSCALL2_NORET(tkill, linux_pid_t, pid, int, sig)
+static inline LINUX_DEFINE_SYSCALL1_RET(time, linux_time_t*, tloc, linux_time_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
