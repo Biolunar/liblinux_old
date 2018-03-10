@@ -37,7 +37,6 @@ static enum TestResult test_buffer_too_small(void)
 	char const data[] = "test data";
 	if (linux_setxattr(filename, name, data, sizeof data, linux_XATTR_CREATE))
 	{
-		linux_close(fd);
 		linux_unlink(filename);
 		return TEST_RESULT_OTHER_FAILURE;
 	}
@@ -46,7 +45,6 @@ static enum TestResult test_buffer_too_small(void)
 	size_t ret;
 	if (linux_listxattr(filename, buf, sizeof buf, &ret) != linux_ERANGE)
 	{
-		linux_close(fd);
 		linux_unlink(filename);
 		return TEST_RESULT_FAILURE;
 	}
@@ -70,7 +68,6 @@ static enum TestResult test_correct_usage(void)
 	char const data[] = "test data";
 	if (linux_setxattr(filename, name, data, sizeof data, linux_XATTR_CREATE))
 	{
-		linux_close(fd);
 		linux_unlink(filename);
 		return TEST_RESULT_OTHER_FAILURE;
 	}
@@ -79,14 +76,12 @@ static enum TestResult test_correct_usage(void)
 	size_t ret;
 	if (linux_listxattr(filename, buf, sizeof buf, &ret))
 	{
-		linux_close(fd);
 		linux_unlink(filename);
 		return TEST_RESULT_FAILURE;
 	}
 
 	if (memcmp(buf, name, ret))
 	{
-		linux_close(fd);
 		linux_unlink(filename);
 		return TEST_RESULT_FAILURE;
 	}

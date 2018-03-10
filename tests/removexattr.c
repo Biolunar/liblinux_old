@@ -22,7 +22,7 @@
 
 #include <string.h>
 
-static enum TestResult test_buffer_too_small(void)
+static enum TestResult test_attr_not_found(void)
 {
 	char const* const filename = "some test file";
 
@@ -33,16 +33,8 @@ static enum TestResult test_buffer_too_small(void)
 	if (linux_close(fd))
 		return TEST_RESULT_OTHER_FAILURE;
 
-	char const data[] = "test data";
-	if (linux_setxattr(filename, "user.liblinux", data, sizeof data, linux_XATTR_CREATE))
-	{
-		linux_unlink(filename);
-		return TEST_RESULT_OTHER_FAILURE;
-	}
-
-	char buf[sizeof data - 1];
-	size_t ret;
-	if (linux_getxattr(filename, "user.liblinux", buf, sizeof buf, &ret) != linux_ERANGE)
+	char const name[] = "user.liblinux";
+	if (linux_removexattr(filename, name) != linux_ENODATA)
 	{
 		linux_unlink(filename);
 		return TEST_RESULT_FAILURE;
@@ -63,22 +55,15 @@ static enum TestResult test_correct_usage(void)
 	if (linux_close(fd))
 		return TEST_RESULT_OTHER_FAILURE;
 
+	char const name[] = "user.liblinux";
 	char const data[] = "test data";
-	if (linux_setxattr(filename, "user.liblinux", data, sizeof data, linux_XATTR_CREATE))
+	if (linux_setxattr(filename, name, data, sizeof data, linux_XATTR_CREATE))
 	{
 		linux_unlink(filename);
 		return TEST_RESULT_OTHER_FAILURE;
 	}
 
-	char buf[512];
-	size_t ret;
-	if (linux_getxattr(filename, "user.liblinux", buf, sizeof buf, &ret))
-	{
-		linux_unlink(filename);
-		return TEST_RESULT_FAILURE;
-	}
-
-	if (memcmp(buf, data, ret))
+	if (linux_removexattr(filename, name))
 	{
 		linux_unlink(filename);
 		return TEST_RESULT_FAILURE;
@@ -92,10 +77,10 @@ int main(void)
 {
 	int ret = EXIT_SUCCESS;
 
-	printf("Start testing getxattr.\n");
-	DO_TEST(buffer_too_small, &ret);
+	printf("Start testing removexattr.\n");
+	DO_TEST(attr_not_found, &ret);
 	DO_TEST(correct_usage, &ret);
-	printf("Finished testing getxattr.\n");
+	printf("Finished testing removexattr.\n");
 
 	return ret;
 }

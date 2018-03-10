@@ -4494,6 +4494,9 @@ static inline LINUX_DEFINE_SYSCALL4_RET(fgetxattr, linux_fd_t, fd, char const*, 
 static inline LINUX_DEFINE_SYSCALL3_RET(listxattr, char const*, path, char*, list, size_t, size, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(llistxattr, char const*, path, char*, list, size_t, size, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(flistxattr, linux_fd_t, fd, char*, list, size_t, size, size_t)
+static inline LINUX_DEFINE_SYSCALL2_NORET(removexattr, char const*, path, char const*, name)
+static inline LINUX_DEFINE_SYSCALL2_NORET(lremovexattr, char const*, path, char const*, name)
+static inline LINUX_DEFINE_SYSCALL2_NORET(fremovexattr, linux_fd_t, fd, char const*, name)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
