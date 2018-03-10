@@ -4074,6 +4074,41 @@ enum
 #define linux_XATTR_POSIX_ACL_DEFAULT      "posix_acl_default"
 #define linux_XATTR_NAME_POSIX_ACL_DEFAULT linux_XATTR_SYSTEM_PREFIX linux_XATTR_POSIX_ACL_DEFAULT
 
+// Futex
+enum
+{
+	linux_FUTEX_WAIT                    =   0,
+	linux_FUTEX_WAKE                    =   1,
+	linux_FUTEX_FD                      =   2,
+	linux_FUTEX_REQUEUE                 =   3,
+	linux_FUTEX_CMP_REQUEUE             =   4,
+	linux_FUTEX_WAKE_OP                 =   5,
+	linux_FUTEX_LOCK_PI                 =   6,
+	linux_FUTEX_UNLOCK_PI               =   7,
+	linux_FUTEX_TRYLOCK_PI              =   8,
+	linux_FUTEX_WAIT_BITSET             =   9,
+	linux_FUTEX_WAKE_BITSET             =  10,
+	linux_FUTEX_WAIT_REQUEUE_PI         =  11,
+	linux_FUTEX_CMP_REQUEUE_PI          =  12,
+
+	linux_FUTEX_PRIVATE_FLAG            = 128,
+	linux_FUTEX_CLOCK_REALTIME          = 256,
+	linux_FUTEX_CMD_MASK                = ~(linux_FUTEX_PRIVATE_FLAG | linux_FUTEX_CLOCK_REALTIME),
+
+	linux_FUTEX_WAIT_PRIVATE            = linux_FUTEX_WAIT | linux_FUTEX_PRIVATE_FLAG,
+	linux_FUTEX_WAKE_PRIVATE            = linux_FUTEX_WAKE | linux_FUTEX_PRIVATE_FLAG,
+	linux_FUTEX_REQUEUE_PRIVATE         = linux_FUTEX_REQUEUE | linux_FUTEX_PRIVATE_FLAG,
+	linux_FUTEX_CMP_REQUEUE_PRIVATE     = linux_FUTEX_CMP_REQUEUE | linux_FUTEX_PRIVATE_FLAG,
+	linux_FUTEX_WAKE_OP_PRIVATE         = linux_FUTEX_WAKE_OP | linux_FUTEX_PRIVATE_FLAG,
+	linux_FUTEX_LOCK_PI_PRIVATE         = linux_FUTEX_LOCK_PI | linux_FUTEX_PRIVATE_FLAG,
+	linux_FUTEX_UNLOCK_PI_PRIVATE       = linux_FUTEX_UNLOCK_PI | linux_FUTEX_PRIVATE_FLAG,
+	linux_FUTEX_TRYLOCK_PI_PRIVATE      = linux_FUTEX_TRYLOCK_PI | linux_FUTEX_PRIVATE_FLAG,
+	linux_FUTEX_WAIT_BITSET_PRIVATE     = linux_FUTEX_WAIT_BITSET | linux_FUTEX_PRIVATE_FLAG,
+	linux_FUTEX_WAKE_BITSET_PRIVATE     = linux_FUTEX_WAKE_BITSET | linux_FUTEX_PRIVATE_FLAG,
+	linux_FUTEX_WAIT_REQUEUE_PI_PRIVATE = linux_FUTEX_WAIT_REQUEUE_PI | linux_FUTEX_PRIVATE_FLAG,
+	linux_FUTEX_CMP_REQUEUE_PI_PRIVATE  = linux_FUTEX_CMP_REQUEUE_PI | linux_FUTEX_PRIVATE_FLAG,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -4500,6 +4535,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(lremovexattr, char const*, path, char 
 static inline LINUX_DEFINE_SYSCALL2_NORET(fremovexattr, linux_fd_t, fd, char const*, name)
 static inline LINUX_DEFINE_SYSCALL2_NORET(tkill, linux_pid_t, pid, int, sig)
 static inline LINUX_DEFINE_SYSCALL1_RET(time, linux_time_t*, tloc, linux_time_t)
+static inline LINUX_DEFINE_SYSCALL6_NORET(futex, uint32_t*, uaddr, int, op, uint32_t, val, struct linux_timespec_t*, utime, uint32_t*, uaddr2, uint32_t, val3)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
