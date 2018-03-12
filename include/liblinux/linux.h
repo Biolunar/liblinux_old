@@ -600,6 +600,15 @@ struct linux_dirent_t
 	unsigned short d_reclen;
 	char d_name[6]; // TODO: Hack to supress struct padding warning. Use flexible array member when ready.
 };
+struct linux_dirent64_t
+{
+	uint64_t d_ino;
+	int64_t d_off;
+	unsigned short d_reclen;
+	unsigned char d_type;
+	char _pad[5];
+	char d_name[];
+};
 typedef linux_kernel_uid32_t linux_uid_t;
 typedef linux_kernel_gid32_t linux_gid_t;
 struct linux_rlimit_t
@@ -4608,6 +4617,7 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(io_cancel, linux_aio_context_t, ctx_id
 static inline LINUX_DEFINE_SYSCALL3_RET(lookup_dcookie, uint64_t, cookie64, char*, buf, size_t, len, size_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create, int, size, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL5_NORET(remap_file_pages, void const*, start, size_t, size, unsigned long, prot, unsigned long, pgoff, unsigned long, flags)
+static inline LINUX_DEFINE_SYSCALL3_RET(getdents64, linux_fd_t, fd, struct linux_dirent64_t*, dirent, unsigned int, count, unsigned int)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
