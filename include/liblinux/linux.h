@@ -923,6 +923,36 @@ struct linux_fs_quota_statv_t
 	uint16_t qs_iwarnlimit;
 	uint64_t qs_pad2[8];
 };
+typedef linux_kernel_ulong_t linux_aio_context_t;
+struct linux_io_event_t
+{
+	uint64_t data;
+	uint64_t obj;
+	int64_t res;
+	int64_t res2;
+};
+typedef int linux_kernel_rwf_t;
+struct linux_iocb_t
+{
+	uint64_t aio_data;
+
+	uint32_t aio_key;
+	linux_kernel_rwf_t aio_rw_flags;
+
+	uint16_t aio_lio_opcode;
+	int16_t aio_reqprio;
+	uint32_t aio_fildes;
+
+	uint64_t aio_buf;
+	uint64_t aio_nbytes;
+	int64_t aio_offset;
+
+	uint64_t aio_reserved2;
+
+	uint32_t aio_flags;
+
+	uint32_t aio_resfd;
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -4109,6 +4139,32 @@ enum
 	linux_FUTEX_CMP_REQUEUE_PI_PRIVATE  = linux_FUTEX_CMP_REQUEUE_PI | linux_FUTEX_PRIVATE_FLAG,
 };
 
+// aio
+enum
+{
+	linux_IOCB_CMD_PREAD   = 0,
+	linux_IOCB_CMD_PWRITE  = 1,
+	linux_IOCB_CMD_FSYNC   = 2,
+	linux_IOCB_CMD_FDSYNC  = 3,
+	//linux_IOCB_CMD_PREADX  = 4,
+	//linux_IOCB_CMD_POLL    = 5,
+	linux_IOCB_CMD_NOOP    = 6,
+	linux_IOCB_CMD_PREADV  = 7,
+	linux_IOCB_CMD_PWRITEV = 8,
+};
+enum
+{
+	linux_IOCB_FLAG_RESFD = 1 << 0,
+};
+enum
+{
+	linux_RWF_HIPRI     = 0x00000001,
+	linux_RWF_DSYNC     = 0x00000002,
+	linux_RWF_SYNC      = 0x00000004,
+	linux_RWF_NOWAIT    = 0x00000008,
+	linux_RWF_SUPPORTED = linux_RWF_HIPRI | linux_RWF_DSYNC | linux_RWF_SYNC | linux_RWF_NOWAIT,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -4538,6 +4594,11 @@ static inline LINUX_DEFINE_SYSCALL1_RET(time, linux_time_t*, tloc, linux_time_t)
 static inline LINUX_DEFINE_SYSCALL6_NORET(futex, uint32_t*, uaddr, int, op, uint32_t, val, struct linux_timespec_t*, utime, uint32_t*, uaddr2, uint32_t, val3)
 static inline LINUX_DEFINE_SYSCALL3_NORET(sched_setaffinity, linux_pid_t, pid, unsigned int, len, unsigned long LINUX_SAFE_CONST*, user_mask_ptr)
 static inline LINUX_DEFINE_SYSCALL3_NORET(sched_getaffinity, linux_pid_t, pid, unsigned int, len, unsigned long*, user_mask_ptr)
+static inline LINUX_DEFINE_SYSCALL2_NORET(io_setup, unsigned int, nr_reqs, linux_aio_context_t*, ctx)
+static inline LINUX_DEFINE_SYSCALL1_NORET(io_destroy, linux_aio_context_t, ctx)
+static inline LINUX_DEFINE_SYSCALL5_RET(io_getevents, linux_aio_context_t, ctx_id, long, min_nr, long, nr, struct linux_io_event_t*, events, struct linux_timespec_t*, timeout, long)
+static inline LINUX_DEFINE_SYSCALL3_RET(io_submit, linux_aio_context_t, ctx_id, long, nr, struct linux_iocb_t**, iocbpp, long)
+static inline LINUX_DEFINE_SYSCALL3_NORET(io_cancel, linux_aio_context_t, ctx_id, struct linux_iocb_t*, iocb, struct linux_io_event_t*, result)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
