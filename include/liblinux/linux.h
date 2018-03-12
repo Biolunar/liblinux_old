@@ -4599,6 +4599,7 @@ static inline LINUX_DEFINE_SYSCALL1_NORET(io_destroy, linux_aio_context_t, ctx)
 static inline LINUX_DEFINE_SYSCALL5_RET(io_getevents, linux_aio_context_t, ctx_id, long, min_nr, long, nr, struct linux_io_event_t*, events, struct linux_timespec_t*, timeout, long)
 static inline LINUX_DEFINE_SYSCALL3_RET(io_submit, linux_aio_context_t, ctx_id, long, nr, struct linux_iocb_t**, iocbpp, long)
 static inline LINUX_DEFINE_SYSCALL3_NORET(io_cancel, linux_aio_context_t, ctx_id, struct linux_iocb_t*, iocb, struct linux_io_event_t*, result)
+static inline LINUX_DEFINE_SYSCALL3_RET(lookup_dcookie, uint64_t, cookie64, char*, buf, size_t, len, size_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
