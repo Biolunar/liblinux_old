@@ -4607,6 +4607,7 @@ static inline LINUX_DEFINE_SYSCALL3_RET(io_submit, linux_aio_context_t, ctx_id, 
 static inline LINUX_DEFINE_SYSCALL3_NORET(io_cancel, linux_aio_context_t, ctx_id, struct linux_iocb_t*, iocb, struct linux_io_event_t*, result)
 static inline LINUX_DEFINE_SYSCALL3_RET(lookup_dcookie, uint64_t, cookie64, char*, buf, size_t, len, size_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create, int, size, linux_fd_t)
+static inline LINUX_DEFINE_SYSCALL5_NORET(remap_file_pages, void const*, start, size_t, size, unsigned long, prot, unsigned long, pgoff, unsigned long, flags)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
