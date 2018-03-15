@@ -4180,6 +4180,17 @@ enum
 	linux_EPOLL_CLOEXEC = linux_O_CLOEXEC,
 };
 
+// fadvise
+enum
+{
+	linux_POSIX_FADV_NORMAL     = 0,
+	linux_POSIX_FADV_RANDOM     = 1,
+	linux_POSIX_FADV_SEQUENTIAL = 2,
+	linux_POSIX_FADV_WILLNEED   = 3,
+	linux_POSIX_FADV_DONTNEED   = 4,
+	linux_POSIX_FADV_NOREUSE    = 5,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -4621,6 +4632,7 @@ static inline LINUX_DEFINE_SYSCALL3_RET(getdents64, linux_fd_t, fd, struct linux
 static inline LINUX_DEFINE_SYSCALL1_RET(set_tid_address, int*, tidptr, linux_pid_t)
 //restart_syscall
 static inline LINUX_DEFINE_SYSCALL4_NORET(semtimedop, linux_semid_t, semid, struct linux_sembuf_t*, sops, unsigned int, nsops, struct linux_timespec_t const*, timeout)
+static inline LINUX_DEFINE_SYSCALL4_NORET(fadvise64, linux_fd_t, fd, linux_loff_t, offset, size_t, len, int, advice)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
