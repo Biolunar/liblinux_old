@@ -92,6 +92,9 @@ typedef linux_kernel_key_t linux_key_t;
 typedef unsigned short linux_kernel_sa_family_t;
 typedef linux_kernel_sa_family_t linux_sa_family_t;
 typedef linux_kernel_time_t linux_time_t;
+typedef int linux_kernel_clockid_t;
+typedef linux_kernel_clockid_t linux_clockid_t;
+typedef linux_kernel_timer_t linux_timer_t;
 struct linux_stat_t
 {
 	linux_kernel_ulong_t st_dev;
@@ -961,6 +964,28 @@ struct linux_iocb_t
 	uint32_t aio_flags;
 
 	uint32_t aio_resfd;
+};
+typedef struct linux_sigevent_t
+{
+	union linux_sigval_t sigev_value;
+	int sigev_signo;
+	int sigev_notify;
+	union
+	{
+		int _pad[(64 - (sizeof(int) * 2 + sizeof(union linux_sigval_t))) / sizeof(int)];
+		int tid;
+
+		struct
+		{
+			void (*function)(union linux_sigval_t);
+			void* attribute;
+		} sigev_thread;
+	} sigev_un;
+} linux_sigevent_t;
+struct linux_itimerspec_t
+{
+	struct linux_timespec_t it_interval;
+	struct linux_timespec_t it_value;
 };
 
 // Kernel types
@@ -4191,6 +4216,38 @@ enum
 	linux_POSIX_FADV_NOREUSE    = 5,
 };
 
+// sigevent
+enum
+{
+	linux_SIGEV_SIGNAL    = 0,
+	linux_SIGEV_NONE      = 1,
+	linux_SIGEV_THREAD    = 2,
+	linux_SIGEV_THREAD_ID = 4,
+};
+
+// POSIX timer
+enum
+{
+	linux_CLOCK_REALTIME           = 0,
+	linux_CLOCK_MONOTONIC          = 1,
+	linux_CLOCK_PROCESS_CPUTIME_ID = 2,
+	linux_CLOCK_THREAD_CPUTIME_ID  = 3,
+	linux_CLOCK_MONOTONIC_RAW      = 4,
+	linux_CLOCK_REALTIME_COARSE    = 5,
+	linux_CLOCK_MONOTONIC_COARSE   = 6,
+	linux_CLOCK_BOOTTIME           = 7,
+	linux_CLOCK_REALTIME_ALARM     = 8,
+	linux_CLOCK_BOOTTIME_ALARM     = 9,
+
+	// The driver implementing this got removed. The clock ID is kept as a place holder. Do not reuse!
+	linux_CLOCK_SGI_CYCLE          = 10,
+	linux_CLOCK_TAI                = 11,
+};
+enum
+{
+	linux_TIMER_ABSTIME = 0x01,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -4633,6 +4690,11 @@ static inline LINUX_DEFINE_SYSCALL1_RET(set_tid_address, int*, tidptr, linux_pid
 //restart_syscall
 static inline LINUX_DEFINE_SYSCALL4_NORET(semtimedop, linux_semid_t, semid, struct linux_sembuf_t*, sops, unsigned int, nsops, struct linux_timespec_t const*, timeout)
 static inline LINUX_DEFINE_SYSCALL4_NORET(fadvise64, linux_fd_t, fd, linux_loff_t, offset, size_t, len, int, advice)
+static inline LINUX_DEFINE_SYSCALL3_NORET(timer_create, linux_clockid_t, which_clock, struct linux_sigevent_t*, timer_event_spec, linux_timer_t*, created_timer_id)
+static inline LINUX_DEFINE_SYSCALL4_NORET(timer_settime, linux_timer_t, timer_id, int, flags, struct linux_itimerspec_t const*, new_setting, struct linux_itimerspec_t*, old_setting)
+static inline LINUX_DEFINE_SYSCALL2_NORET(timer_gettime, linux_timer_t, timer_id, struct linux_itimerspec_t*, setting)
+static inline LINUX_DEFINE_SYSCALL1_RET(timer_getoverrun, linux_timer_t, timer_id, int)
+static inline LINUX_DEFINE_SYSCALL1_NORET(timer_delete, linux_timer_t, timer_id)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
