@@ -4695,6 +4695,10 @@ static inline LINUX_DEFINE_SYSCALL4_NORET(timer_settime, linux_timer_t, timer_id
 static inline LINUX_DEFINE_SYSCALL2_NORET(timer_gettime, linux_timer_t, timer_id, struct linux_itimerspec_t*, setting)
 static inline LINUX_DEFINE_SYSCALL1_RET(timer_getoverrun, linux_timer_t, timer_id, int)
 static inline LINUX_DEFINE_SYSCALL1_NORET(timer_delete, linux_timer_t, timer_id)
+static inline LINUX_DEFINE_SYSCALL2_NORET(clock_settime, linux_clockid_t, which_clock, struct linux_timespec_t const*, tp)
+static inline LINUX_DEFINE_SYSCALL2_NORET(clock_gettime, linux_clockid_t, which_clock, struct linux_timespec_t*, tp)
+static inline LINUX_DEFINE_SYSCALL2_NORET(clock_getres, linux_clockid_t, which_clock, struct linux_timespec_t*, tp)
+static inline LINUX_DEFINE_SYSCALL4_NORET(clock_nanosleep, linux_clockid_t, which_clock, int, flags, struct linux_timespec_t const*, rqtp, struct linux_timespec_t*, rmtp)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
