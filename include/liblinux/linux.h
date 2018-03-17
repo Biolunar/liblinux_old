@@ -987,6 +987,15 @@ struct linux_itimerspec_t
 	struct linux_timespec_t it_interval;
 	struct linux_timespec_t it_value;
 };
+struct linux_epoll_event_t
+{
+	uint32_t events;
+
+	// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
+	uint32_t data_lo;
+	uint32_t data_hi;
+	//uint64_t data;
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -4204,6 +4213,30 @@ enum
 {
 	linux_EPOLL_CLOEXEC = linux_O_CLOEXEC,
 };
+enum
+{
+	linux_EPOLL_CTL_ADD = 1,
+	linux_EPOLL_CTL_DEL = 2,
+	linux_EPOLL_CTL_MOD = 3,
+};
+enum
+{
+	linux_EPOLLIN        = 0x00000001,
+	linux_EPOLLPRI       = 0x00000002,
+	linux_EPOLLOUT       = 0x00000004,
+	linux_EPOLLERR       = 0x00000008,
+	linux_EPOLLHUP       = 0x00000010,
+	linux_EPOLLRDNORM    = 0x00000040,
+	linux_EPOLLRDBAND    = 0x00000080,
+	linux_EPOLLWRNORM    = 0x00000100,
+	linux_EPOLLWRBAND    = 0x00000200,
+	linux_EPOLLMSG       = 0x00000400,
+	linux_EPOLLRDHUP     = 0x00002000,
+	linux_EPOLLEXCLUSIVE = 1u << 28,
+	linux_EPOLLWAKEUP    = 1u << 29,
+	linux_EPOLLONESHOT   = 1u << 30,
+	linux_EPOLLET        = INT_MIN, // 1u << 31
+};
 
 // fadvise
 enum
@@ -4699,6 +4732,9 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(clock_settime, linux_clockid_t, which_
 static inline LINUX_DEFINE_SYSCALL2_NORET(clock_gettime, linux_clockid_t, which_clock, struct linux_timespec_t*, tp)
 static inline LINUX_DEFINE_SYSCALL2_NORET(clock_getres, linux_clockid_t, which_clock, struct linux_timespec_t*, tp)
 static inline LINUX_DEFINE_SYSCALL4_NORET(clock_nanosleep, linux_clockid_t, which_clock, int, flags, struct linux_timespec_t const*, rqtp, struct linux_timespec_t*, rmtp)
+// exit_group
+static inline LINUX_DEFINE_SYSCALL4_NORET(epoll_wait, linux_fd_t, epfd, struct linux_epoll_event_t*, events, int, maxevents, int, timeout)
+static inline LINUX_DEFINE_SYSCALL4_NORET(epoll_ctl, linux_fd_t, epfd, int, op, linux_fd_t, fd, struct linux_epoll_event_t*, event)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
