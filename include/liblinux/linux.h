@@ -95,6 +95,8 @@ typedef linux_kernel_time_t linux_time_t;
 typedef int linux_kernel_clockid_t;
 typedef linux_kernel_clockid_t linux_clockid_t;
 typedef linux_kernel_timer_t linux_timer_t;
+typedef int linux_kernel_mqd_t;
+typedef linux_kernel_mqd_t linux_mqd_t;
 struct linux_stat_t
 {
 	linux_kernel_ulong_t st_dev;
@@ -965,7 +967,7 @@ struct linux_iocb_t
 
 	uint32_t aio_resfd;
 };
-typedef struct linux_sigevent_t
+struct linux_sigevent_t
 {
 	union linux_sigval_t sigev_value;
 	int sigev_signo;
@@ -981,7 +983,7 @@ typedef struct linux_sigevent_t
 			void* attribute;
 		} sigev_thread;
 	} sigev_un;
-} linux_sigevent_t;
+};
 struct linux_itimerspec_t
 {
 	struct linux_timespec_t it_interval;
@@ -995,6 +997,14 @@ struct linux_epoll_event_t
 	uint32_t data_lo;
 	uint32_t data_hi;
 	//uint64_t data;
+};
+struct linux_mq_attr_t
+{
+	linux_kernel_long_t mq_flags;
+	linux_kernel_long_t mq_maxmsg;
+	linux_kernel_long_t mq_msgsize;
+	linux_kernel_long_t mq_curmsgs;
+	linux_kernel_long_t _reserved[4];
 };
 
 // Kernel types
@@ -4313,6 +4323,13 @@ enum
 	linux_MPOL_MF_VALID    = linux_MPOL_MF_STRICT | linux_MPOL_MF_MOVE | linux_MPOL_MF_MOVE_ALL,
 };
 
+// message queue
+enum
+{
+	linux_MQ_PRIO_MAX  =  32768,
+	linux_MQ_BYTES_MAX = 819200,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -4772,6 +4789,12 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(utimes, char LINUX_SAFE_CONST*, filena
 static inline LINUX_DEFINE_SYSCALL6_NORET(mbind, void const*, start, size_t, len, unsigned long, mode, unsigned long const*, nmask, unsigned long, maxnode, unsigned int, flags)
 static inline LINUX_DEFINE_SYSCALL3_NORET(set_mempolicy, int, mode, unsigned long const*, nmask, unsigned long, maxnode)
 static inline LINUX_DEFINE_SYSCALL5_NORET(get_mempolicy, int*, policy, unsigned long*, nmask, unsigned long, maxnode, unsigned long, addr, unsigned long, flags)
+static inline LINUX_DEFINE_SYSCALL4_RET(mq_open, char const*, name, int, oflag, linux_umode_t, mode, struct linux_mq_attr_t*, attr, linux_mqd_t)
+static inline LINUX_DEFINE_SYSCALL1_NORET(mq_unlink, char const*, name)
+static inline LINUX_DEFINE_SYSCALL5_NORET(mq_timedsend, linux_mqd_t, mqdes, char const*, msg_ptr, size_t, msg_len, unsigned int, msg_prio, struct linux_timespec_t const*, abs_timeout)
+static inline LINUX_DEFINE_SYSCALL5_RET(mq_timedreceive, linux_mqd_t, mqdes, char*, msg_ptr, size_t, msg_len, unsigned int*, msg_prio, struct linux_timespec_t const*, abs_timeout, size_t)
+static inline LINUX_DEFINE_SYSCALL2_NORET(mq_notify, linux_mqd_t, mqdes, struct linux_sigevent_t const*, notification)
+static inline LINUX_DEFINE_SYSCALL3_NORET(mq_getsetattr, linux_mqd_t, mqdes, struct linux_mq_attr_t const*, mqstat, struct linux_mq_attr_t*, omqstat)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
