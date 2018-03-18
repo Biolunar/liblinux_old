@@ -4281,6 +4281,38 @@ enum
 	linux_TIMER_ABSTIME = 0x01,
 };
 
+// mbind
+enum
+{
+	linux_MPOL_DEFAULT,
+	linux_MPOL_PREFERRED,
+	linux_MPOL_BIND,
+	linux_MPOL_INTERLEAVE,
+	linux_MPOL_LOCAL,
+	linux_MPOL_MAX,
+};
+enum
+{
+	linux_MPOL_F_STATIC_NODES   = 1 << 15,
+	linux_MPOL_F_RELATIVE_NODES = 1 << 14,
+
+	linux_MPOL_MODE_FLAGS       = linux_MPOL_F_STATIC_NODES | linux_MPOL_F_RELATIVE_NODES,
+};
+enum
+{
+	linux_MPOL_F_NODE         = 1 << 0,
+	linux_MPOL_F_ADDR         = 1 << 1,
+	linux_MPOL_F_MEMS_ALLOWED = 1 << 2,
+};
+enum
+{
+	linux_MPOL_MF_STRICT   = 1 << 0,
+	linux_MPOL_MF_MOVE     = 1 << 1,
+	linux_MPOL_MF_MOVE_ALL = 1 << 2,
+	linux_MPOL_MF_LAZY     = 1 << 3,
+	linux_MPOL_MF_VALID    = linux_MPOL_MF_STRICT | linux_MPOL_MF_MOVE | linux_MPOL_MF_MOVE_ALL,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -4737,6 +4769,9 @@ static inline LINUX_DEFINE_SYSCALL4_NORET(epoll_wait, linux_fd_t, epfd, struct l
 static inline LINUX_DEFINE_SYSCALL4_NORET(epoll_ctl, linux_fd_t, epfd, int, op, linux_fd_t, fd, struct linux_epoll_event_t*, event)
 static inline LINUX_DEFINE_SYSCALL3_NORET(tgkill, linux_pid_t, tgid, linux_pid_t, pid, int, sig)
 static inline LINUX_DEFINE_SYSCALL2_NORET(utimes, char LINUX_SAFE_CONST*, filename, struct linux_timeval_t LINUX_SAFE_CONST*, utimes)
+static inline LINUX_DEFINE_SYSCALL6_NORET(mbind, void const*, start, size_t, len, unsigned long, mode, unsigned long const*, nmask, unsigned long, maxnode, unsigned int, flags)
+static inline LINUX_DEFINE_SYSCALL3_NORET(set_mempolicy, int, mode, unsigned long const*, nmask, unsigned long, maxnode)
+static inline LINUX_DEFINE_SYSCALL5_NORET(get_mempolicy, int*, policy, unsigned long*, nmask, unsigned long, maxnode, unsigned long, addr, unsigned long, flags)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
