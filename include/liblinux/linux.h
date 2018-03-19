@@ -1006,6 +1006,13 @@ struct linux_mq_attr_t
 	linux_kernel_long_t mq_curmsgs;
 	linux_kernel_long_t _reserved[4];
 };
+struct linux_kexec_segment_t
+{
+	void const* buf;
+	size_t bufsz;
+	void const* mem;
+	size_t memsz;
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -4330,6 +4337,40 @@ enum
 	linux_MQ_BYTES_MAX = 819200,
 };
 
+// kexec_load and kexec_file_load
+enum
+{
+	linux_KEXEC_ON_CRASH         = 0x00000001,
+	linux_KEXEC_PRESERVE_CONTEXT = 0x00000002,
+	linux_KEXEC_ARCH_MASK        = -65536, // 0xFFFF0000
+};
+enum
+{
+	linux_KEXEC_FILE_UNLOAD       = 0x00000001,
+	linux_KEXEC_FILE_ON_CRASH     = 0x00000002,
+	linux_KEXEC_FILE_NO_INITRAMFS = 0x00000004,
+};
+enum
+{
+	linux_KEXEC_ARCH_DEFAULT =   0 << 16,
+	linux_KEXEC_ARCH_386     =   3 << 16,
+	linux_KEXEC_ARCH_68K     =   4 << 16,
+	linux_KEXEC_ARCH_X86_64  =  62 << 16,
+	linux_KEXEC_ARCH_PPC     =  20 << 16,
+	linux_KEXEC_ARCH_PPC64   =  21 << 16,
+	linux_KEXEC_ARCH_IA_64   =  50 << 16,
+	linux_KEXEC_ARCH_ARM     =  40 << 16,
+	linux_KEXEC_ARCH_S390    =  22 << 16,
+	linux_KEXEC_ARCH_SH      =  42 << 16,
+	linux_KEXEC_ARCH_MIPS_LE =  10 << 16,
+	linux_KEXEC_ARCH_MIPS    =   8 << 16,
+	linux_KEXEC_ARCH_AARCH64 = 183 << 16,
+};
+enum
+{
+	linux_KEXEC_SEGMENT_MAX = 16,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -4795,6 +4836,7 @@ static inline LINUX_DEFINE_SYSCALL5_NORET(mq_timedsend, linux_mqd_t, mqdes, char
 static inline LINUX_DEFINE_SYSCALL5_RET(mq_timedreceive, linux_mqd_t, mqdes, char*, msg_ptr, size_t, msg_len, unsigned int*, msg_prio, struct linux_timespec_t const*, abs_timeout, size_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(mq_notify, linux_mqd_t, mqdes, struct linux_sigevent_t const*, notification)
 static inline LINUX_DEFINE_SYSCALL3_NORET(mq_getsetattr, linux_mqd_t, mqdes, struct linux_mq_attr_t const*, mqstat, struct linux_mq_attr_t*, omqstat)
+static inline LINUX_DEFINE_SYSCALL4_NORET(kexec_load, unsigned long, entry, unsigned long, nr_segments, struct linux_kexec_segment_t*, segments, unsigned long, flags)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
