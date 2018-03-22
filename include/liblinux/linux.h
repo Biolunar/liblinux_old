@@ -1696,6 +1696,7 @@ enum
 	linux_WCLONE     = INT_MIN, // Wait only on non-SIGCHLD children. INT_MIN is a workaround for the value 0x80000000 as a signed int.
 };
 
+// waitid
 enum
 {
 	linux_P_ALL  = 0,
@@ -4837,6 +4838,7 @@ static inline LINUX_DEFINE_SYSCALL5_RET(mq_timedreceive, linux_mqd_t, mqdes, cha
 static inline LINUX_DEFINE_SYSCALL2_NORET(mq_notify, linux_mqd_t, mqdes, struct linux_sigevent_t const*, notification)
 static inline LINUX_DEFINE_SYSCALL3_NORET(mq_getsetattr, linux_mqd_t, mqdes, struct linux_mq_attr_t const*, mqstat, struct linux_mq_attr_t*, omqstat)
 static inline LINUX_DEFINE_SYSCALL4_NORET(kexec_load, unsigned long, entry, unsigned long, nr_segments, struct linux_kexec_segment_t*, segments, unsigned long, flags)
+static inline LINUX_DEFINE_SYSCALL5_NORET(waitid, int, which, linux_pid_t, pid, struct linux_siginfo_t*, infop, int, options, struct linux_rusage_t*, ru)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
