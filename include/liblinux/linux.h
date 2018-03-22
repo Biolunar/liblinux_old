@@ -97,6 +97,7 @@ typedef linux_kernel_clockid_t linux_clockid_t;
 typedef linux_kernel_timer_t linux_timer_t;
 typedef int linux_kernel_mqd_t;
 typedef linux_kernel_mqd_t linux_mqd_t;
+typedef int32_t linux_key_serial_t;
 struct linux_stat_t
 {
 	linux_kernel_ulong_t st_dev;
@@ -1012,6 +1013,19 @@ struct linux_kexec_segment_t
 	size_t bufsz;
 	void const* mem;
 	size_t memsz;
+};
+struct linux_keyctl_dh_params_t
+{
+	int32_t private;
+	int32_t prime;
+	int32_t base;
+};
+struct linux_keyctl_kdf_params_t
+{
+	char* hashname;
+	char* otherinfo;
+	uint32_t otherinfolen;
+	uint32_t _spare[8];
 };
 
 // Kernel types
@@ -4372,6 +4386,59 @@ enum
 	linux_KEXEC_SEGMENT_MAX = 16,
 };
 
+// keyrings
+enum
+{
+	linux_KEY_SPEC_THREAD_KEYRING       = -1,
+	linux_KEY_SPEC_PROCESS_KEYRING      = -2,
+	linux_KEY_SPEC_SESSION_KEYRING      = -3,
+	linux_KEY_SPEC_USER_KEYRING         = -4,
+	linux_KEY_SPEC_USER_SESSION_KEYRING = -5,
+	linux_KEY_SPEC_GROUP_KEYRING        = -6,
+	linux_KEY_SPEC_REQKEY_AUTH_KEY      = -7,
+	linux_KEY_SPEC_REQUESTOR_KEYRING    = -8,
+};
+enum
+{
+	linux_KEY_REQKEY_DEFL_NO_CHANGE            = -1,
+	linux_KEY_REQKEY_DEFL_DEFAULT              =  0,
+	linux_KEY_REQKEY_DEFL_THREAD_KEYRING       =  1,
+	linux_KEY_REQKEY_DEFL_PROCESS_KEYRING      =  2,
+	linux_KEY_REQKEY_DEFL_SESSION_KEYRING      =  3,
+	linux_KEY_REQKEY_DEFL_USER_KEYRING         =  4,
+	linux_KEY_REQKEY_DEFL_USER_SESSION_KEYRING =  5,
+	linux_KEY_REQKEY_DEFL_GROUP_KEYRING        =  6,
+	linux_KEY_REQKEY_DEFL_REQUESTOR_KEYRING    =  7,
+};
+enum
+{
+	linux_KEYCTL_GET_KEYRING_ID       =  0,
+	linux_KEYCTL_JOIN_SESSION_KEYRING =  1,
+	linux_KEYCTL_UPDATE               =  2,
+	linux_KEYCTL_REVOKE               =  3,
+	linux_KEYCTL_CHOWN                =  4,
+	linux_KEYCTL_SETPERM              =  5,
+	linux_KEYCTL_DESCRIBE             =  6,
+	linux_KEYCTL_CLEAR                =  7,
+	linux_KEYCTL_LINK                 =  8,
+	linux_KEYCTL_UNLINK               =  9,
+	linux_KEYCTL_SEARCH               = 10,
+	linux_KEYCTL_READ                 = 11,
+	linux_KEYCTL_INSTANTIATE          = 12,
+	linux_KEYCTL_NEGATE               = 13,
+	linux_KEYCTL_SET_REQKEY_KEYRING   = 14,
+	linux_KEYCTL_SET_TIMEOUT          = 15,
+	linux_KEYCTL_ASSUME_AUTHORITY     = 16,
+	linux_KEYCTL_GET_SECURITY         = 17,
+	linux_KEYCTL_SESSION_TO_PARENT    = 18,
+	linux_KEYCTL_REJECT               = 19,
+	linux_KEYCTL_INSTANTIATE_IOV      = 20,
+	linux_KEYCTL_INVALIDATE           = 21,
+	linux_KEYCTL_GET_PERSISTENT       = 22,
+	linux_KEYCTL_DH_COMPUTE           = 23,
+	linux_KEYCTL_RESTRICT_KEYRING     = 29,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -4839,6 +4906,9 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(mq_notify, linux_mqd_t, mqdes, struct 
 static inline LINUX_DEFINE_SYSCALL3_NORET(mq_getsetattr, linux_mqd_t, mqdes, struct linux_mq_attr_t const*, mqstat, struct linux_mq_attr_t*, omqstat)
 static inline LINUX_DEFINE_SYSCALL4_NORET(kexec_load, unsigned long, entry, unsigned long, nr_segments, struct linux_kexec_segment_t*, segments, unsigned long, flags)
 static inline LINUX_DEFINE_SYSCALL5_NORET(waitid, int, which, linux_pid_t, pid, struct linux_siginfo_t*, infop, int, options, struct linux_rusage_t*, ru)
+static inline LINUX_DEFINE_SYSCALL5_RET(add_key, char const*, type, char const*, description, void const*, payload, size_t, plen, linux_key_serial_t, destringid, linux_key_serial_t)
+static inline LINUX_DEFINE_SYSCALL4_RET(request_key, char const*, type, char const*, description, char const*, callout_info, linux_key_serial_t, destringid, linux_key_serial_t)
+static inline LINUX_DEFINE_SYSCALL5_RET(keyctl, int, cmd, unsigned long, arg2, unsigned long, arg3, unsigned long, arg4, unsigned long, arg5, intptr_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
