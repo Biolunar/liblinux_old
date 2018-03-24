@@ -4994,6 +4994,7 @@ static inline LINUX_DEFINE_SYSCALL2_RET(ioprio_get, int, which, int, who, int)
 static inline LINUX_DEFINE_SYSCALL0_RET(inotify_init, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(inotify_add_watch, linux_fd_t, fd, char const*, path, uint32_t, mask, linux_wd_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(inotify_rm_watch, linux_fd_t, fd, linux_wd_t, wd)
+static inline LINUX_DEFINE_SYSCALL4_RET(migrate_pages, linux_pid_t, pid, unsigned long, maxnode, unsigned long const*, from, unsigned long const*, to, int)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(dup3, linux_fd_t, oldfd, linux_fd_t, newfd, int, flags, linux_fd_t)
