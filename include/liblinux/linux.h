@@ -1102,6 +1102,17 @@ enum
 	linux_O_NDELAY       = linux_O_NONBLOCK,
 };
 
+// *at functions
+#define linux_AT_FDCWD ((linux_fd_t)(-100))
+enum
+{
+	linux_AT_SYMLINK_NOFOLLOW = 0x0100,
+	linux_AT_REMOVEDIR        = 0x0200,
+	linux_AT_SYMLINK_FOLLOW   = 0x0400,
+	linux_AT_NO_AUTOMOUNT     = 0x0800,
+	linux_AT_EMPTY_PATH       = 0x1000,
+};
+
 enum
 {
 	linux_F_DUPFD               =    0, // dup
@@ -4995,6 +5006,20 @@ static inline LINUX_DEFINE_SYSCALL0_RET(inotify_init, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(inotify_add_watch, linux_fd_t, fd, char const*, path, uint32_t, mask, linux_wd_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(inotify_rm_watch, linux_fd_t, fd, linux_wd_t, wd)
 static inline LINUX_DEFINE_SYSCALL4_RET(migrate_pages, linux_pid_t, pid, unsigned long, maxnode, unsigned long const*, from, unsigned long const*, to, int)
+static inline LINUX_DEFINE_SYSCALL4_RET(openat, linux_fd_t, dfd, char const*, filename, int, flags, linux_umode_t, mode, linux_fd_t)
+static inline LINUX_DEFINE_SYSCALL3_NORET(mkdirat, linux_fd_t, dfd, char const*, pathname, linux_umode_t, mode)
+static inline LINUX_DEFINE_SYSCALL4_NORET(mknodat, linux_fd_t, dfd, char const*, filename, linux_umode_t, mode, unsigned int, dev)
+static inline LINUX_DEFINE_SYSCALL5_NORET(fchownat, linux_fd_t, dfd, char const*, filename, linux_uid_t, user, linux_gid_t, group, int, flag)
+static inline LINUX_DEFINE_SYSCALL3_NORET(futimesat, linux_fd_t, dfd, char const*, filename, struct linux_timeval_t LINUX_SAFE_CONST*, utimes)
+static inline LINUX_DEFINE_SYSCALL4_NORET(newfstatat, linux_fd_t, dfd, char const*, filename, struct linux_stat_t*, statbuf, int, flag)
+static inline LINUX_DEFINE_SYSCALL3_NORET(unlinkat, linux_fd_t, dfd, char const*, pathname, int, flag)
+static inline LINUX_DEFINE_SYSCALL4_NORET(renameat, linux_fd_t, olddfd, char const*, oldname, linux_fd_t, newdfd, char const*, newname)
+static inline LINUX_DEFINE_SYSCALL5_NORET(linkat, linux_fd_t, olddfd, char const*, oldname, linux_fd_t, newdfd, char const*, newname, int, flags)
+static inline LINUX_DEFINE_SYSCALL3_NORET(symlinkat, char const*, oldname, linux_fd_t, newdfd, char const*, newname)
+static inline LINUX_DEFINE_SYSCALL4_RET(readlinkat, linux_fd_t, dfd, char const*, path, char*, buf, int, bufsiz, int)
+static inline LINUX_DEFINE_SYSCALL3_NORET(fchmodat, linux_fd_t, dfd, char const*, filename, linux_umode_t, mode)
+static inline LINUX_DEFINE_SYSCALL3_NORET(faccessat, linux_fd_t, dfd, char const*, filename, int, mode)
+static inline LINUX_DEFINE_SYSCALL6_RET(pselect6, int, n, linux_fd_set_t*, inp, linux_fd_set_t*, outp, linux_fd_set_t*, exp, struct linux_timespec_t*, tsp, void*, sig, unsigned int)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(dup3, linux_fd_t, oldfd, linux_fd_t, newfd, int, flags, linux_fd_t)
