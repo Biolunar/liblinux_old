@@ -4439,6 +4439,21 @@ enum
 	linux_KEYCTL_RESTRICT_KEYRING     = 29,
 };
 
+// ioprio
+enum
+{
+	linux_IOPRIO_WHO_PROCESS = 1,
+	linux_IOPRIO_WHO_PGRP,
+	linux_IOPRIO_WHO_USER,
+};
+enum
+{
+	linux_IOPRIO_CLASS_NONE,
+	linux_IOPRIO_CLASS_RT,
+	linux_IOPRIO_CLASS_BE,
+	linux_IOPRIO_CLASS_IDLE,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -4658,6 +4673,24 @@ static inline unsigned int linux_QCMD(unsigned int const cmd, unsigned int const
 {
 	return (cmd << linux_SUBCMDSHIFT) | (type & linux_SUBCMDMASK);
 }
+
+#define linux_IOPRIO_CLASS_SHIFT (13)
+#define linux_IOPRIO_PRIO_MASK   ((1 << linux_IOPRIO_CLASS_SHIFT) - 1)
+static inline int linux_IOPRIO_PRIO_CLASS(int const mask)
+{
+	return mask >> linux_IOPRIO_CLASS_SHIFT;
+}
+
+static inline int linux_IOPRIO_PRIO_DATA(int const mask)
+{
+	return mask & linux_IOPRIO_PRIO_MASK;
+}
+
+static inline int linux_IOPRIO_PRIO_VALUE(int const class, int const data)
+{
+	return (class << linux_IOPRIO_CLASS_SHIFT) | data;
+}
+#undef linux_IOPRIO_CLASS_SHIFT
 
 // Helper functions
 //------------------------------------------------------------------------------
@@ -4909,6 +4942,8 @@ static inline LINUX_DEFINE_SYSCALL5_NORET(waitid, int, which, linux_pid_t, pid, 
 static inline LINUX_DEFINE_SYSCALL5_RET(add_key, char const*, type, char const*, description, void const*, payload, size_t, plen, linux_key_serial_t, destringid, linux_key_serial_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(request_key, char const*, type, char const*, description, char const*, callout_info, linux_key_serial_t, destringid, linux_key_serial_t)
 static inline LINUX_DEFINE_SYSCALL5_RET(keyctl, int, cmd, unsigned long, arg2, unsigned long, arg3, unsigned long, arg4, unsigned long, arg5, intptr_t)
+static inline LINUX_DEFINE_SYSCALL3_NORET(ioprio_set, int, which, int, who, int, ioprio)
+static inline LINUX_DEFINE_SYSCALL2_RET(ioprio_get, int, which, int, who, int)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
