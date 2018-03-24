@@ -5020,6 +5020,7 @@ static inline LINUX_DEFINE_SYSCALL4_RET(readlinkat, linux_fd_t, dfd, char const*
 static inline LINUX_DEFINE_SYSCALL3_NORET(fchmodat, linux_fd_t, dfd, char const*, filename, linux_umode_t, mode)
 static inline LINUX_DEFINE_SYSCALL3_NORET(faccessat, linux_fd_t, dfd, char const*, filename, int, mode)
 static inline LINUX_DEFINE_SYSCALL6_RET(pselect6, int, n, linux_fd_set_t*, inp, linux_fd_set_t*, outp, linux_fd_set_t*, exp, struct linux_timespec_t*, tsp, void*, sig, unsigned int)
+static inline LINUX_DEFINE_SYSCALL5_RET(ppoll, struct linux_pollfd_t*, ufds, unsigned int, nfds, struct linux_timespec_t*, tsp, linux_sigset_t const*, sigmask, size_t, sigsetsize, unsigned int)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(dup3, linux_fd_t, oldfd, linux_fd_t, newfd, int, flags, linux_fd_t)
