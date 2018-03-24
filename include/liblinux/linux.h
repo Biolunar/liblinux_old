@@ -58,6 +58,7 @@ typedef unsigned int linux_fd_t;
 typedef int linux_shmid_t;
 typedef int linux_semid_t;
 typedef int linux_msgid_t;
+typedef int32_t linux_wd_t;
 
 // Custom types
 //------------------------------------------------------------------------------
@@ -1026,6 +1027,14 @@ struct linux_keyctl_kdf_params_t
 	char* otherinfo;
 	uint32_t otherinfolen;
 	uint32_t _spare[8];
+};
+struct linux_inotify_event_t
+{
+	int32_t wd;
+	uint32_t mask;
+	uint32_t cookie;
+	uint32_t len;
+	char name[];
 };
 
 // Kernel types
@@ -4454,6 +4463,44 @@ enum
 	linux_IOPRIO_CLASS_IDLE,
 };
 
+// inotify
+enum
+{
+	linux_IN_CLOEXEC  = linux_O_CLOEXEC,
+	linux_IN_NONBLOCK = linux_O_NONBLOCK,
+};
+enum
+{
+linux_IN_ACCESS        = 0x00000001,
+linux_IN_MODIFY        = 0x00000002,
+linux_IN_ATTRIB        = 0x00000004,
+linux_IN_CLOSE_WRITE   = 0x00000008,
+linux_IN_CLOSE_NOWRITE = 0x00000010,
+linux_IN_OPEN          = 0x00000020,
+linux_IN_MOVED_FROM    = 0x00000040,
+linux_IN_MOVED_TO      = 0x00000080,
+linux_IN_CREATE        = 0x00000100,
+linux_IN_DELETE        = 0x00000200,
+linux_IN_DELETE_SELF   = 0x00000400,
+linux_IN_MOVE_SELF     = 0x00000800,
+
+linux_IN_UNMOUNT       = 0x00002000,
+linux_IN_Q_OVERFLOW    = 0x00004000,
+linux_IN_IGNORED       = 0x00008000,
+
+linux_IN_CLOSE         = linux_IN_CLOSE_WRITE | linux_IN_CLOSE_NOWRITE,
+linux_IN_MOVE          = linux_IN_MOVED_FROM | linux_IN_MOVED_TO,
+
+linux_IN_ONLYDIR       = 0x01000000,
+linux_IN_DONT_FOLLOW   = 0x02000000,
+linux_IN_EXCL_UNLINK   = 0x04000000,
+linux_IN_MASK_ADD      = 0x20000000,
+linux_IN_ISDIR         = 0x40000000,
+linux_IN_ONESHOT       = INT_MIN, // 0x80000000
+
+linux_IN_ALL_EVENTS    = linux_IN_ACCESS | linux_IN_MODIFY | linux_IN_ATTRIB | linux_IN_CLOSE_WRITE | linux_IN_CLOSE_NOWRITE | linux_IN_OPEN | linux_IN_MOVED_FROM | linux_IN_MOVED_TO | linux_IN_DELETE | linux_IN_CREATE | linux_IN_DELETE_SELF | linux_IN_MOVE_SELF,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -4944,8 +4991,13 @@ static inline LINUX_DEFINE_SYSCALL4_RET(request_key, char const*, type, char con
 static inline LINUX_DEFINE_SYSCALL5_RET(keyctl, int, cmd, unsigned long, arg2, unsigned long, arg3, unsigned long, arg4, unsigned long, arg5, intptr_t)
 static inline LINUX_DEFINE_SYSCALL3_NORET(ioprio_set, int, which, int, who, int, ioprio)
 static inline LINUX_DEFINE_SYSCALL2_RET(ioprio_get, int, which, int, who, int)
+static inline LINUX_DEFINE_SYSCALL0_RET(inotify_init, linux_fd_t)
+static inline LINUX_DEFINE_SYSCALL3_RET(inotify_add_watch, linux_fd_t, fd, char const*, path, uint32_t, mask, linux_wd_t)
+static inline LINUX_DEFINE_SYSCALL2_NORET(inotify_rm_watch, linux_fd_t, fd, linux_wd_t, wd)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
+// TODO: Add more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL1_RET(inotify_init1, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 
