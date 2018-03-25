@@ -1036,6 +1036,16 @@ struct linux_inotify_event_t
 	uint32_t len;
 	char name[];
 };
+struct linux_robust_list_t
+{
+	struct linux_robust_list_t* next;
+};
+struct linux_robust_list_head_t
+{
+	struct linux_robust_list_t list;
+	long futex_offset;
+	struct linux_robust_list_t* list_op_pending;
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -4233,6 +4243,33 @@ enum
 	linux_FUTEX_WAIT_REQUEUE_PI_PRIVATE = linux_FUTEX_WAIT_REQUEUE_PI | linux_FUTEX_PRIVATE_FLAG,
 	linux_FUTEX_CMP_REQUEUE_PI_PRIVATE  = linux_FUTEX_CMP_REQUEUE_PI | linux_FUTEX_PRIVATE_FLAG,
 };
+enum
+{
+	linux_FUTEX_WAITERS          = INT_MIN, // 0x80000000
+	linux_FUTEX_OWNER_DIED       = 0x40000000,
+	linux_FUTEX_TID_MASK         = 0x3FFFFFFF,
+
+	linux_ROBUST_LIST_LIMIT      = 2048,
+
+	linux_FUTEX_BITSET_MATCH_ANY = -1, // 0xFFFFFFFF
+};
+enum
+{
+	linux_FUTEX_OP_SET         = 0,
+	linux_FUTEX_OP_ADD         = 1,
+	linux_FUTEX_OP_OR          = 2,
+	linux_FUTEX_OP_ANDN        = 3,
+	linux_FUTEX_OP_XOR         = 4,
+
+	linux_FUTEX_OP_OPARG_SHIFT = 8,
+
+	linux_FUTEX_OP_CMP_EQ      = 0,
+	linux_FUTEX_OP_CMP_NE      = 1,
+	linux_FUTEX_OP_CMP_LT      = 2,
+	linux_FUTEX_OP_CMP_LE      = 3,
+	linux_FUTEX_OP_CMP_GT      = 4,
+	linux_FUTEX_OP_CMP_GE      = 5,
+};
 
 // aio
 enum
@@ -4732,6 +4769,11 @@ static inline unsigned int linux_QCMD(unsigned int const cmd, unsigned int const
 	return (cmd << linux_SUBCMDSHIFT) | (type & linux_SUBCMDMASK);
 }
 
+static inline unsigned int linux_FUTEX_OP(unsigned int op, unsigned int oparg, unsigned int cmp, unsigned int cmparg)
+{
+	return ((op & 0xF) << 28) | ((cmp & 0xF) << 24) | ((oparg & 0xFFF) << 12) | (cmparg & 0xFFF);
+}
+
 #define linux_IOPRIO_CLASS_SHIFT (13)
 #define linux_IOPRIO_PRIO_MASK   ((1 << linux_IOPRIO_CLASS_SHIFT) - 1)
 static inline int linux_IOPRIO_PRIO_CLASS(int const mask)
@@ -5022,6 +5064,8 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(faccessat, linux_fd_t, dfd, char const
 static inline LINUX_DEFINE_SYSCALL6_RET(pselect6, int, n, linux_fd_set_t*, inp, linux_fd_set_t*, outp, linux_fd_set_t*, exp, struct linux_timespec_t*, tsp, void*, sig, unsigned int)
 static inline LINUX_DEFINE_SYSCALL5_RET(ppoll, struct linux_pollfd_t*, ufds, unsigned int, nfds, struct linux_timespec_t*, tsp, linux_sigset_t const*, sigmask, size_t, sigsetsize, unsigned int)
 static inline LINUX_DEFINE_SYSCALL1_NORET(unshare, unsigned long, unshare_flags)
+static inline LINUX_DEFINE_SYSCALL2_NORET(set_robust_list, struct linux_robust_list_head_t*, head, size_t, len)
+static inline LINUX_DEFINE_SYSCALL3_NORET(get_robust_list, linux_pid_t, pid, struct linux_robust_list_head_t**, head_ptr, size_t*, len_ptr)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(dup3, linux_fd_t, oldfd, linux_fd_t, newfd, int, flags, linux_fd_t)
