@@ -4549,6 +4549,25 @@ linux_IN_ONESHOT       = INT_MIN, // 0x80000000
 linux_IN_ALL_EVENTS    = linux_IN_ACCESS | linux_IN_MODIFY | linux_IN_ATTRIB | linux_IN_CLOSE_WRITE | linux_IN_CLOSE_NOWRITE | linux_IN_OPEN | linux_IN_MOVED_FROM | linux_IN_MOVED_TO | linux_IN_DELETE | linux_IN_CREATE | linux_IN_DELETE_SELF | linux_IN_MOVE_SELF,
 };
 
+// splice, tee, vmsplice
+enum
+{
+	linux_SPLICE_F_MOVE     = 0x01,
+	linux_SPLICE_F_NONBLOCK = 0x02,
+	linux_SPLICE_F_MORE     = 0x04,
+	linux_SPLICE_F_GIFT     = 0x08,
+
+	linux_SPLICE_F_ALL      = linux_SPLICE_F_MOVE | linux_SPLICE_F_NONBLOCK | linux_SPLICE_F_MORE | linux_SPLICE_F_GIFT,
+};
+
+// sync_file_range
+enum
+{
+	linux_SYNC_FILE_RANGE_WAIT_BEFORE = 1,
+	linux_SYNC_FILE_RANGE_WRITE       = 2,
+	linux_SYNC_FILE_RANGE_WAIT_AFTER  = 4,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -5066,6 +5085,10 @@ static inline LINUX_DEFINE_SYSCALL5_RET(ppoll, struct linux_pollfd_t*, ufds, uns
 static inline LINUX_DEFINE_SYSCALL1_NORET(unshare, unsigned long, unshare_flags)
 static inline LINUX_DEFINE_SYSCALL2_NORET(set_robust_list, struct linux_robust_list_head_t*, head, size_t, len)
 static inline LINUX_DEFINE_SYSCALL3_NORET(get_robust_list, linux_pid_t, pid, struct linux_robust_list_head_t**, head_ptr, size_t*, len_ptr)
+static inline LINUX_DEFINE_SYSCALL6_RET(splice, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
+static inline LINUX_DEFINE_SYSCALL4_RET(tee, linux_fd_t, fdin, linux_fd_t, fdout, size_t, len, unsigned int, flags, size_t)
+static inline LINUX_DEFINE_SYSCALL4_NORET(sync_file_range, linux_fd_t, fd, linux_loff_t, offset, linux_loff_t, nbytes, unsigned int, flags)
+static inline LINUX_DEFINE_SYSCALL4_RET(vmsplice, linux_fd_t, fd, struct linux_iovec_t const*, iov, unsigned long, nr_segs, unsigned int, flags, size_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(dup3, linux_fd_t, oldfd, linux_fd_t, newfd, int, flags, linux_fd_t)
