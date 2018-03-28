@@ -4568,6 +4568,13 @@ enum
 	linux_SYNC_FILE_RANGE_WAIT_AFTER  = 4,
 };
 
+// utimensat
+enum
+{
+	linux_UTIME_NOW  = (1l << 30) - 1l,
+	linux_UTIME_OMIT = (1l << 30) - 2l,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -5043,7 +5050,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(clock_gettime, linux_clockid_t, which_
 static inline LINUX_DEFINE_SYSCALL2_NORET(clock_getres, linux_clockid_t, which_clock, struct linux_timespec_t*, tp)
 static inline LINUX_DEFINE_SYSCALL4_NORET(clock_nanosleep, linux_clockid_t, which_clock, int, flags, struct linux_timespec_t const*, rqtp, struct linux_timespec_t*, rmtp)
 // exit_group
-static inline LINUX_DEFINE_SYSCALL4_NORET(epoll_wait, linux_fd_t, epfd, struct linux_epoll_event_t*, events, int, maxevents, int, timeout)
+static inline LINUX_DEFINE_SYSCALL4_RET(epoll_wait, linux_fd_t, epfd, struct linux_epoll_event_t*, events, int, maxevents, int, timeout, int)
 static inline LINUX_DEFINE_SYSCALL4_NORET(epoll_ctl, linux_fd_t, epfd, int, op, linux_fd_t, fd, struct linux_epoll_event_t*, event)
 static inline LINUX_DEFINE_SYSCALL3_NORET(tgkill, linux_pid_t, tgid, linux_pid_t, pid, int, sig)
 static inline LINUX_DEFINE_SYSCALL2_NORET(utimes, char LINUX_SAFE_CONST*, filename, struct linux_timeval_t LINUX_SAFE_CONST*, utimes)
@@ -5089,6 +5096,9 @@ static inline LINUX_DEFINE_SYSCALL6_RET(splice, linux_fd_t, fd_in, linux_loff_t*
 static inline LINUX_DEFINE_SYSCALL4_RET(tee, linux_fd_t, fdin, linux_fd_t, fdout, size_t, len, unsigned int, flags, size_t)
 static inline LINUX_DEFINE_SYSCALL4_NORET(sync_file_range, linux_fd_t, fd, linux_loff_t, offset, linux_loff_t, nbytes, unsigned int, flags)
 static inline LINUX_DEFINE_SYSCALL4_RET(vmsplice, linux_fd_t, fd, struct linux_iovec_t const*, iov, unsigned long, nr_segs, unsigned int, flags, size_t)
+static inline LINUX_DEFINE_SYSCALL6_NORET(move_pages, linux_pid_t, pid, unsigned long, nr_pages, void const**, pages, int const*, nodes, int*, status, int, flags)
+static inline LINUX_DEFINE_SYSCALL4_NORET(utimensat, linux_fd_t, dfd, char const*, filename, struct linux_timespec_t LINUX_SAFE_CONST*, utimes, int, flags)
+static inline LINUX_DEFINE_SYSCALL6_RET(epoll_pwait, linux_fd_t, epfd, struct linux_epoll_event_t*, events, int, maxevents, int, timeout, linux_sigset_t const*, sigmask, size_t, sigsetsize, int)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(dup3, linux_fd_t, oldfd, linux_fd_t, newfd, int, flags, linux_fd_t)

@@ -22,9 +22,12 @@
 
 static enum TestResult test_invalid_fd(void)
 {
+	linux_sigset_t set;
+	linux_sigemptyset(&set);
+
 	struct linux_epoll_event_t event = { .events = linux_EPOLLIN };
 	int ret;
-	if (linux_epoll_wait(linux_stderr + 1, &event, 1, -1, &ret) != linux_EBADF)
+	if (linux_epoll_pwait(linux_stderr + 1, &event, 1, -1, &set, sizeof(linux_sigset_t), &ret) != linux_EBADF)
 		return TEST_RESULT_FAILURE;
 
 	return TEST_RESULT_SUCCESS;
@@ -61,8 +64,10 @@ static enum TestResult test_correct_usage(void)
 		return TEST_RESULT_OTHER_FAILURE;
 	}
 
+	linux_sigset_t set;
+	linux_sigemptyset(&set);
 	int ret;
-	if (linux_epoll_wait(fd, &event, 1, -1, &ret) || ret != 1)
+	if (linux_epoll_pwait(fd, &event, 1, -1, &set, sizeof(linux_sigset_t), &ret) || ret != 1)
 	{
 		linux_close(pfd[0]);
 		linux_close(pfd[1]);
@@ -80,10 +85,10 @@ int main(void)
 {
 	int ret = EXIT_SUCCESS;
 
-	printf("Start testing epoll_wait.\n");
+	printf("Start testing epoll_pwait.\n");
 	DO_TEST(invalid_fd, &ret);
 	DO_TEST(correct_usage, &ret);
-	printf("Finished testing epoll_wait.\n");
+	printf("Finished testing epoll_pwait.\n");
 
 	return ret;
 }
