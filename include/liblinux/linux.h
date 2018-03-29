@@ -1069,6 +1069,149 @@ struct linux_signalfd_siginfo_t
 	uint16_t ssi_addr_lsb;
 	uint8_t _pad[46];
 };
+struct linux_perf_event_attr_t
+{
+	uint32_t type;
+	uint32_t size;
+	uint64_t config;
+	union
+	{
+		uint64_t sample_period;
+		uint64_t sample_freq;
+	};
+	uint64_t sample_type;
+	uint64_t read_format;
+	uint64_t disabled                 :  1,
+	         inherit                  :  1,
+	         pinned                   :  1,
+	         exclusive                :  1,
+	         exclude_user             :  1,
+	         exclude_kernel           :  1,
+	         exclude_hv               :  1,
+	         exclude_idle             :  1,
+	         mmap                     :  1,
+	         comm                     :  1,
+	         freq                     :  1,
+	         inherit_stat             :  1,
+	         enable_on_exec           :  1,
+	         task                     :  1,
+	         watermark                :  1,
+	         precise_ip               :  2,
+	         mmap_data                :  1,
+	         sample_id_all            :  1,
+	         exclude_host             :  1,
+	         exclude_guest            :  1,
+	         exclude_callchain_kernel :  1,
+	         exclude_callchain_user   :  1,
+	         mmap2                    :  1,
+	         comm_exec                :  1,
+	         use_clockid              :  1,
+	         context_switch           :  1,
+	         write_backward           :  1,
+	         namespaces               :  1,
+	         _reserved1               : 35;
+	union
+	{
+		uint32_t wakeup_events;
+		uint32_t wakeup_watermark;
+	};
+	uint32_t bp_type;
+	union
+	{
+		uint64_t bp_addr;
+		uint64_t config1;
+	};
+	union
+	{
+		uint64_t bp_len;
+		uint64_t config2;
+	};
+	uint64_t branch_sample_type;
+	uint64_t sample_regs_user;
+	uint32_t sample_stack_user;
+	int32_t clockid;
+	uint64_t sample_regs_intr;
+	uint32_t aux_watermark;
+	uint16_t sample_max_stack;
+	uint16_t _reserved2;
+};
+struct linux_perf_event_mmap_page_t
+{
+	uint32_t version;
+	uint32_t compat_version;
+	uint32_t lock;
+	uint32_t index;
+	int64_t offset;
+	uint64_t time_enabled;
+	uint64_t time_running;
+	union
+	{
+		uint64_t capabilities;
+		struct
+		{
+			uint64_t cap_bit0               :  1,
+			         cap_bit0_is_deprecated :  1,
+			         cap_user_rdpmc         :  1,
+			         cap_user_time          :  1,
+			         cap_user_time_zero     :  1,
+			         cap__res               : 59;
+		};
+	};
+	uint16_t pmc_width;
+	uint16_t time_shift;
+	uint32_t time_mult;
+	uint64_t time_offset;
+	uint64_t time_zero;
+	uint32_t size;
+	uint8_t _reserved[118*8+4];
+	uint64_t data_head;
+	uint64_t data_tail;
+	uint64_t data_offset;
+	uint64_t data_size;
+	uint64_t aux_head;
+	uint64_t aux_tail;
+	uint64_t aux_offset;
+	uint64_t aux_size;
+};
+struct linux_perf_event_header_t
+{
+	uint32_t type;
+	uint16_t misc;
+	uint16_t size;
+};
+struct linux_perf_ns_link_info_t
+{
+	uint64_t dev;
+	uint64_t ino;
+};
+union linux_perf_mem_data_src_t
+{
+	uint64_t val;
+	struct
+	{
+		uint64_t mem_op      : 5,
+		         mem_lvl     :14,
+		         mem_snoop   : 5,
+		         mem_lock    : 2,
+		         mem_dtlb    : 7,
+		         mem_lvl_num : 4,
+		         mem_remote  : 1,
+		         mem_snoopx  : 2,
+		         mem_rsvd    :24;
+	};
+};
+struct linux_perf_branch_entry_t
+{
+	uint64_t from;
+	uint64_t to;
+	uint64_t mispred   :  1,
+		 predicted :  1,
+		 in_tx     :  1,
+		 abort     :  1,
+		 cycles    : 16,
+		 type      :  4,
+		 reserved  : 40;
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -4641,6 +4784,362 @@ enum
 	linux_RWF_SUPPORTED = linux_RWF_HIPRI | linux_RWF_DSYNC | linux_RWF_SYNC | linux_RWF_NOWAIT,
 };
 
+// perf_event_open
+enum linux_perf_type_id_t
+{
+	linux_PERF_TYPE_HARDWARE   = 0,
+	linux_PERF_TYPE_SOFTWARE   = 1,
+	linux_PERF_TYPE_TRACEPOINT = 2,
+	linux_PERF_TYPE_HW_CACHE   = 3,
+	linux_PERF_TYPE_RAW        = 4,
+	linux_PERF_TYPE_BREAKPOINT = 5,
+};
+enum linux_perf_hw_id_t
+{
+	linux_PERF_COUNT_HW_CPU_CYCLES              = 0,
+	linux_PERF_COUNT_HW_INSTRUCTIONS            = 1,
+	linux_PERF_COUNT_HW_CACHE_REFERENCES        = 2,
+	linux_PERF_COUNT_HW_CACHE_MISSES            = 3,
+	linux_PERF_COUNT_HW_BRANCH_INSTRUCTIONS     = 4,
+	linux_PERF_COUNT_HW_BRANCH_MISSES           = 5,
+	linux_PERF_COUNT_HW_BUS_CYCLES              = 6,
+	linux_PERF_COUNT_HW_STALLED_CYCLES_FRONTEND = 7,
+	linux_PERF_COUNT_HW_STALLED_CYCLES_BACKEND  = 8,
+	linux_PERF_COUNT_HW_REF_CPU_CYCLES          = 9,
+};
+enum perf_hw_cache_id_t
+{
+	linux_PERF_COUNT_HW_CACHE_L1D  = 0,
+	linux_PERF_COUNT_HW_CACHE_L1I  = 1,
+	linux_PERF_COUNT_HW_CACHE_LL   = 2,
+	linux_PERF_COUNT_HW_CACHE_DTLB = 3,
+	linux_PERF_COUNT_HW_CACHE_ITLB = 4,
+	linux_PERF_COUNT_HW_CACHE_BPU  = 5,
+	linux_PERF_COUNT_HW_CACHE_NODE = 6,
+};
+enum linux_perf_hw_cache_op_id_t
+{
+	linux_PERF_COUNT_HW_CACHE_OP_READ     = 0,
+	linux_PERF_COUNT_HW_CACHE_OP_WRITE    = 1,
+	linux_PERF_COUNT_HW_CACHE_OP_PREFETCH = 2,
+};
+enum linux_perf_hw_cache_op_result_id_t
+{
+	linux_PERF_COUNT_HW_CACHE_RESULT_ACCESS = 0,
+	linux_PERF_COUNT_HW_CACHE_RESULT_MISS   = 1,
+};
+enum linux_perf_sw_ids_t
+{
+	linux_PERF_COUNT_SW_CPU_CLOCK        =  0,
+	linux_PERF_COUNT_SW_TASK_CLOCK       =  1,
+	linux_PERF_COUNT_SW_PAGE_FAULTS      =  2,
+	linux_PERF_COUNT_SW_CONTEXT_SWITCHES =  3,
+	linux_PERF_COUNT_SW_CPU_MIGRATIONS   =  4,
+	linux_PERF_COUNT_SW_PAGE_FAULTS_MIN  =  5,
+	linux_PERF_COUNT_SW_PAGE_FAULTS_MAJ  =  6,
+	linux_PERF_COUNT_SW_ALIGNMENT_FAULTS =  7,
+	linux_PERF_COUNT_SW_EMULATION_FAULTS =  8,
+	linux_PERF_COUNT_SW_DUMMY            =  9,
+	linux_PERF_COUNT_SW_BPF_OUTPUT       = 10,
+};
+enum linux_perf_event_sample_format_t
+{
+	linux_PERF_SAMPLE_IP           = 1u <<  0,
+	linux_PERF_SAMPLE_TID          = 1u <<  1,
+	linux_PERF_SAMPLE_TIME         = 1u <<  2,
+	linux_PERF_SAMPLE_ADDR         = 1u <<  3,
+	linux_PERF_SAMPLE_READ         = 1u <<  4,
+	linux_PERF_SAMPLE_CALLCHAIN    = 1u <<  5,
+	linux_PERF_SAMPLE_ID           = 1u <<  6,
+	linux_PERF_SAMPLE_CPU          = 1u <<  7,
+	linux_PERF_SAMPLE_PERIOD       = 1u <<  8,
+	linux_PERF_SAMPLE_STREAM_ID    = 1u <<  9,
+	linux_PERF_SAMPLE_RAW          = 1u << 10,
+	linux_PERF_SAMPLE_BRANCH_STACK = 1u << 11,
+	linux_PERF_SAMPLE_REGS_USER    = 1u << 12,
+	linux_PERF_SAMPLE_STACK_USER   = 1u << 13,
+	linux_PERF_SAMPLE_WEIGHT       = 1u << 14,
+	linux_PERF_SAMPLE_DATA_SRC     = 1u << 15,
+	linux_PERF_SAMPLE_IDENTIFIER   = 1u << 16,
+	linux_PERF_SAMPLE_TRANSACTION  = 1u << 17,
+	linux_PERF_SAMPLE_REGS_INTR    = 1u << 18,
+	linux_PERF_SAMPLE_PHYS_ADDR    = 1u << 19,
+};
+enum linux_perf_branch_sample_type_shift_t
+{
+	linux_PERF_SAMPLE_BRANCH_USER_SHIFT       =  0,
+	linux_PERF_SAMPLE_BRANCH_KERNEL_SHIFT     =  1,
+	linux_PERF_SAMPLE_BRANCH_HV_SHIFT         =  2,
+
+	linux_PERF_SAMPLE_BRANCH_ANY_SHIFT        =  3,
+	linux_PERF_SAMPLE_BRANCH_ANY_CALL_SHIFT   =  4,
+	linux_PERF_SAMPLE_BRANCH_ANY_RETURN_SHIFT =  5,
+	linux_PERF_SAMPLE_BRANCH_IND_CALL_SHIFT   =  6,
+	linux_PERF_SAMPLE_BRANCH_ABORT_TX_SHIFT   =  7,
+	linux_PERF_SAMPLE_BRANCH_IN_TX_SHIFT      =  8,
+	linux_PERF_SAMPLE_BRANCH_NO_TX_SHIFT      =  9,
+	linux_PERF_SAMPLE_BRANCH_COND_SHIFT       = 10,
+
+	linux_PERF_SAMPLE_BRANCH_CALL_STACK_SHIFT = 11,
+	linux_PERF_SAMPLE_BRANCH_IND_JUMP_SHIFT   = 12,
+	linux_PERF_SAMPLE_BRANCH_CALL_SHIFT       = 13,
+
+	linux_PERF_SAMPLE_BRANCH_NO_FLAGS_SHIFT   = 14,
+	linux_PERF_SAMPLE_BRANCH_NO_CYCLES_SHIFT  = 15,
+
+	linux_PERF_SAMPLE_BRANCH_TYPE_SAVE_SHIFT  = 16,
+};
+enum linux_perf_branch_sample_type_t
+{
+	linux_PERF_SAMPLE_BRANCH_USER       = 1u << linux_PERF_SAMPLE_BRANCH_USER_SHIFT,
+	linux_PERF_SAMPLE_BRANCH_KERNEL     = 1u << linux_PERF_SAMPLE_BRANCH_KERNEL_SHIFT,
+	linux_PERF_SAMPLE_BRANCH_HV         = 1u << linux_PERF_SAMPLE_BRANCH_HV_SHIFT,
+
+	linux_PERF_SAMPLE_BRANCH_ANY        = 1u << linux_PERF_SAMPLE_BRANCH_ANY_SHIFT,
+	linux_PERF_SAMPLE_BRANCH_ANY_CALL   = 1u << linux_PERF_SAMPLE_BRANCH_ANY_CALL_SHIFT,
+	linux_PERF_SAMPLE_BRANCH_ANY_RETURN = 1u << linux_PERF_SAMPLE_BRANCH_ANY_RETURN_SHIFT,
+	linux_PERF_SAMPLE_BRANCH_IND_CALL   = 1u << linux_PERF_SAMPLE_BRANCH_IND_CALL_SHIFT,
+	linux_PERF_SAMPLE_BRANCH_ABORT_TX   = 1u << linux_PERF_SAMPLE_BRANCH_ABORT_TX_SHIFT,
+	linux_PERF_SAMPLE_BRANCH_IN_TX      = 1u << linux_PERF_SAMPLE_BRANCH_IN_TX_SHIFT,
+	linux_PERF_SAMPLE_BRANCH_NO_TX      = 1u << linux_PERF_SAMPLE_BRANCH_NO_TX_SHIFT,
+	linux_PERF_SAMPLE_BRANCH_COND       = 1u << linux_PERF_SAMPLE_BRANCH_COND_SHIFT,
+
+	linux_PERF_SAMPLE_BRANCH_CALL_STACK = 1u << linux_PERF_SAMPLE_BRANCH_CALL_STACK_SHIFT,
+	linux_PERF_SAMPLE_BRANCH_IND_JUMP   = 1u << linux_PERF_SAMPLE_BRANCH_IND_JUMP_SHIFT,
+	linux_PERF_SAMPLE_BRANCH_CALL       = 1u << linux_PERF_SAMPLE_BRANCH_CALL_SHIFT,
+
+	linux_PERF_SAMPLE_BRANCH_NO_FLAGS   = 1u << linux_PERF_SAMPLE_BRANCH_NO_FLAGS_SHIFT,
+	linux_PERF_SAMPLE_BRANCH_NO_CYCLES  = 1u << linux_PERF_SAMPLE_BRANCH_NO_CYCLES_SHIFT,
+
+	linux_PERF_SAMPLE_BRANCH_TYPE_SAVE  = 1u << linux_PERF_SAMPLE_BRANCH_TYPE_SAVE_SHIFT,
+};
+enum
+{
+	linux_PERF_BR_UNKNOWN   =  0,
+	linux_PERF_BR_COND      =  1,
+	linux_PERF_BR_UNCOND    =  2,
+	linux_PERF_BR_IND       =  3,
+	linux_PERF_BR_CALL      =  4,
+	linux_PERF_BR_IND_CALL  =  5,
+	linux_PERF_BR_RET       =  6,
+	linux_PERF_BR_SYSCALL   =  7,
+	linux_PERF_BR_SYSRET    =  8,
+	linux_PERF_BR_COND_CALL =  9,
+	linux_PERF_BR_COND_RET  = 10,
+};
+enum
+{
+	linux_PERF_SAMPLE_BRANCH_PLM_ALL = linux_PERF_SAMPLE_BRANCH_USER | linux_PERF_SAMPLE_BRANCH_KERNEL | linux_PERF_SAMPLE_BRANCH_HV,
+};
+enum linux_perf_sample_regs_abi_t
+{
+	linux_PERF_SAMPLE_REGS_ABI_NONE = 0,
+	linux_PERF_SAMPLE_REGS_ABI_32   = 1,
+	linux_PERF_SAMPLE_REGS_ABI_64   = 2,
+};
+enum
+{
+	linux_PERF_TXN_ELISION        = 1 << 0,
+	linux_PERF_TXN_TRANSACTION    = 1 << 1,
+	linux_PERF_TXN_SYNC           = 1 << 2,
+	linux_PERF_TXN_ASYNC          = 1 << 3,
+	linux_PERF_TXN_RETRY          = 1 << 4,
+	linux_PERF_TXN_CONFLICT       = 1 << 5,
+	linux_PERF_TXN_CAPACITY_WRITE = 1 << 6,
+	linux_PERF_TXN_CAPACITY_READ  = 1 << 7,
+
+	linux_PERF_TXN_MAX            = 1 << 8,
+
+	linux_PERF_TXN_ABORT_SHIFT    = 32,
+};
+#define linux_PERF_TXN_ABORT_MASK (0xFFFFFFFFull << 32) // TODO: this was inside the enum above.
+enum linux_perf_event_read_format_t
+{
+	linux_PERF_FORMAT_TOTAL_TIME_ENABLED = 1u << 0,
+	linux_PERF_FORMAT_TOTAL_TIME_RUNNING = 1u << 1,
+	linux_PERF_FORMAT_ID                 = 1u << 2,
+	linux_PERF_FORMAT_GROUP              = 1u << 3,
+};
+enum
+{
+	linux_PERF_ATTR_SIZE_VER0 =  64,
+	linux_PERF_ATTR_SIZE_VER1 =  72,
+	linux_PERF_ATTR_SIZE_VER2 =  80,
+	linux_PERF_ATTR_SIZE_VER3 =  96,
+	linux_PERF_ATTR_SIZE_VER4 = 104,
+	linux_PERF_ATTR_SIZE_VER5 = 112,
+};
+enum
+{
+	linux_PERF_EVENT_IOC_ENABLE       = (0u << 30) | ('$' << 8) | 0 | (0 << 16),
+	linux_PERF_EVENT_IOC_DISABLE      = (0u << 30) | ('$' << 8) | 1 | (0 << 16),
+	linux_PERF_EVENT_IOC_REFRESH      = (0u << 30) | ('$' << 8) | 2 | (0 << 16),
+	linux_PERF_EVENT_IOC_RESET        = (0u << 30) | ('$' << 8) | 3 | (0 << 16),
+	linux_PERF_EVENT_IOC_PERIOD       = (1u << 30) | ('$' << 8) | 4 | (sizeof(uint64_t) << 16),
+	linux_PERF_EVENT_IOC_SET_OUTPUT   = (0u << 30) | ('$' << 8) | 5 | (0 << 16),
+	linux_PERF_EVENT_IOC_SET_FILTER   = (1u << 30) | ('$' << 8) | 6 | (sizeof(char*) << 16),
+	linux_PERF_EVENT_IOC_ID           = -2146950137, // (2u << 30) | ('$' << 8) | 7 | (sizeof(uint64_t*) << 16)
+	linux_PERF_EVENT_IOC_SET_BPF      = (1u << 30) | ('$' << 8) | 8 | (sizeof(uint32_t) << 16),
+	linux_PERF_EVENT_IOC_PAUSE_OUTPUT = (1u << 30) | ('$' << 8) | 9 | (sizeof(uint32_t) << 16),
+};
+enum linux_perf_event_ioc_flags_t
+{
+	linux_PERF_IOC_FLAG_GROUP = 1u << 0,
+};
+enum
+{
+	linux_PERF_RECORD_MISC_CPUMODE_MASK           = 7 <<  0,
+	linux_PERF_RECORD_MISC_CPUMODE_UNKNOWN        = 0 <<  0,
+	linux_PERF_RECORD_MISC_KERNEL                 = 1 <<  0,
+	linux_PERF_RECORD_MISC_USER                   = 2 <<  0,
+	linux_PERF_RECORD_MISC_HYPERVISOR             = 3 <<  0,
+	linux_PERF_RECORD_MISC_GUEST_KERNEL           = 4 <<  0,
+	linux_PERF_RECORD_MISC_GUEST_USER             = 5 <<  0,
+	linux_PERF_RECORD_MISC_PROC_MAP_PARSE_TIMEOUT = 1 << 12,
+	linux_PERF_RECORD_MISC_MMAP_DATA              = 1 << 13,
+	linux_PERF_RECORD_MISC_COMM_EXEC              = 1 << 13,
+	linux_PERF_RECORD_MISC_SWITCH_OUT             = 1 << 13,
+	linux_PERF_RECORD_MISC_EXACT_IP               = 1 << 14,
+	linux_PERF_RECORD_MISC_EXT_RESERVED           = 1 << 15,
+};
+enum
+{
+	linux_NET_NS_INDEX    = 0,
+	linux_UTS_NS_INDEX    = 1,
+	linux_IPC_NS_INDEX    = 2,
+	linux_PID_NS_INDEX    = 3,
+	linux_USER_NS_INDEX   = 4,
+	linux_MNT_NS_INDEX    = 5,
+	linux_CGROUP_NS_INDEX = 6,
+
+	linux_NR_NAMESPACES,
+};
+enum linux_perf_event_type_t
+{
+	linux_PERF_RECORD_MMAP            =  1,
+	linux_PERF_RECORD_LOST            =  2,
+	linux_PERF_RECORD_COMM            =  3,
+	linux_PERF_RECORD_EXIT            =  4,
+	linux_PERF_RECORD_THROTTLE        =  5,
+	linux_PERF_RECORD_UNTHROTTLE      =  6,
+	linux_PERF_RECORD_FORK            =  7,
+	linux_PERF_RECORD_READ            =  8,
+	linux_PERF_RECORD_SAMPLE          =  9,
+	linux_PERF_RECORD_MMAP2           = 10,
+	linux_PERF_RECORD_AUX             = 11,
+	linux_PERF_RECORD_ITRACE_START    = 12,
+	linux_PERF_RECORD_LOST_SAMPLES    = 13,
+	linux_PERF_RECORD_SWITCH          = 14,
+	linux_PERF_RECORD_SWITCH_CPU_WIDE = 15,
+	linux_PERF_RECORD_NAMESPACES      = 16,
+};
+enum
+{
+	linux_PERF_MAX_STACK_DEPTH        = 127,
+	linux_PERF_MAX_CONTEXTS_PER_STACK =   8,
+};
+//enum linux_perf_callchain_context_t // TODO: following macros were in this enum.
+//{
+#define linux_PERF_CONTEXT_HV           ((uint64_t)-32)
+#define linux_PERF_CONTEXT_KERNEL       ((uint64_t)-128)
+#define linux_PERF_CONTEXT_USER         ((uint64_t)-512)
+
+#define linux_PERF_CONTEXT_GUEST        ((uint64_t)-2048)
+#define linux_PERF_CONTEXT_GUEST_KERNEL ((uint64_t)-2176)
+#define linux_PERF_CONTEXT_GUEST_USER   ((uint64_t)-2560)
+
+#define linux_PERF_CONTEXT_MAX          ((uint64_t)-4095)
+//};
+enum
+{
+	linux_PERF_AUX_FLAG_TRUNCATED = 0x01,
+	linux_PERF_AUX_FLAG_OVERWRITE = 0x02,
+	linux_PERF_AUX_FLAG_PARTIAL   = 0x04,
+	linux_PERF_AUX_FLAG_COLLISION = 0x08,
+
+	linux_PERF_FLAG_FD_NO_GROUP   = 1ul << 0,
+	linux_PERF_FLAG_FD_OUTPUT     = 1ul << 1,
+	linux_PERF_FLAG_PID_CGROUP    = 1ul << 2,
+	linux_PERF_FLAG_FD_CLOEXEC    = 1ul << 3,
+};
+enum
+{
+	linux_PERF_MEM_OP_NA     = 0x01,
+	linux_PERF_MEM_OP_LOAD   = 0x02,
+	linux_PERF_MEM_OP_STORE  = 0x04,
+	linux_PERF_MEM_OP_PFETCH = 0x08,
+	linux_PERF_MEM_OP_EXEC   = 0x10,
+	linux_PERF_MEM_OP_SHIFT  = 0,
+};
+enum
+{
+	linux_PERF_MEM_LVL_NA       = 0x01,
+	linux_PERF_MEM_LVL_HIT      = 0x02,
+	linux_PERF_MEM_LVL_MISS     = 0x04,
+	linux_PERF_MEM_LVL_L1       = 0x08,
+	linux_PERF_MEM_LVL_LFB      = 0x10,
+	linux_PERF_MEM_LVL_L2       = 0x20,
+	linux_PERF_MEM_LVL_L3       = 0x40,
+	linux_PERF_MEM_LVL_LOC_RAM  = 0x80,
+	linux_PERF_MEM_LVL_REM_RAM1 = 0x100,
+	linux_PERF_MEM_LVL_REM_RAM2 = 0x200,
+	linux_PERF_MEM_LVL_REM_CCE1 = 0x400,
+	linux_PERF_MEM_LVL_REM_CCE2 = 0x800,
+	linux_PERF_MEM_LVL_IO       = 0x1000,
+	linux_PERF_MEM_LVL_UNC      = 0x2000,
+	linux_PERF_MEM_LVL_SHIFT    = 5,
+};
+enum
+{
+	linux_PERF_MEM_REMOTE_REMOTE = 0x01,
+	linux_PERF_MEM_REMOTE_SHIFT  = 37,
+};
+enum
+{
+	linux_PERF_MEM_LVLNUM_L1        = 0x01,
+	linux_PERF_MEM_LVLNUM_L2        = 0x02,
+	linux_PERF_MEM_LVLNUM_L3        = 0x03,
+	linux_PERF_MEM_LVLNUM_L4        = 0x04,
+	linux_PERF_MEM_LVLNUM_ANY_CACHE = 0x0B,
+	linux_PERF_MEM_LVLNUM_LFB       = 0x0C,
+	linux_PERF_MEM_LVLNUM_RAM       = 0x0D,
+	linux_PERF_MEM_LVLNUM_PMEM      = 0x0E,
+	linux_PERF_MEM_LVLNUM_NA        = 0x0F,
+	linux_PERF_MEM_LVLNUM_SHIFT     = 33,
+};
+enum
+{
+	linux_PERF_MEM_SNOOP_NA    = 0x01,
+	linux_PERF_MEM_SNOOP_NONE  = 0x02,
+	linux_PERF_MEM_SNOOP_HIT   = 0x04,
+	linux_PERF_MEM_SNOOP_MISS  = 0x08,
+	linux_PERF_MEM_SNOOP_HITM  = 0x10,
+	linux_PERF_MEM_SNOOP_SHIFT = 19,
+};
+enum
+{
+	linux_PERF_MEM_SNOOPX_FWD   = 0x01,
+	linux_PERF_MEM_SNOOPX_SHIFT = 37,
+};
+enum
+{
+	linux_PERF_MEM_LOCK_NA     = 0x01,
+	linux_PERF_MEM_LOCK_LOCKED = 0x02,
+	linux_PERF_MEM_LOCK_SHIFT  = 24,
+};
+enum
+{
+	linux_PERF_MEM_TLB_NA    = 0x01,
+	linux_PERF_MEM_TLB_HIT   = 0x02,
+	linux_PERF_MEM_TLB_MISS  = 0x04,
+	linux_PERF_MEM_TLB_L1    = 0x08,
+	linux_PERF_MEM_TLB_L2    = 0x10,
+	linux_PERF_MEM_TLB_WK    = 0x20,
+	linux_PERF_MEM_TLB_OS    = 0x40,
+	linux_PERF_MEM_TLB_SHIFT = 26,
+};
+#define linux_PERF_MEM_S(a, s) (((uint64_t)linux_PERF_MEM_##a##_##s) << linux_PERF_MEM_##a##_SHIFT)
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -4883,6 +5382,11 @@ static inline int linux_IOPRIO_PRIO_VALUE(int const class, int const data)
 	return (class << linux_IOPRIO_CLASS_SHIFT) | data;
 }
 #undef linux_IOPRIO_CLASS_SHIFT
+
+static inline uint64_t linux_perf_flags(struct linux_perf_event_attr_t const* const attr)
+{
+	return *(&attr->read_format + 1); // TODO: use offsetof()
+}
 
 // Helper functions
 //------------------------------------------------------------------------------
@@ -5181,6 +5685,7 @@ static inline LINUX_DEFINE_SYSCALL1_RET(inotify_init1, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL5_RET(preadv, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, size_t)
 static inline LINUX_DEFINE_SYSCALL5_RET(pwritev, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, size_t)
 static inline LINUX_DEFINE_SYSCALL4_NORET(rt_tgsigqueueinfo, linux_pid_t, tgid, linux_pid_t, pid, int, sig, struct linux_siginfo_t*, uinfo)
+static inline LINUX_DEFINE_SYSCALL5_RET(perf_event_open, struct linux_perf_event_attr_t*, attr_uptr, linux_pid_t, pid, int, cpu, linux_fd_t, group_fd, unsigned long, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL6_RET(copy_file_range, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
