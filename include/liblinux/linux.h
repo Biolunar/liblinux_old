@@ -4603,6 +4603,17 @@ enum
 	linux_SFD_NONBLOCK = linux_O_NONBLOCK,
 };
 
+// timerfd_*
+enum
+{
+	linux_TFD_TIMER_ABSTIME       = 1 << 0,
+	linux_TFD_TIMER_CANCEL_ON_SET = 1 << 1,
+	linux_TFD_CLOEXEC             = linux_O_CLOEXEC,
+	linux_TFD_NONBLOCK            = linux_O_NONBLOCK,
+
+	linux_TFD_IOC_SET_TICKS       = (1u << 30) | ('T' << 8) | (sizeof(uint64_t) << 16),
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -5128,7 +5139,10 @@ static inline LINUX_DEFINE_SYSCALL6_NORET(move_pages, linux_pid_t, pid, unsigned
 static inline LINUX_DEFINE_SYSCALL4_NORET(utimensat, linux_fd_t, dfd, char const*, filename, struct linux_timespec_t LINUX_SAFE_CONST*, utimes, int, flags)
 static inline LINUX_DEFINE_SYSCALL6_RET(epoll_pwait, linux_fd_t, epfd, struct linux_epoll_event_t*, events, int, maxevents, int, timeout, linux_sigset_t const*, sigmask, size_t, sigsetsize, int)
 static inline LINUX_DEFINE_SYSCALL3_RET(signalfd, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, linux_fd_t)
+static inline LINUX_DEFINE_SYSCALL2_RET(timerfd_create, int, clockid, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL4_NORET(timerfd_settime, linux_fd_t, ufd, int, flags, struct linux_itimerspec_t const*, utmr, struct linux_itimerspec_t*, otmr)
+static inline LINUX_DEFINE_SYSCALL2_NORET(timerfd_gettime, linux_fd_t, ufd, struct linux_itimerspec_t*, otmr)
 static inline LINUX_DEFINE_SYSCALL4_RET(signalfd4, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
