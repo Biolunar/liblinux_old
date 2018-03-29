@@ -4625,6 +4625,18 @@ enum
 	linux_EFD_FLAGS_SET          = linux_EFD_SHARED_FCNTL_FLAGS | linux_EFD_SEMAPHORE,
 };
 
+// fallocate
+enum
+{
+	linux_FALLOC_FL_KEEP_SIZE      = 0x01,
+	linux_FALLOC_FL_PUNCH_HOLE     = 0x02,
+	linux_FALLOC_FL_NO_HIDE_STALE  = 0x04,
+	linux_FALLOC_FL_COLLAPSE_RANGE = 0x08,
+	linux_FALLOC_FL_ZERO_RANGE     = 0x10,
+	linux_FALLOC_FL_INSERT_RANGE   = 0x20,
+	linux_FALLOC_FL_UNSHARE_RANGE  = 0x40,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -5152,11 +5164,11 @@ static inline LINUX_DEFINE_SYSCALL6_RET(epoll_pwait, linux_fd_t, epfd, struct li
 static inline LINUX_DEFINE_SYSCALL3_RET(signalfd, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_RET(timerfd_create, int, clockid, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(eventfd, unsigned int, count, linux_fd_t)
-// TODO: Add more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL4_NORET(fallocate, linux_fd_t, fd, int, mode, linux_loff_t, offset, linux_loff_t, len)
 static inline LINUX_DEFINE_SYSCALL4_NORET(timerfd_settime, linux_fd_t, ufd, int, flags, struct linux_itimerspec_t const*, utmr, struct linux_itimerspec_t*, otmr)
 static inline LINUX_DEFINE_SYSCALL2_NORET(timerfd_gettime, linux_fd_t, ufd, struct linux_itimerspec_t*, otmr)
-static inline LINUX_DEFINE_SYSCALL4_RET(signalfd4, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL4_RET(signalfd4, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_RET(eventfd2, unsigned int, count, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(dup3, linux_fd_t, oldfd, linux_fd_t, newfd, int, flags, linux_fd_t)
