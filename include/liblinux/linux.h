@@ -1046,6 +1046,27 @@ struct linux_robust_list_head_t
 	long futex_offset;
 	struct linux_robust_list_t* list_op_pending;
 };
+struct linux_signalfd_siginfo_t
+{
+	uint32_t ssi_signo;
+	int32_t ssi_errno;
+	int32_t ssi_code;
+	uint32_t ssi_pid;
+	uint32_t ssi_uid;
+	int32_t ssi_fd;
+	uint32_t ssi_tid;
+	uint32_t ssi_band;
+	uint32_t ssi_overrun;
+	uint32_t ssi_trapno;
+	int32_t ssi_status;
+	int32_t ssi_int;
+	uint64_t ssi_ptr;
+	uint64_t ssi_utime;
+	uint64_t ssi_stime;
+	uint64_t ssi_addr;
+	uint16_t ssi_addr_lsb;
+	uint8_t _pad[46];
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -4575,6 +4596,13 @@ enum
 	linux_UTIME_OMIT = (1l << 30) - 2l,
 };
 
+// signalfd4
+enum
+{
+	linux_SFD_CLOEXEC  = linux_O_CLOEXEC,
+	linux_SFD_NONBLOCK = linux_O_NONBLOCK,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -5099,6 +5127,9 @@ static inline LINUX_DEFINE_SYSCALL4_RET(vmsplice, linux_fd_t, fd, struct linux_i
 static inline LINUX_DEFINE_SYSCALL6_NORET(move_pages, linux_pid_t, pid, unsigned long, nr_pages, void const**, pages, int const*, nodes, int*, status, int, flags)
 static inline LINUX_DEFINE_SYSCALL4_NORET(utimensat, linux_fd_t, dfd, char const*, filename, struct linux_timespec_t LINUX_SAFE_CONST*, utimes, int, flags)
 static inline LINUX_DEFINE_SYSCALL6_RET(epoll_pwait, linux_fd_t, epfd, struct linux_epoll_event_t*, events, int, maxevents, int, timeout, linux_sigset_t const*, sigmask, size_t, sigsetsize, int)
+static inline LINUX_DEFINE_SYSCALL3_RET(signalfd, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, linux_fd_t)
+// TODO: Add more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL4_RET(signalfd4, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(dup3, linux_fd_t, oldfd, linux_fd_t, newfd, int, flags, linux_fd_t)
