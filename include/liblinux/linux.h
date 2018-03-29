@@ -99,6 +99,8 @@ typedef linux_kernel_timer_t linux_timer_t;
 typedef int linux_kernel_mqd_t;
 typedef linux_kernel_mqd_t linux_mqd_t;
 typedef int32_t linux_key_serial_t;
+typedef int linux_kernel_rwf_t;
+typedef linux_kernel_rwf_t linux_rwf_t;
 struct linux_stat_t
 {
 	linux_kernel_ulong_t st_dev;
@@ -4309,14 +4311,6 @@ enum
 {
 	linux_IOCB_FLAG_RESFD = 1 << 0,
 };
-enum
-{
-	linux_RWF_HIPRI     = 0x00000001,
-	linux_RWF_DSYNC     = 0x00000002,
-	linux_RWF_SYNC      = 0x00000004,
-	linux_RWF_NOWAIT    = 0x00000008,
-	linux_RWF_SUPPORTED = linux_RWF_HIPRI | linux_RWF_DSYNC | linux_RWF_SYNC | linux_RWF_NOWAIT,
-};
 
 // epoll
 enum
@@ -4635,6 +4629,16 @@ enum
 	linux_FALLOC_FL_ZERO_RANGE     = 0x10,
 	linux_FALLOC_FL_INSERT_RANGE   = 0x20,
 	linux_FALLOC_FL_UNSHARE_RANGE  = 0x40,
+};
+
+// preadv2, pwritev2
+enum
+{
+	linux_RWF_HIPRI     = 0x00000001,
+	linux_RWF_DSYNC     = 0x00000002,
+	linux_RWF_SYNC      = 0x00000004,
+	linux_RWF_NOWAIT    = 0x00000008,
+	linux_RWF_SUPPORTED = linux_RWF_HIPRI | linux_RWF_DSYNC | linux_RWF_SYNC | linux_RWF_NOWAIT,
 };
 
 // Constants
@@ -5174,8 +5178,13 @@ static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(dup3, linux_fd_t, oldfd, linux_fd_t, newfd, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(pipe2, linux_fd_t*, fildes, int, flags)
 static inline LINUX_DEFINE_SYSCALL1_RET(inotify_init1, int, flags, linux_fd_t)
+static inline LINUX_DEFINE_SYSCALL5_RET(preadv, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, size_t)
+static inline LINUX_DEFINE_SYSCALL5_RET(pwritev, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, size_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
+// TODO: Add more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL6_RET(preadv2, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, linux_rwf_t, flags, size_t)
+static inline LINUX_DEFINE_SYSCALL6_RET(pwritev2, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, linux_rwf_t, flags, size_t)
 
 // Syscalls
 //------------------------------------------------------------------------------
