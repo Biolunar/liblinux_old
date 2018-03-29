@@ -5167,7 +5167,7 @@ static inline LINUX_DEFINE_SYSCALL1_RET(eventfd, unsigned int, count, linux_fd_t
 static inline LINUX_DEFINE_SYSCALL4_NORET(fallocate, linux_fd_t, fd, int, mode, linux_loff_t, offset, linux_loff_t, len)
 static inline LINUX_DEFINE_SYSCALL4_NORET(timerfd_settime, linux_fd_t, ufd, int, flags, struct linux_itimerspec_t const*, utmr, struct linux_itimerspec_t*, otmr)
 static inline LINUX_DEFINE_SYSCALL2_NORET(timerfd_gettime, linux_fd_t, ufd, struct linux_itimerspec_t*, otmr)
-// TODO: Add more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL4_RET(accept4, linux_fd_t, fd, struct linux_sockaddr_t*, upeer_sockaddr, int*, upeer_addrlen, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(signalfd4, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_RET(eventfd2, unsigned int, count, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
