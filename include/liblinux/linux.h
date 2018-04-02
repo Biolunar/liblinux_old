@@ -1212,6 +1212,12 @@ struct linux_perf_branch_entry_t
 		 type      :  4,
 		 reserved  : 40;
 };
+struct linux_mmsghdr_t
+{
+	struct linux_user_msghdr_t msg_hdr;
+	unsigned int msg_len;
+	char _pad[4];
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -5686,6 +5692,9 @@ static inline LINUX_DEFINE_SYSCALL5_RET(preadv, linux_fd_t, fd, struct linux_iov
 static inline LINUX_DEFINE_SYSCALL5_RET(pwritev, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, size_t)
 static inline LINUX_DEFINE_SYSCALL4_NORET(rt_tgsigqueueinfo, linux_pid_t, tgid, linux_pid_t, pid, int, sig, struct linux_siginfo_t*, uinfo)
 static inline LINUX_DEFINE_SYSCALL5_RET(perf_event_open, struct linux_perf_event_attr_t*, attr_uptr, linux_pid_t, pid, int, cpu, linux_fd_t, group_fd, unsigned long, flags, linux_fd_t)
+static inline LINUX_DEFINE_SYSCALL5_RET(recvmmsg, linux_fd_t, fd, struct linux_mmsghdr_t*, msg, unsigned int, vlen, unsigned int, flags, struct linux_timespec_t*, timeout, unsigned int)
+// TODO: Add more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL4_RET(sendmmsg, linux_fd_t, fd, struct linux_mmsghdr_t*, msg, unsigned int, vlen, unsigned int, flags, unsigned int)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL6_RET(copy_file_range, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
