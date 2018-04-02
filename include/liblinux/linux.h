@@ -1238,6 +1238,12 @@ struct linux_rlimit64_t
 	uint64_t rlim_cur;
 	uint64_t rlim_max;
 };
+struct linux_file_handle_t
+{
+	uint32_t handle_bytes;
+	int handle_type;
+	unsigned char f_handle[];
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -5799,6 +5805,8 @@ static inline LINUX_DEFINE_SYSCALL5_RET(recvmmsg, linux_fd_t, fd, struct linux_m
 static inline LINUX_DEFINE_SYSCALL2_RET(fanotify_init, unsigned int, flags, unsigned int, event_f_flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL5_NORET(fanotify_mark, linux_fd_t, fanotify_fd, unsigned int, flags, uint64_t, mask, linux_fd_t, fd, char const*, pathname)
 static inline LINUX_DEFINE_SYSCALL4_NORET(prlimit64, linux_pid_t, pid, unsigned int, resource, struct linux_rlimit64_t const*, new_rlim, struct linux_rlimit64_t*, old_rlim)
+static inline LINUX_DEFINE_SYSCALL5_NORET(name_to_handle_at, linux_fd_t, dfd, char const*, name, struct linux_file_handle_t*, handle, linux_fd_t*, mnt_id, int, flag)
+static inline LINUX_DEFINE_SYSCALL3_RET(open_by_handle_at, linux_fd_t, mountdirfd, struct linux_file_handle_t*, handle, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL4_RET(sendmmsg, linux_fd_t, fd, struct linux_mmsghdr_t*, msg, unsigned int, vlen, unsigned int, flags, unsigned int)
 // TODO: Add more syscalls here first.
