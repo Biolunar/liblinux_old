@@ -1218,6 +1218,21 @@ struct linux_mmsghdr_t
 	unsigned int msg_len;
 	char _pad[4];
 };
+struct linux_fanotify_event_metadata_t
+{
+	uint32_t event_len;
+	uint8_t vers;
+	uint8_t reserved;
+	uint16_t metadata_len;
+	uint64_t mask;
+	int32_t fd;
+	int32_t pid;
+};
+struct linux_fanotify_response_t
+{
+	int32_t fd;
+	uint32_t response;
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -5144,7 +5159,76 @@ enum
 	linux_PERF_MEM_TLB_OS    = 0x40,
 	linux_PERF_MEM_TLB_SHIFT = 26,
 };
-#define linux_PERF_MEM_S(a, s) (((uint64_t)linux_PERF_MEM_##a##_##s) << linux_PERF_MEM_##a##_SHIFT)
+
+// fanotify
+enum
+{
+	linux_FAN_ACCESS         = 0x00000001,
+	linux_FAN_MODIFY         = 0x00000002,
+	linux_FAN_CLOSE_WRITE    = 0x00000008,
+	linux_FAN_CLOSE_NOWRITE  = 0x00000010,
+	linux_FAN_OPEN           = 0x00000020,
+	linux_FAN_Q_OVERFLOW     = 0x00004000,
+	linux_FAN_OPEN_PERM      = 0x00010000,
+	linux_FAN_ACCESS_PERM    = 0x00020000,
+	linux_FAN_ONDIR          = 0x40000000,
+	linux_FAN_EVENT_ON_CHILD = 0x08000000,
+
+	linux_FAN_CLOSE          = linux_FAN_CLOSE_WRITE | linux_FAN_CLOSE_NOWRITE,
+};
+enum
+{
+	linux_FAN_CLOEXEC           = 0x00000001,
+	linux_FAN_NONBLOCK          = 0x00000002,
+
+	linux_FAN_CLASS_NOTIF       = 0x00000000,
+	linux_FAN_CLASS_CONTENT     = 0x00000004,
+	linux_FAN_CLASS_PRE_CONTENT = 0x00000008,
+	linux_FAN_ALL_CLASS_BITS    = linux_FAN_CLASS_NOTIF | linux_FAN_CLASS_CONTENT | linux_FAN_CLASS_PRE_CONTENT,
+
+	linux_FAN_UNLIMITED_QUEUE   = 0x00000010,
+	linux_FAN_UNLIMITED_MARKS   = 0x00000020,
+	linux_FAN_ENABLE_AUDIT      = 0x00000040,
+
+	linux_FAN_ALL_INIT_FLAGS    = linux_FAN_CLOEXEC | linux_FAN_NONBLOCK | linux_FAN_ALL_CLASS_BITS | linux_FAN_UNLIMITED_QUEUE | linux_FAN_UNLIMITED_MARKS,
+};
+enum
+{
+	linux_FAN_MARK_ADD                 = 0x00000001,
+	linux_FAN_MARK_REMOVE              = 0x00000002,
+	linux_FAN_MARK_DONT_FOLLOW         = 0x00000004,
+	linux_FAN_MARK_ONLYDIR             = 0x00000008,
+	linux_FAN_MARK_MOUNT               = 0x00000010,
+	linux_FAN_MARK_IGNORED_MASK        = 0x00000020,
+	linux_FAN_MARK_IGNORED_SURV_MODIFY = 0x00000040,
+	linux_FAN_MARK_FLUSH               = 0x00000080,
+
+	linux_FAN_ALL_MARK_FLAGS           = linux_FAN_MARK_ADD | linux_FAN_MARK_REMOVE | linux_FAN_MARK_DONT_FOLLOW | linux_FAN_MARK_ONLYDIR | linux_FAN_MARK_MOUNT | linux_FAN_MARK_IGNORED_MASK | linux_FAN_MARK_IGNORED_SURV_MODIFY | linux_FAN_MARK_FLUSH,
+};
+enum
+{
+	linux_FAN_ALL_EVENTS          = linux_FAN_ACCESS | linux_FAN_MODIFY | linux_FAN_CLOSE | linux_FAN_OPEN,
+	linux_FAN_ALL_PERM_EVENTS     = linux_FAN_OPEN_PERM | linux_FAN_ACCESS_PERM,
+	linux_FAN_ALL_OUTGOING_EVENTS = linux_FAN_ALL_EVENTS | linux_FAN_ALL_PERM_EVENTS | linux_FAN_Q_OVERFLOW,
+};
+enum
+{
+	linux_FANOTIFY_METADATA_VERSION = 3,
+};
+enum
+{
+	linux_FAN_ALLOW = 0x01,
+	linux_FAN_DENY  = 0x02,
+	linux_FAN_AUDIT = 0x10,
+};
+enum
+{
+	linux_FAN_NOFD = -1,
+};
+enum
+{
+	linux_FAN_EVENT_METADATA_LEN = sizeof(struct linux_fanotify_event_metadata_t),
+};
 
 // Constants
 //------------------------------------------------------------------------------
@@ -5392,6 +5476,19 @@ static inline int linux_IOPRIO_PRIO_VALUE(int const class, int const data)
 static inline uint64_t linux_perf_flags(struct linux_perf_event_attr_t const* const attr)
 {
 	return *(&attr->read_format + 1); // TODO: use offsetof()
+}
+
+#define linux_PERF_MEM_S(a, s) (((uint64_t)linux_PERF_MEM_##a##_##s) << linux_PERF_MEM_##a##_SHIFT)
+
+static inline struct linux_fanotify_event_metadata_t const* linux_FAN_EVENT_NEXT(struct linux_fanotify_event_metadata_t const* const meta, size_t* const len)
+{
+	*len -= meta->event_len;
+	return (struct linux_fanotify_event_metadata_t const*)(((uintptr_t)meta) + meta->event_len);
+}
+
+static inline bool linux_FAN_EVENT_OK(struct linux_fanotify_event_metadata_t const* const meta, size_t const len)
+{
+	return (long)len >= (long)linux_FAN_EVENT_METADATA_LEN && (long)meta->event_len >= (long)linux_FAN_EVENT_METADATA_LEN && (long)meta->event_len <= (long)len;
 }
 
 // Helper functions
@@ -5693,6 +5790,8 @@ static inline LINUX_DEFINE_SYSCALL5_RET(pwritev, linux_fd_t, fd, struct linux_io
 static inline LINUX_DEFINE_SYSCALL4_NORET(rt_tgsigqueueinfo, linux_pid_t, tgid, linux_pid_t, pid, int, sig, struct linux_siginfo_t*, uinfo)
 static inline LINUX_DEFINE_SYSCALL5_RET(perf_event_open, struct linux_perf_event_attr_t*, attr_uptr, linux_pid_t, pid, int, cpu, linux_fd_t, group_fd, unsigned long, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL5_RET(recvmmsg, linux_fd_t, fd, struct linux_mmsghdr_t*, msg, unsigned int, vlen, unsigned int, flags, struct linux_timespec_t*, timeout, unsigned int)
+static inline LINUX_DEFINE_SYSCALL2_RET(fanotify_init, unsigned int, flags, unsigned int, event_f_flags, linux_fd_t)
+static inline LINUX_DEFINE_SYSCALL5_NORET(fanotify_mark, linux_fd_t, fanotify_fd, unsigned int, flags, uint64_t, mask, linux_fd_t, fd, char const*, pathname)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL4_RET(sendmmsg, linux_fd_t, fd, struct linux_mmsghdr_t*, msg, unsigned int, vlen, unsigned int, flags, unsigned int)
 // TODO: Add more syscalls here first.
