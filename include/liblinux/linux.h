@@ -5807,6 +5807,7 @@ static inline LINUX_DEFINE_SYSCALL5_NORET(fanotify_mark, linux_fd_t, fanotify_fd
 static inline LINUX_DEFINE_SYSCALL4_NORET(prlimit64, linux_pid_t, pid, unsigned int, resource, struct linux_rlimit64_t const*, new_rlim, struct linux_rlimit64_t*, old_rlim)
 static inline LINUX_DEFINE_SYSCALL5_NORET(name_to_handle_at, linux_fd_t, dfd, char const*, name, struct linux_file_handle_t*, handle, linux_fd_t*, mnt_id, int, flag)
 static inline LINUX_DEFINE_SYSCALL3_RET(open_by_handle_at, linux_fd_t, mountdirfd, struct linux_file_handle_t*, handle, int, flags, linux_fd_t)
+static inline LINUX_DEFINE_SYSCALL2_RET(clock_adjtime, linux_clockid_t, which_clock, struct linux_timex_t*, tx, int)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL4_RET(sendmmsg, linux_fd_t, fd, struct linux_mmsghdr_t*, msg, unsigned int, vlen, unsigned int, flags, unsigned int)
 // TODO: Add more syscalls here first.
