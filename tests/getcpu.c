@@ -20,9 +20,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static enum TestResult test_invalid_fd(void)
+static enum TestResult test_segfault(void)
 {
-	if (linux_setns(linux_stderr + 1, 0) != linux_EBADF)
+	if (linux_getcpu((unsigned int*)-1, 0, 0) != linux_EFAULT)
+		return TEST_RESULT_FAILURE;
+	if (linux_getcpu(0, (unsigned int*)-1, 0) != linux_EFAULT)
+		return TEST_RESULT_FAILURE;
+
+	return TEST_RESULT_SUCCESS;
+}
+
+static enum TestResult test_correct_usage(void)
+{
+	unsigned int cpu;
+	unsigned int node;
+	if (linux_getcpu(&cpu, &node, 0))
 		return TEST_RESULT_FAILURE;
 
 	return TEST_RESULT_SUCCESS;
@@ -32,9 +44,10 @@ int main(void)
 {
 	int ret = EXIT_SUCCESS;
 
-	printf("Start testing setns.\n");
-	DO_TEST(invalid_fd, &ret);
-	printf("Finished testing setns.\n");
+	printf("Start testing getcpu.\n");
+	DO_TEST(segfault, &ret);
+	DO_TEST(correct_usage, &ret);
+	printf("Finished testing getcpu.\n");
 
 	return ret;
 }

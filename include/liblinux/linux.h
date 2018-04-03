@@ -1244,6 +1244,10 @@ struct linux_file_handle_t
 	int handle_type;
 	unsigned char f_handle[];
 };
+struct linux_getcpu_cache_t
+{
+	unsigned long blob[128 / sizeof(long)];
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -5811,6 +5815,7 @@ static inline LINUX_DEFINE_SYSCALL2_RET(clock_adjtime, linux_clockid_t, which_cl
 static inline LINUX_DEFINE_SYSCALL1_NORET(syncfs, linux_fd_t, fd)
 static inline LINUX_DEFINE_SYSCALL4_RET(sendmmsg, linux_fd_t, fd, struct linux_mmsghdr_t*, msg, unsigned int, vlen, unsigned int, flags, unsigned int)
 static inline LINUX_DEFINE_SYSCALL2_NORET(setns, linux_fd_t, fd, int, nstype)
+static inline LINUX_DEFINE_SYSCALL3_NORET(getcpu, unsigned int*, cpu, unsigned int*, node, struct linux_getcpu_cache_t*, cache)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL6_RET(copy_file_range, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
