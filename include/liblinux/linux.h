@@ -5809,8 +5809,8 @@ static inline LINUX_DEFINE_SYSCALL5_NORET(name_to_handle_at, linux_fd_t, dfd, ch
 static inline LINUX_DEFINE_SYSCALL3_RET(open_by_handle_at, linux_fd_t, mountdirfd, struct linux_file_handle_t*, handle, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_RET(clock_adjtime, linux_clockid_t, which_clock, struct linux_timex_t*, tx, int)
 static inline LINUX_DEFINE_SYSCALL1_NORET(syncfs, linux_fd_t, fd)
-// TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL4_RET(sendmmsg, linux_fd_t, fd, struct linux_mmsghdr_t*, msg, unsigned int, vlen, unsigned int, flags, unsigned int)
+static inline LINUX_DEFINE_SYSCALL2_NORET(setns, linux_fd_t, fd, int, nstype)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL6_RET(copy_file_range, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
