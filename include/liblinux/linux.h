@@ -5341,6 +5341,13 @@ enum
 	linux_SECCOMP_RET_DATA         = 0x0000FFFFu,
 };
 
+// getrandom
+enum
+{
+	linux_GRND_NONBLOCK = 0x0001,
+	linux_GRND_RANDOM   = 0x0002,
+};
+
 // bpf
 enum
 {
@@ -5926,6 +5933,7 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(sched_setattr, linux_pid_t, pid, struc
 static inline LINUX_DEFINE_SYSCALL4_NORET(sched_getattr, linux_pid_t, pid, struct linux_sched_attr_t*, attr, unsigned int, size, unsigned int, flags)
 static inline LINUX_DEFINE_SYSCALL5_NORET(renameat2, linux_fd_t, olddfd, char const*, oldname, linux_fd_t, newdfd, char const*, newname, unsigned int, flags)
 static inline LINUX_DEFINE_SYSCALL3_RET(seccomp, unsigned int, op, unsigned int, flags, char const*, uargs, int)
+static inline LINUX_DEFINE_SYSCALL3_RET(getrandom, char*, buf, size_t, count, unsigned int, flags, size_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL6_RET(copy_file_range, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
