@@ -1268,6 +1268,25 @@ struct linux_kcmp_epoll_slot_t
 	uint32_t tfd;
 	uint32_t toff;
 };
+struct linux_seccomp_data_t
+{
+	int nr;
+	uint32_t arch;
+	uint64_t instruction_pointer;
+	uint64_t args[6];
+};
+struct linux_sock_filter_t
+{
+	uint16_t code;
+	uint8_t jt;
+	uint8_t jf;
+	uint32_t k;
+};
+struct linux_sock_fprog_t
+{
+	unsigned short len;
+	struct linux_sock_filter_t* filter;
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -5294,6 +5313,41 @@ enum
 	linux_RENAME_WHITEOUT  = 1 << 2,
 };
 
+// seccomp
+enum
+{
+	linux_SECCOMP_SET_MODE_STRICT  = 0,
+	linux_SECCOMP_SET_MODE_FILTER  = 1,
+	linux_SECCOMP_GET_ACTION_AVAIL = 2,
+};
+enum
+{
+	linux_SECCOMP_FILTER_FLAG_TSYNC = 1,
+	linux_SECCOMP_FILTER_FLAG_LOG   = 2,
+};
+enum
+{
+	linux_SECCOMP_RET_KILL_PROCESS = INT_MIN, // 0x80000000u,
+	linux_SECCOMP_RET_KILL_THREAD  = 0x00000000u,
+	linux_SECCOMP_RET_KILL         = linux_SECCOMP_RET_KILL_THREAD,
+	linux_SECCOMP_RET_TRAP         = 0x00030000u,
+	linux_SECCOMP_RET_ERRNO        = 0x00050000u,
+	linux_SECCOMP_RET_TRACE        = 0x7FF00000u,
+	linux_SECCOMP_RET_LOG          = 0x7FFC0000u,
+	linux_SECCOMP_RET_ALLOW        = 0x7FFF0000u,
+
+	linux_SECCOMP_RET_ACTION_FULL  = -65536, // 0xFFFF0000u,
+	linux_SECCOMP_RET_ACTION       = 0x7FFF0000u,
+	linux_SECCOMP_RET_DATA         = 0x0000FFFFu,
+};
+
+// bpf
+enum
+{
+	linux_BPF_MAJOR_VERSION = 1,
+	linux_BPF_MINOR_VERSION = 1,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -5871,6 +5925,7 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(finit_module, linux_fd_t, fd, char con
 static inline LINUX_DEFINE_SYSCALL3_NORET(sched_setattr, linux_pid_t, pid, struct linux_sched_attr_t*, attr, unsigned int, flags)
 static inline LINUX_DEFINE_SYSCALL4_NORET(sched_getattr, linux_pid_t, pid, struct linux_sched_attr_t*, attr, unsigned int, size, unsigned int, flags)
 static inline LINUX_DEFINE_SYSCALL5_NORET(renameat2, linux_fd_t, olddfd, char const*, oldname, linux_fd_t, newdfd, char const*, newname, unsigned int, flags)
+static inline LINUX_DEFINE_SYSCALL3_RET(seccomp, unsigned int, op, unsigned int, flags, char const*, uargs, int)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL6_RET(copy_file_range, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
