@@ -785,6 +785,17 @@ struct linux_sched_param_t
 {
 	int sched_priority;
 };
+struct linux_sched_attr_t
+{
+	uint32_t size;
+	uint32_t sched_policy;
+	uint64_t sched_flags;
+	int32_t sched_nice;
+	uint32_t sched_priority;
+	uint64_t sched_runtime;
+	uint64_t sched_deadline;
+	uint64_t sched_period;
+};
 struct linux_user_desc_t
 {
 	unsigned int entry_number;
@@ -5849,6 +5860,8 @@ static inline LINUX_DEFINE_SYSCALL6_RET(process_vm_readv, linux_pid_t, pid, stru
 static inline LINUX_DEFINE_SYSCALL6_RET(process_vm_writev, linux_pid_t, pid, struct linux_iovec_t const*, lvec, size_t, liovcnt, struct linux_iovec_t const*, rvec, size_t, riovcnt, unsigned long, flags, size_t)
 static inline LINUX_DEFINE_SYSCALL5_RET(kcmp, linux_pid_t, pid1, linux_pid_t, pid2, int, type, unsigned long, idx1, unsigned long, idx2, int)
 static inline LINUX_DEFINE_SYSCALL3_NORET(finit_module, linux_fd_t, fd, char const*, uargs, int, flags)
+static inline LINUX_DEFINE_SYSCALL3_NORET(sched_setattr, linux_pid_t, pid, struct linux_sched_attr_t*, attr, unsigned int, flags)
+static inline LINUX_DEFINE_SYSCALL4_NORET(sched_getattr, linux_pid_t, pid, struct linux_sched_attr_t*, attr, unsigned int, size, unsigned int, flags)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL6_RET(copy_file_range, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
