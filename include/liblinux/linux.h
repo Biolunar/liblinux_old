@@ -5268,6 +5268,13 @@ enum linux_kcmp_type_t
 	linux_KCMP_EPOLL_TFD,
 };
 
+// finit_module
+enum
+{
+	linux_MODULE_INIT_IGNORE_MODVERSIONS = 1,
+	linux_MODULE_INIT_IGNORE_VERMAGIC    = 2,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -5841,6 +5848,7 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(getcpu, unsigned int*, cpu, unsigned i
 static inline LINUX_DEFINE_SYSCALL6_RET(process_vm_readv, linux_pid_t, pid, struct linux_iovec_t const*, lvec, size_t, liovcnt, struct linux_iovec_t const*, rvec, size_t, riovcnt, unsigned long, flags, size_t)
 static inline LINUX_DEFINE_SYSCALL6_RET(process_vm_writev, linux_pid_t, pid, struct linux_iovec_t const*, lvec, size_t, liovcnt, struct linux_iovec_t const*, rvec, size_t, riovcnt, unsigned long, flags, size_t)
 static inline LINUX_DEFINE_SYSCALL5_RET(kcmp, linux_pid_t, pid1, linux_pid_t, pid2, int, type, unsigned long, idx1, unsigned long, idx2, int)
+static inline LINUX_DEFINE_SYSCALL3_NORET(finit_module, linux_fd_t, fd, char const*, uargs, int, flags)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL6_RET(copy_file_range, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
