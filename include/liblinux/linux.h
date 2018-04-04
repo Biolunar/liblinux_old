@@ -26,6 +26,9 @@
 #include <liblinux/syscall.h>
 
 /* C types
+ * =======
+ * Make sure all type replacements are exactly the same size! There is no
+ * standard that defines if values get sign extended or not.
  *
  * _Bool, char, signed char, unsigned char
  * signed short, unsigned short
@@ -1247,6 +1250,12 @@ struct linux_file_handle_t
 struct linux_getcpu_cache_t
 {
 	unsigned long blob[128 / sizeof(long)];
+};
+struct linux_kcmp_epoll_slot_t
+{
+	uint32_t efd;
+	uint32_t tfd;
+	uint32_t toff;
 };
 
 // Kernel types
@@ -5246,6 +5255,19 @@ enum
 	linux_FAN_EVENT_METADATA_LEN = sizeof(struct linux_fanotify_event_metadata_t),
 };
 
+// kcmp
+enum linux_kcmp_type_t
+{
+	linux_KCMP_FILE,
+	linux_KCMP_VM,
+	linux_KCMP_FILES,
+	linux_KCMP_FS,
+	linux_KCMP_SIGHAND,
+	linux_KCMP_IO,
+	linux_KCMP_SYSVSEM,
+	linux_KCMP_EPOLL_TFD,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -5818,6 +5840,7 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(setns, linux_fd_t, fd, int, nstype)
 static inline LINUX_DEFINE_SYSCALL3_NORET(getcpu, unsigned int*, cpu, unsigned int*, node, struct linux_getcpu_cache_t*, cache)
 static inline LINUX_DEFINE_SYSCALL6_RET(process_vm_readv, linux_pid_t, pid, struct linux_iovec_t const*, lvec, size_t, liovcnt, struct linux_iovec_t const*, rvec, size_t, riovcnt, unsigned long, flags, size_t)
 static inline LINUX_DEFINE_SYSCALL6_RET(process_vm_writev, linux_pid_t, pid, struct linux_iovec_t const*, lvec, size_t, liovcnt, struct linux_iovec_t const*, rvec, size_t, riovcnt, unsigned long, flags, size_t)
+static inline LINUX_DEFINE_SYSCALL5_RET(kcmp, linux_pid_t, pid1, linux_pid_t, pid2, int, type, unsigned long, idx1, unsigned long, idx2, int)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL6_RET(copy_file_range, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
