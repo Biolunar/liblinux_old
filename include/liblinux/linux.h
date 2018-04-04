@@ -5348,6 +5348,46 @@ enum
 	linux_GRND_RANDOM   = 0x0002,
 };
 
+// memfd_create
+enum
+{
+	linux_MFD_CLOEXEC       = 0x0001u,
+	linux_MFD_ALLOW_SEALING = 0x0002u,
+	linux_MFD_HUGETLB       = 0x0004u,
+};
+enum
+{
+	linux_HUGETLB_FLAG_ENCODE_SHIFT = 26,
+	linux_HUGETLB_FLAG_ENCODE_MASK  = 0x3F,
+
+	linux_HUGETLB_FLAG_ENCODE_64KB  = 16 << linux_HUGETLB_FLAG_ENCODE_SHIFT,
+	linux_HUGETLB_FLAG_ENCODE_512KB = 19 << linux_HUGETLB_FLAG_ENCODE_SHIFT,
+	linux_HUGETLB_FLAG_ENCODE_1MB   = 20 << linux_HUGETLB_FLAG_ENCODE_SHIFT,
+	linux_HUGETLB_FLAG_ENCODE_2MB   = 21 << linux_HUGETLB_FLAG_ENCODE_SHIFT,
+	linux_HUGETLB_FLAG_ENCODE_8MB   = 23 << linux_HUGETLB_FLAG_ENCODE_SHIFT,
+	linux_HUGETLB_FLAG_ENCODE_16MB  = 24 << linux_HUGETLB_FLAG_ENCODE_SHIFT,
+	linux_HUGETLB_FLAG_ENCODE_256MB = 28 << linux_HUGETLB_FLAG_ENCODE_SHIFT,
+	linux_HUGETLB_FLAG_ENCODE_1GB   = 30 << linux_HUGETLB_FLAG_ENCODE_SHIFT,
+	linux_HUGETLB_FLAG_ENCODE_2GB   = 31 << linux_HUGETLB_FLAG_ENCODE_SHIFT,
+	linux_HUGETLB_FLAG_ENCODE_16GB  = -2013265920, // 34 << linux_HUGETLB_FLAG_ENCODE_SHIFT
+};
+enum
+{
+	linux_MFD_HUGE_SHIFT = linux_HUGETLB_FLAG_ENCODE_SHIFT,
+	linux_MFD_HUGE_MASK  = linux_HUGETLB_FLAG_ENCODE_MASK,
+
+	linux_MFD_HUGE_64KB  = linux_HUGETLB_FLAG_ENCODE_64KB,
+	linux_MFD_HUGE_512KB = linux_HUGETLB_FLAG_ENCODE_512KB,
+	linux_MFD_HUGE_1MB   = linux_HUGETLB_FLAG_ENCODE_1MB,
+	linux_MFD_HUGE_2MB   = linux_HUGETLB_FLAG_ENCODE_2MB,
+	linux_MFD_HUGE_8MB   = linux_HUGETLB_FLAG_ENCODE_8MB,
+	linux_MFD_HUGE_16MB  = linux_HUGETLB_FLAG_ENCODE_16MB,
+	linux_MFD_HUGE_256MB = linux_HUGETLB_FLAG_ENCODE_256MB,
+	linux_MFD_HUGE_1GB   = linux_HUGETLB_FLAG_ENCODE_1GB,
+	linux_MFD_HUGE_2GB   = linux_HUGETLB_FLAG_ENCODE_2GB,
+	linux_MFD_HUGE_16GB  = linux_HUGETLB_FLAG_ENCODE_16GB,
+};
+
 // bpf
 enum
 {
@@ -5934,6 +5974,7 @@ static inline LINUX_DEFINE_SYSCALL4_NORET(sched_getattr, linux_pid_t, pid, struc
 static inline LINUX_DEFINE_SYSCALL5_NORET(renameat2, linux_fd_t, olddfd, char const*, oldname, linux_fd_t, newdfd, char const*, newname, unsigned int, flags)
 static inline LINUX_DEFINE_SYSCALL3_RET(seccomp, unsigned int, op, unsigned int, flags, char const*, uargs, int)
 static inline LINUX_DEFINE_SYSCALL3_RET(getrandom, char*, buf, size_t, count, unsigned int, flags, size_t)
+static inline LINUX_DEFINE_SYSCALL2_RET(memfd_create, char const*, uname_ptr, unsigned int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL6_RET(copy_file_range, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
