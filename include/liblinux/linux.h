@@ -5286,6 +5286,14 @@ enum
 	linux_MODULE_INIT_IGNORE_VERMAGIC    = 2,
 };
 
+// renameat2
+enum
+{
+	linux_RENAME_NOREPLACE = 1 << 0,
+	linux_RENAME_EXCHANGE  = 1 << 1,
+	linux_RENAME_WHITEOUT  = 1 << 2,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -5862,6 +5870,7 @@ static inline LINUX_DEFINE_SYSCALL5_RET(kcmp, linux_pid_t, pid1, linux_pid_t, pi
 static inline LINUX_DEFINE_SYSCALL3_NORET(finit_module, linux_fd_t, fd, char const*, uargs, int, flags)
 static inline LINUX_DEFINE_SYSCALL3_NORET(sched_setattr, linux_pid_t, pid, struct linux_sched_attr_t*, attr, unsigned int, flags)
 static inline LINUX_DEFINE_SYSCALL4_NORET(sched_getattr, linux_pid_t, pid, struct linux_sched_attr_t*, attr, unsigned int, size, unsigned int, flags)
+static inline LINUX_DEFINE_SYSCALL5_NORET(renameat2, linux_fd_t, olddfd, char const*, oldname, linux_fd_t, newdfd, char const*, newname, unsigned int, flags)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL6_RET(copy_file_range, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
