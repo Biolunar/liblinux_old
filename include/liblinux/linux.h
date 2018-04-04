@@ -1287,6 +1287,297 @@ struct linux_sock_fprog_t
 	unsigned short len;
 	struct linux_sock_filter_t* filter;
 };
+struct linux_bpf_insn_t
+{
+	uint8_t code;
+	uint8_t dst_reg: 4;
+	uint8_t src_reg: 4;
+	int16_t off;
+	int32_t imm;
+};
+struct linux_bpf_lpm_trie_key_t
+{
+	uint32_t prefixlen;
+	uint8_t data[];
+};
+enum
+{
+	linux_BPF_OBJ_NAME_LEN = 16,
+	linux_BPF_TAG_SIZE     =  8,
+};
+union linux_bpf_attr_t
+{
+	alignas(8) struct
+	{
+		uint32_t map_type;
+		uint32_t key_size;
+		uint32_t value_size;
+		uint32_t max_entries;
+		uint32_t map_flags;
+		uint32_t inner_map_fd;
+		uint32_t numa_node;
+		char map_name[linux_BPF_OBJ_NAME_LEN];
+		uint32_t map_ifindex;
+	};
+
+	struct
+	{
+		uint32_t map_fd;
+		// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
+		uint32_t key_lo;
+		uint32_t key_hi;
+		union
+		{
+			// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
+			uint32_t value_lo;
+			uint32_t value_hi;
+			// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
+			uint32_t next_key_lo;
+			uint32_t next_key_hi;
+		};
+		uint64_t flags;
+	};
+
+	struct
+	{
+		uint32_t prog_type;
+		uint32_t insn_cnt;
+		// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
+		uint32_t insns_lo;
+		uint32_t insns_hi;
+		// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
+		uint32_t license_lo;
+		uint32_t license_hi;
+		uint32_t log_level;
+		uint32_t log_size;
+		// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
+		uint32_t log_buf_lo;
+		uint32_t log_buf_hi;
+		uint32_t kern_version;
+		uint32_t prog_flags;
+		char prog_name[linux_BPF_OBJ_NAME_LEN];
+		uint32_t prog_ifindex;
+	};
+
+	struct
+	{
+		// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
+		uint32_t pathname_lo;
+		uint32_t pathname_hi;
+		uint32_t bpf_fd;
+		uint32_t file_flags;
+	};
+
+	struct
+	{
+		uint32_t target_fd;
+		uint32_t attach_bpf_fd;
+		uint32_t attach_type;
+		uint32_t attach_flags;
+	};
+
+	struct
+	{
+		uint32_t prog_fd;
+		uint32_t retval;
+		uint32_t data_size_in;
+		uint32_t data_size_out;
+		// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
+		uint32_t data_in_lo;
+		uint32_t data_in_hi;
+		// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
+		uint32_t data_out_lo;
+		uint32_t data_out_hi;
+		uint32_t repeat;
+		uint32_t duration;
+	} test;
+
+	struct
+	{
+		union
+		{
+			uint32_t start_id;
+			uint32_t prog_id;
+			uint32_t map_id;
+		};
+		uint32_t next_id;
+		uint32_t open_flags;
+	};
+
+	struct
+	{
+		uint32_t bpf_fd;
+		uint32_t info_len;
+		// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
+		uint32_t info_lo;
+		uint32_t info_hi;
+	} info;
+
+	struct
+	{
+		uint32_t target_fd;
+		uint32_t attach_type;
+		uint32_t query_flags;
+		uint32_t attach_flags;
+		// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
+		uint32_t prog_ids_lo;
+		uint32_t prog_ids_hi;
+		uint32_t prog_cnt;
+	} query;
+};
+struct linux_sk_buff_t
+{
+	uint32_t len;
+	uint32_t pkt_type;
+	uint32_t mark;
+	uint32_t queue_mapping;
+	uint32_t protocol;
+	uint32_t vlan_present;
+	uint32_t vlan_tci;
+	uint32_t vlan_proto;
+	uint32_t priority;
+	uint32_t ingress_ifindex;
+	uint32_t ifindex;
+	uint32_t tc_index;
+	uint32_t cb[5];
+	uint32_t hash;
+	uint32_t tc_classid;
+	uint32_t data;
+	uint32_t data_end;
+	uint32_t napi_id;
+
+	uint32_t family;
+	uint32_t remote_ip4;
+	uint32_t local_ip4;
+	uint32_t remote_ip6[4];
+	uint32_t local_ip6[4];
+	uint32_t remote_port;
+	uint32_t local_port;
+
+	uint32_t data_meta;
+};
+struct linux_bpf_tunnel_key_t
+{
+	uint32_t tunnel_id;
+	union
+	{
+		uint32_t remote_ipv4;
+		uint32_t remote_ipv6[4];
+	};
+	uint8_t tunnel_tos;
+	uint8_t tunnel_ttl;
+	uint16_t tunnel_ext;
+	uint32_t tunnel_label;
+};
+struct linux_bpf_sock_t
+{
+	uint32_t bound_dev_if;
+	uint32_t family;
+	uint32_t type;
+	uint32_t protocol;
+	uint32_t mark;
+	uint32_t priority;
+};
+struct linux_xdp_md_t
+{
+	uint32_t data;
+	uint32_t data_end;
+	uint32_t data_meta;
+	uint32_t ingress_ifindex;
+	uint32_t rx_queue_index;
+};
+struct linux_bpf_prog_info_t
+{
+	alignas(8) uint32_t type;
+	uint32_t id;
+	uint8_t tag[linux_BPF_TAG_SIZE];
+	uint32_t jited_prog_len;
+	uint32_t xlated_prog_len;
+	// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
+	uint32_t jited_prog_insns_lo;
+	uint32_t jited_prog_insns_hi;
+	// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
+	uint32_t xlated_prog_insns_lo;
+	uint32_t xlated_prog_insns_hi;
+	uint64_t load_time;
+	uint32_t created_by_uid;
+	uint32_t nr_map_ids;
+	// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
+	uint32_t map_ids_lo;
+	uint32_t map_ids_hi;
+	char name[linux_BPF_OBJ_NAME_LEN];
+	uint32_t ifindex;
+	uint64_t netns_dev;
+	uint64_t netns_ino;
+};
+struct linux_bpf_map_info_t
+{
+	alignas(8) uint32_t type;
+	uint32_t id;
+	uint32_t key_size;
+	uint32_t value_size;
+	uint32_t max_entries;
+	uint32_t map_flags;
+	char name[linux_BPF_OBJ_NAME_LEN];
+	uint32_t ifindex;
+	uint64_t netns_dev;
+	uint64_t netns_ino;
+};
+struct linux_bpf_sock_ops_t
+{
+	uint32_t op;
+	union
+	{
+		uint32_t args[4];
+		uint32_t reply;
+		uint32_t replylong[4];
+	};
+	uint32_t family;
+	uint32_t remote_ip4;
+	uint32_t local_ip4;
+	uint32_t remote_ip6[4];
+	uint32_t local_ip6[4];
+	uint32_t remote_port;
+	uint32_t local_port;
+	uint32_t is_fullsock;
+	uint32_t snd_cwnd;
+	uint32_t srtt_us;
+	uint32_t bpf_sock_ops_cb_flags;
+	uint32_t state;
+	uint32_t rtt_min;
+	uint32_t snd_ssthresh;
+	uint32_t rcv_nxt;
+	uint32_t snd_nxt;
+	uint32_t snd_una;
+	uint32_t mss_cache;
+	uint32_t ecn_flags;
+	uint32_t rate_delivered;
+	uint32_t rate_interval_us;
+	uint32_t packets_out;
+	uint32_t retrans_out;
+	uint32_t total_retrans;
+	uint32_t segs_in;
+	uint32_t data_segs_in;
+	uint32_t segs_out;
+	uint32_t data_segs_out;
+	uint32_t lost_out;
+	uint32_t sacked_out;
+	uint32_t sk_txhash;
+	uint64_t bytes_received;
+	uint64_t bytes_acked;
+};
+struct linux_bpf_perf_event_value_t
+{
+	uint64_t counter;
+	uint64_t enabled;
+	uint64_t running;
+};
+struct linux_bpf_cgroup_dev_ctx_t
+{
+	uint32_t access_type;
+	uint32_t major;
+	uint32_t minor;
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -5391,8 +5682,412 @@ enum
 // bpf
 enum
 {
+	linux_BPF_LD   = 0x00,
+	linux_BPF_LDX  = 0x01,
+	linux_BPF_ST   = 0x02,
+	linux_BPF_STX  = 0x03,
+	linux_BPF_ALU  = 0x04,
+	linux_BPF_JMP  = 0x05,
+	linux_BPF_RET  = 0x06,
+	linux_BPF_MISC = 0x07,
+};
+enum
+{
+	linux_BPF_W  = 0x00,
+	linux_BPF_H  = 0x08,
+	linux_BPF_B  = 0x10,
+	//linux_BPF_DW = 0x18,
+};
+enum
+{
+	linux_BPF_IMM = 0x00,
+	linux_BPF_ABS = 0x20,
+	linux_BPF_IND = 0x40,
+	linux_BPF_MEM = 0x60,
+	linux_BPF_LEN = 0x80,
+	linux_BPF_MSH = 0xa0,
+};
+enum
+{
+	linux_BPF_ADD = 0x00,
+	linux_BPF_SUB = 0x10,
+	linux_BPF_MUL = 0x20,
+	linux_BPF_DIV = 0x30,
+	linux_BPF_OR  = 0x40,
+	linux_BPF_AND = 0x50,
+	linux_BPF_LSH = 0x60,
+	linux_BPF_RSH = 0x70,
+	linux_BPF_NEG = 0x80,
+	linux_BPF_MOD = 0x90,
+	linux_BPF_XOR = 0xa0,
+};
+enum
+{
+	linux_BPF_JA   = 0x00,
+	linux_BPF_JEQ  = 0x10,
+	linux_BPF_JGT  = 0x20,
+	linux_BPF_JGE  = 0x30,
+	linux_BPF_JSET = 0x40,
+};
+enum
+{
+	linux_BPF_K = 0x00,
+	linux_BPF_X = 0x08,
+};
+enum
+{
+	linux_BPF_MAXINSNS = 4096,
+};
+enum
+{
+	linux_BPF_ALU64   = 0x07,
+	linux_BPF_DW      = 0x18,
+	linux_BPF_XADD    = 0xc0,
+	linux_BPF_MOV     = 0xb0,
+	linux_BPF_ARSH    = 0xc0,
+	linux_BPF_END     = 0xd0,
+	linux_BPF_TO_LE   = 0x00,
+	linux_BPF_TO_BE   = 0x08,
+	linux_BPF_FROM_LE = linux_BPF_TO_LE,
+	linux_BPF_FROM_BE = linux_BPF_TO_BE,
+	linux_BPF_JNE     = 0x50,
+	linux_BPF_JLT     = 0xa0,
+	linux_BPF_JLE     = 0xb0,
+	linux_BPF_JSGT    = 0x60,
+	linux_BPF_JSGE    = 0x70,
+	linux_BPF_JSLT    = 0xc0,
+	linux_BPF_JSLE    = 0xd0,
+	linux_BPF_CALL    = 0x80,
+	linux_BPF_EXIT    = 0x90,
+};
+enum
+{
+	linux_BPF_REG_0 = 0,
+	linux_BPF_REG_1,
+	linux_BPF_REG_2,
+	linux_BPF_REG_3,
+	linux_BPF_REG_4,
+	linux_BPF_REG_5,
+	linux_BPF_REG_6,
+	linux_BPF_REG_7,
+	linux_BPF_REG_8,
+	linux_BPF_REG_9,
+	linux_BPF_REG_10,
+};
+enum linux_bpf_cmd_t
+{
+	linux_BPF_MAP_CREATE,
+	linux_BPF_MAP_LOOKUP_ELEM,
+	linux_BPF_MAP_UPDATE_ELEM,
+	linux_BPF_MAP_DELETE_ELEM,
+	linux_BPF_MAP_GET_NEXT_KEY,
+	linux_BPF_PROG_LOAD,
+	linux_BPF_OBJ_PIN,
+	linux_BPF_OBJ_GET,
+	linux_BPF_PROG_ATTACH,
+	linux_BPF_PROG_DETACH,
+	linux_BPF_PROG_TEST_RUN,
+	linux_BPF_PROG_GET_NEXT_ID,
+	linux_BPF_MAP_GET_NEXT_ID,
+	linux_BPF_PROG_GET_FD_BY_ID,
+	linux_BPF_MAP_GET_FD_BY_ID,
+	linux_BPF_OBJ_GET_INFO_BY_FD,
+	linux_BPF_PROG_QUERY,
+};
+enum linux_bpf_map_type_t
+{
+	linux_BPF_MAP_TYPE_UNSPEC,
+	linux_BPF_MAP_TYPE_HASH,
+	linux_BPF_MAP_TYPE_ARRAY,
+	linux_BPF_MAP_TYPE_PROG_ARRAY,
+	linux_BPF_MAP_TYPE_PERF_EVENT_ARRAY,
+	linux_BPF_MAP_TYPE_PERCPU_HASH,
+	linux_BPF_MAP_TYPE_PERCPU_ARRAY,
+	linux_BPF_MAP_TYPE_STACK_TRACE,
+	linux_BPF_MAP_TYPE_CGROUP_ARRAY,
+	linux_BPF_MAP_TYPE_LRU_HASH,
+	linux_BPF_MAP_TYPE_LRU_PERCPU_HASH,
+	linux_BPF_MAP_TYPE_LPM_TRIE,
+	linux_BPF_MAP_TYPE_ARRAY_OF_MAPS,
+	linux_BPF_MAP_TYPE_HASH_OF_MAPS,
+	linux_BPF_MAP_TYPE_DEVMAP,
+	linux_BPF_MAP_TYPE_SOCKMAP,
+	linux_BPF_MAP_TYPE_CPUMAP,
+};
+enum linux_bpf_prog_type_t
+{
+	linux_BPF_PROG_TYPE_UNSPEC,
+	linux_BPF_PROG_TYPE_SOCKET_FILTER,
+	linux_BPF_PROG_TYPE_KPROBE,
+	linux_BPF_PROG_TYPE_SCHED_CLS,
+	linux_BPF_PROG_TYPE_SCHED_ACT,
+	linux_BPF_PROG_TYPE_TRACEPOINT,
+	linux_BPF_PROG_TYPE_XDP,
+	linux_BPF_PROG_TYPE_PERF_EVENT,
+	linux_BPF_PROG_TYPE_CGROUP_SKB,
+	linux_BPF_PROG_TYPE_CGROUP_SOCK,
+	linux_BPF_PROG_TYPE_LWT_IN,
+	linux_BPF_PROG_TYPE_LWT_OUT,
+	linux_BPF_PROG_TYPE_LWT_XMIT,
+	linux_BPF_PROG_TYPE_SOCK_OPS,
+	linux_BPF_PROG_TYPE_SK_SKB,
+	linux_BPF_PROG_TYPE_CGROUP_DEVICE,
+};
+enum linux_bpf_attach_type_t
+{
+	linux_BPF_CGROUP_INET_INGRESS,
+	linux_BPF_CGROUP_INET_EGRESS,
+	linux_BPF_CGROUP_INET_SOCK_CREATE,
+	linux_BPF_CGROUP_SOCK_OPS,
+	linux_BPF_SK_SKB_STREAM_PARSER,
+	linux_BPF_SK_SKB_STREAM_VERDICT,
+	linux_BPF_CGROUP_DEVICE,
+
+	linux_MAX_BPF_ATTACH_TYPE,
+};
+// A bunch of constants
+enum
+{
+	linux_BPF_F_ALLOW_OVERRIDE   = 1u << 0,
+	linux_BPF_F_ALLOW_MULTI      = 1u << 1,
+
+	linux_BPF_F_STRICT_ALIGNMENT = 1u << 0,
+
+	linux_BPF_PSEUDO_MAP_FD      = 1,
+
+	linux_BPF_PSEUDO_CALL        = 1,
+
+	linux_BPF_ANY                = 0,
+	linux_BPF_NOEXIST            = 1,
+	linux_BPF_EXIST              = 2,
+
+	linux_BPF_F_NO_PREALLOC      = 1u << 0,
+	linux_BPF_F_NO_COMMON_LRU    = 1u << 1,
+	linux_BPF_F_NUMA_NODE        = 1u << 2,
+
+	linux_BPF_F_QUERY_EFFECTIVE  = 1u << 0,
+
+	linux_BPF_F_RDONLY           = 1u << 3,
+	linux_BPF_F_WRONLY           = 1u << 4,
+};
+enum linux_bpf_func_id_t
+{
+	BPF_FUNC_unspec,
+	BPF_FUNC_map_lookup_elem,
+	BPF_FUNC_map_update_elem,
+	BPF_FUNC_map_delete_elem,
+	BPF_FUNC_probe_read,
+	BPF_FUNC_ktime_get_ns,
+	BPF_FUNC_trace_printk,
+	BPF_FUNC_get_prandom_u32,
+	BPF_FUNC_get_smp_processor_id,
+	BPF_FUNC_skb_store_bytes,
+	BPF_FUNC_l3_csum_replace,
+	BPF_FUNC_l4_csum_replace,
+	BPF_FUNC_tail_call,
+	BPF_FUNC_clone_redirect,
+	BPF_FUNC_get_current_pid_tgid,
+	BPF_FUNC_get_current_uid_gid,
+	BPF_FUNC_get_current_comm,
+	BPF_FUNC_get_cgroup_classid,
+	BPF_FUNC_skb_vlan_push,
+	BPF_FUNC_skb_vlan_pop,
+	BPF_FUNC_skb_get_tunnel_key,
+	BPF_FUNC_skb_set_tunnel_key,
+	BPF_FUNC_perf_event_read,
+	BPF_FUNC_redirect,
+	BPF_FUNC_get_route_realm,
+	BPF_FUNC_perf_event_output,
+	BPF_FUNC_skb_load_bytes,
+	BPF_FUNC_get_stackid,
+	BPF_FUNC_csum_diff,
+	BPF_FUNC_skb_get_tunnel_opt,
+	BPF_FUNC_skb_set_tunnel_opt,
+	BPF_FUNC_skb_change_proto,
+	BPF_FUNC_skb_change_type,
+	BPF_FUNC_skb_under_cgroup,
+	BPF_FUNC_get_hash_recalc,
+	BPF_FUNC_get_current_task,
+	BPF_FUNC_probe_write_user,
+	BPF_FUNC_current_task_under_cgroup,
+	BPF_FUNC_skb_change_tail,
+	BPF_FUNC_skb_pull_data,
+	BPF_FUNC_csum_update,
+	BPF_FUNC_set_hash_invalid,
+	BPF_FUNC_get_numa_node_id,
+	BPF_FUNC_skb_change_head,
+	BPF_FUNC_xdp_adjust_head,
+	BPF_FUNC_probe_read_str,
+	BPF_FUNC_get_socket_cookie,
+	BPF_FUNC_get_socket_uid,
+	BPF_FUNC_set_hash,
+	BPF_FUNC_setsockopt,
+	BPF_FUNC_skb_adjust_room,
+	BPF_FUNC_redirect_map,
+	BPF_FUNC_sk_redirect_map,
+	BPF_FUNC_sock_map_update,
+	BPF_FUNC_xdp_adjust_meta,
+	BPF_FUNC_perf_event_read_value,
+	BPF_FUNC_perf_prog_read_value,
+	BPF_FUNC_getsockopt,
+	BPF_FUNC_override_return,
+	BPF_FUNC_sock_ops_cb_flags_set,
+};
+// eBPF helper functions flags
+enum
+{
+	linux_BPF_F_RECOMPUTE_CSUM  = 1ull << 0,
+	linux_BPF_F_INVALIDATE_HASH = 1ull << 1,
+
+	linux_BPF_F_HDR_FIELD_MASK  = 0xFull,
+
+	linux_BPF_F_PSEUDO_HDR      = 1ull << 4,
+	linux_BPF_F_MARK_MANGLED_0  = 1ull << 5,
+	linux_BPF_F_MARK_ENFORCE    = 1ull << 6,
+
+	linux_BPF_F_INGRESS         = 1ull << 0,
+
+	linux_BPF_F_TUNINFO_IPV6    = 1ull << 0,
+
+	linux_BPF_F_SKIP_FIELD_MASK = 0xFFull,
+	linux_BPF_F_USER_STACK      = 1ull << 8,
+	linux_BPF_F_FAST_STACK_CMP  = 1ull << 9,
+	linux_BPF_F_REUSE_STACKID   = 1ull << 10,
+
+	linux_BPF_F_ZERO_CSUM_TX    = 1ull << 1,
+	linux_BPF_F_DONT_FRAGMENT   = 1ull << 2,
+
+	linux_BPF_F_INDEX_MASK      = -1, // 0xFFFFFFFFull
+	linux_BPF_F_CURRENT_CPU     = linux_BPF_F_INDEX_MASK,
+};
+#define linux_BPF_F_CTXLEN_MASK (0xFFFFFull << 32)
+enum linux_bpf_adj_room_mode_t
+{
+	linux_BPF_ADJ_ROOM_NET,
+};
+enum linux_bpf_ret_code_t
+{
+	linux_BPF_OK       = 0,
+	linux_BPF_DROP     = 2,
+	linux_BPF_REDIRECT = 7,
+};
+enum
+{
+	linux_XDP_PACKET_HEADROOM = 256,
+};
+enum linux_xdp_action_t
+{
+	linux_XDP_ABORTED = 0,
+	linux_XDP_DROP,
+	linux_XDP_PASS,
+	linux_XDP_TX,
+	linux_XDP_REDIRECT,
+};
+enum linux_sk_action_t
+{
+	linux_SK_DROP = 0,
+	linux_SK_PASS,
+};
+enum
+{
+	linux_BPF_SOCK_OPS_RTO_CB_FLAG     = 1 << 0,
+	linux_BPF_SOCK_OPS_RETRANS_CB_FLAG = 1 << 1,
+	linux_BPF_SOCK_OPS_STATE_CB_FLAG   = 1 << 2,
+	linux_BPF_SOCK_OPS_ALL_CB_FLAGS    = 0x7,
+};
+enum
+{
+	linux_BPF_SOCK_OPS_VOID,
+	linux_BPF_SOCK_OPS_TIMEOUT_INIT,
+	linux_BPF_SOCK_OPS_RWND_INIT,
+	linux_BPF_SOCK_OPS_TCP_CONNECT_CB,
+	linux_BPF_SOCK_OPS_ACTIVE_ESTABLISHED_CB,
+	linux_BPF_SOCK_OPS_PASSIVE_ESTABLISHED_CB,
+	linux_BPF_SOCK_OPS_NEEDS_ECN,
+	linux_BPF_SOCK_OPS_BASE_RTT,
+	linux_BPF_SOCK_OPS_RTO_CB,
+	linux_BPF_SOCK_OPS_RETRANS_CB,
+	linux_BPF_SOCK_OPS_STATE_CB,
+};
+enum
+{
+	linux_BPF_TCP_ESTABLISHED = 1,
+	linux_BPF_TCP_SYN_SENT,
+	linux_BPF_TCP_SYN_RECV,
+	linux_BPF_TCP_FIN_WAIT1,
+	linux_BPF_TCP_FIN_WAIT2,
+	linux_BPF_TCP_TIME_WAIT,
+	linux_BPF_TCP_CLOSE,
+	linux_BPF_TCP_CLOSE_WAIT,
+	linux_BPF_TCP_LAST_ACK,
+	linux_BPF_TCP_LISTEN,
+	linux_BPF_TCP_CLOSING,
+	linux_BPF_TCP_NEW_SYN_RECV,
+};
+enum
+{
+	linux_TCP_BPF_IW            = 1001,
+	linux_TCP_BPF_SNDCWND_CLAMP = 1002,
+};
+enum
+{
+	linux_BPF_DEVCG_ACC_MKNOD = 1ull << 0,
+	linux_BPF_DEVCG_ACC_READ  = 1ull << 1,
+	linux_BPF_DEVCG_ACC_WRITE = 1ull << 2,
+
+	linux_BPF_DEVCG_DEV_BLOCK = 1ull << 0,
+	linux_BPF_DEVCG_DEV_CHAR  = 1ull << 1,
+};
+enum
+{
 	linux_BPF_MAJOR_VERSION = 1,
 	linux_BPF_MINOR_VERSION = 1,
+};
+enum
+{
+	linux_BPF_A = 0x10,
+};
+enum
+{
+	linux_BPF_TAX = 0x00,
+	linux_BPF_TXA = 0x80,
+};
+#define linux_BPF_STMT(code, k)         { (unsigned short)(code), 0, 0, k }
+#define linux_BPF_JUMP(code, k, jt, jf) { (unsigned short)(code), jt, jf, k }
+enum
+{
+	linux_BPF_MEMWORDS = 16,
+};
+enum
+{
+	linux_SKF_AD_OFF              = -0x1000,
+	linux_SKF_AD_PROTOCOL         =  0,
+	linux_SKF_AD_PKTTYPE          =  4,
+	linux_SKF_AD_IFINDEX          =  8,
+	linux_SKF_AD_NLATTR           = 12,
+	linux_SKF_AD_NLATTR_NEST      = 16,
+	linux_SKF_AD_MARK             = 20,
+	linux_SKF_AD_QUEUE            = 24,
+	linux_SKF_AD_HATYPE           = 28,
+	linux_SKF_AD_RXHASH           = 32,
+	linux_SKF_AD_CPU              = 36,
+	linux_SKF_AD_ALU_XOR_X        = 40,
+	linux_SKF_AD_VLAN_TAG         = 44,
+	linux_SKF_AD_VLAN_TAG_PRESENT = 48,
+	linux_SKF_AD_PAY_OFFSET       = 52,
+	linux_SKF_AD_RANDOM           = 56,
+	linux_SKF_AD_VLAN_TPID        = 60,
+	linux_SKF_AD_MAX              = 64,
+};
+enum
+{
+	linux_SKF_NET_OFF = -0x100000,
+	linux_SKF_LL_OFF  = -0x200000,
+};
+enum
+{
+	linux_BPF_NET_OFF = linux_SKF_NET_OFF,
+	linux_BPF_LL_OFF  = linux_SKF_LL_OFF,
 };
 
 // Constants
@@ -5654,6 +6349,41 @@ static inline struct linux_fanotify_event_metadata_t const* linux_FAN_EVENT_NEXT
 static inline bool linux_FAN_EVENT_OK(struct linux_fanotify_event_metadata_t const* const meta, size_t const len)
 {
 	return (long)len >= (long)linux_FAN_EVENT_METADATA_LEN && (long)meta->event_len >= (long)linux_FAN_EVENT_METADATA_LEN && (long)meta->event_len <= (long)len;
+}
+
+static inline int linux_BPF_CLASS(int const code)
+{
+	return code & 0x07;
+}
+
+static inline int linux_BPF_SIZE(int const code)
+{
+	return code & 0x18;
+}
+
+static inline int linux_BPF_MODE(int const code)
+{
+	return code & 0xe0;
+}
+
+static inline int linux_BPF_OP(int const code)
+{
+	return code & 0xf0;
+}
+
+static inline int linux_BPF_SRC(int const code)
+{
+	return code & 0x08;
+}
+
+static inline int linux_BPF_RVAL(int const code)
+{
+	return code & 0x18;
+}
+
+static inline int linux_BPF_MISCOP(int const code)
+{
+	return code & 0xf8;
 }
 
 // Helper functions
