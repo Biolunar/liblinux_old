@@ -85,9 +85,11 @@ struct linux_timespec_t
 typedef int linux_kernel_pid_t;
 typedef linux_kernel_pid_t linux_pid_t;
 
-#include "capabilities.h"
+#include "capability.h"
 
 #include "xattr.h"
+
+#include "dcache.h"
 
 typedef unsigned short linux_kernel_mode_t;
 typedef unsigned short linux_umode_t;
@@ -6677,7 +6679,6 @@ static inline LINUX_DEFINE_SYSCALL1_NORET(fdatasync, linux_fd_t, fd)
 static inline LINUX_DEFINE_SYSCALL2_NORET(truncate, char LINUX_SAFE_CONST*, path, long, length)
 static inline LINUX_DEFINE_SYSCALL2_NORET(ftruncate, linux_fd_t, fd, unsigned long, length)
 static inline LINUX_DEFINE_SYSCALL3_RET(getdents, linux_fd_t, fd, struct linux_dirent_t*, dirent, unsigned int, count, unsigned int)
-static inline LINUX_DEFINE_SYSCALL2_RET(getcwd, char*, buf, unsigned long, size, int)
 static inline LINUX_DEFINE_SYSCALL1_NORET(chdir, char const*, filename)
 static inline LINUX_DEFINE_SYSCALL1_NORET(fchdir, linux_fd_t, fd)
 static inline LINUX_DEFINE_SYSCALL2_NORET(rename, char const*, oldname, char const*, newname)
