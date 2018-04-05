@@ -30,18 +30,12 @@
  * Make sure all type replacements are exactly the same size! There is no
  * standard that defines if values get sign extended or not.
  *
- * _Bool, char, signed char, unsigned char
- * signed short, unsigned short
- * signed int, unsigned int
- * signed long, unsigned long
- * signed long long, unsigned long long
- * float, double, long double
- * size_t, ptrdiff_t, max_align_t, wchar_t
- * intX_t, uintX_t
- * int_fastX_t, uint_fastX_t
- * int_leastX_t, uint_leastX_t
- * intmax_t, uintmax_t
- * intptr_t, uintptr_t
+ * char
+ * signed char, unsigned char -> (u)int8_t
+ * signed short, unsigned short -> (u)int16_t
+ * signed int, unsigned int -> (u)int32_t
+ * signed long, unsigned long -> (u)intptr_t, size_t
+ * signed long long, unsigned long long -> (u)int64_t
  */
 
 // Some syscalls do not modify a parameter but are passed as non-const
@@ -70,10 +64,25 @@ typedef int linux_pkey_t;
 //------------------------------------------------------------------------------
 // Kernel types
 
-typedef unsigned short linux_kernel_mode_t;
-typedef unsigned short linux_umode_t;
+#if defined(__x86_64__) && defined(__ILP32__)
 typedef long long linux_kernel_long_t;
 typedef unsigned long long linux_kernel_ulong_t;
+#else
+typedef long linux_kernel_long_t;
+typedef unsigned long linux_kernel_ulong_t;
+#endif
+typedef int linux_kernel_rwf_t;
+typedef linux_kernel_long_t linux_kernel_time_t;
+struct linux_timespec_t
+{
+	linux_kernel_time_t tv_sec;
+	long tv_nsec;
+};
+
+#include "aio.h"
+
+typedef unsigned short linux_kernel_mode_t;
+typedef unsigned short linux_umode_t;
 typedef linux_kernel_long_t linux_kernel_off_t;
 typedef linux_kernel_off_t linux_off_t;
 typedef int linux_kernel_pid_t;
@@ -90,7 +99,6 @@ typedef unsigned long linux_sigset_t;
 typedef linux_kernel_ulong_t linux_kernel_size_t;
 typedef long long linux_kernel_loff_t;
 typedef linux_kernel_loff_t linux_loff_t;
-typedef linux_kernel_long_t linux_kernel_time_t;
 typedef linux_kernel_long_t linux_kernel_suseconds_t;
 typedef int linux_kernel_key_t;
 typedef linux_kernel_key_t linux_key_t;
@@ -103,7 +111,6 @@ typedef linux_kernel_timer_t linux_timer_t;
 typedef int linux_kernel_mqd_t;
 typedef linux_kernel_mqd_t linux_mqd_t;
 typedef int32_t linux_key_serial_t;
-typedef int linux_kernel_rwf_t;
 typedef linux_kernel_rwf_t linux_rwf_t;
 struct linux_stat_t
 {
@@ -482,11 +489,6 @@ struct linux_msginfo_t
 	int msgtql; 
 	unsigned short msgseg; 
 	char _pad[2];
-};
-struct linux_timespec_t
-{
-	linux_kernel_time_t tv_sec;
-	long tv_nsec;
 };
 struct linux_itimerval_t
 {
@@ -955,36 +957,6 @@ struct linux_fs_quota_statv_t
 	uint16_t qs_bwarnlimit;
 	uint16_t qs_iwarnlimit;
 	uint64_t qs_pad2[8];
-};
-typedef linux_kernel_ulong_t linux_aio_context_t;
-struct linux_io_event_t
-{
-	uint64_t data;
-	uint64_t obj;
-	int64_t res;
-	int64_t res2;
-};
-typedef int linux_kernel_rwf_t;
-struct linux_iocb_t
-{
-	uint64_t aio_data;
-
-	uint32_t aio_key;
-	linux_kernel_rwf_t aio_rw_flags;
-
-	uint16_t aio_lio_opcode;
-	int16_t aio_reqprio;
-	uint32_t aio_fildes;
-
-	uint64_t aio_buf;
-	uint64_t aio_nbytes;
-	int64_t aio_offset;
-
-	uint64_t aio_reserved2;
-
-	uint32_t aio_flags;
-
-	uint32_t aio_resfd;
 };
 struct linux_sigevent_t
 {
@@ -6834,11 +6806,6 @@ static inline LINUX_DEFINE_SYSCALL1_RET(time, linux_time_t*, tloc, linux_time_t)
 static inline LINUX_DEFINE_SYSCALL6_NORET(futex, uint32_t*, uaddr, int, op, uint32_t, val, struct linux_timespec_t*, utime, uint32_t*, uaddr2, uint32_t, val3)
 static inline LINUX_DEFINE_SYSCALL3_NORET(sched_setaffinity, linux_pid_t, pid, unsigned int, len, unsigned long LINUX_SAFE_CONST*, user_mask_ptr)
 static inline LINUX_DEFINE_SYSCALL3_NORET(sched_getaffinity, linux_pid_t, pid, unsigned int, len, unsigned long*, user_mask_ptr)
-static inline LINUX_DEFINE_SYSCALL2_NORET(io_setup, unsigned int, nr_reqs, linux_aio_context_t*, ctx)
-static inline LINUX_DEFINE_SYSCALL1_NORET(io_destroy, linux_aio_context_t, ctx)
-static inline LINUX_DEFINE_SYSCALL5_RET(io_getevents, linux_aio_context_t, ctx_id, long, min_nr, long, nr, struct linux_io_event_t*, events, struct linux_timespec_t*, timeout, long)
-static inline LINUX_DEFINE_SYSCALL3_RET(io_submit, linux_aio_context_t, ctx_id, long, nr, struct linux_iocb_t**, iocbpp, long)
-static inline LINUX_DEFINE_SYSCALL3_NORET(io_cancel, linux_aio_context_t, ctx_id, struct linux_iocb_t*, iocb, struct linux_io_event_t*, result)
 static inline LINUX_DEFINE_SYSCALL3_RET(lookup_dcookie, uint64_t, cookie64, char*, buf, size_t, len, size_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create, int, size, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL5_NORET(remap_file_pages, void const*, start, size_t, size, unsigned long, prot, unsigned long, pgoff, unsigned long, flags)

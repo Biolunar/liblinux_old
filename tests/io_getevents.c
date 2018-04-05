@@ -81,7 +81,7 @@ static enum TestResult test_correct_usage(void)
 		.aio_nbytes = sizeof msg,
 	};
 	long ret;
-	if (linux_io_submit(context, 1, (struct linux_iocb_t*[]){&iocb}, &ret) || ret != 1)
+	if (linux_io_submit(context, 1, (struct linux_iocb_t const*[]){&iocb}, &ret) || ret != 1)
 	{
 		linux_io_destroy(context);
 		linux_close(fd);
