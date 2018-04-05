@@ -56,6 +56,6 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(io_setup, unsigned int, nr_events, lin
 static inline LINUX_DEFINE_SYSCALL1_NORET(io_destroy, linux_aio_context_t, context)
 static inline LINUX_DEFINE_SYSCALL3_RET(io_submit, linux_aio_context_t, context, long, count, struct linux_iocb_t const* const*, iocbpp, long)
 static inline LINUX_DEFINE_SYSCALL3_NORET(io_cancel, linux_aio_context_t, context, struct linux_iocb_t const*, iocb, struct linux_io_event_t*, result)
-static inline LINUX_DEFINE_SYSCALL5_RET(io_getevents, linux_aio_context_t, context, long, min_nr, long, nr, struct linux_io_event_t*, events, struct linux_timespec_t*, timeout, long)
+static inline LINUX_DEFINE_SYSCALL5_RET(io_getevents, linux_aio_context_t, context, long, min_count, long, count, struct linux_io_event_t*, events, struct linux_timespec_t*, timeout, long)
 
 #endif // HEADER_LIBLINUX_AIO_H_INCLUDED
