@@ -6239,6 +6239,19 @@ enum
 {
 	linux_UFFDIO_ZEROPAGE_MODE_DONTWAKE = (uint64_t)1 << 0,
 };
+enum linux_membarrier_cmd_t
+{
+	linux_MEMBARRIER_CMD_QUERY                                = 0,
+	linux_MEMBARRIER_CMD_GLOBAL                               = 1 << 0,
+	linux_MEMBARRIER_CMD_GLOBAL_EXPEDITED                     = 1 << 1,
+	linux_MEMBARRIER_CMD_REGISTER_GLOBAL_EXPEDITED            = 1 << 2,
+	linux_MEMBARRIER_CMD_PRIVATE_EXPEDITED                    = 1 << 3,
+	linux_MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED           = 1 << 4,
+	linux_MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE          = 1 << 5,
+	linux_MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_SYNC_CORE = 1 << 6,
+
+	linux_MEMBARRIER_CMD_SHARED                               = linux_MEMBARRIER_CMD_GLOBAL,
+};
 
 // Constants
 //------------------------------------------------------------------------------
@@ -6859,7 +6872,7 @@ static inline LINUX_DEFINE_SYSCALL5_NORET(kexec_file_load, linux_fd_t, kernel_fd
 static inline LINUX_DEFINE_SYSCALL3_RET(bpf, int, cmd, union linux_bpf_attr_t*, attr, unsigned int, size, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL5_NORET(execveat, linux_fd_t, dfd, char const*, filename, char const* const*, argv, char const* const*, envp, int, flags)
 static inline LINUX_DEFINE_SYSCALL1_RET(userfaultfd, int, flags, linux_fd_t)
-// TODO: Add more syscalls here first.
+static inline LINUX_DEFINE_SYSCALL2_RET(membarrier, int, cmd, int, flags, int)
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL6_RET(copy_file_range, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
 static inline LINUX_DEFINE_SYSCALL6_RET(preadv2, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, linux_rwf_t, flags, size_t)
