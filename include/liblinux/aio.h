@@ -19,6 +19,8 @@
 
 #include <stdint.h>
 
+#include <liblinux/syscall.h>
+
 typedef linux_kernel_ulong_t linux_aio_context_t;
 struct linux_iocb_t
 {

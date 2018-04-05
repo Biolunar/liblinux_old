@@ -81,12 +81,15 @@ struct linux_timespec_t
 
 #include "aio.h"
 
+typedef int linux_kernel_pid_t;
+typedef linux_kernel_pid_t linux_pid_t;
+
+#include "capabilities.h"
+
 typedef unsigned short linux_kernel_mode_t;
 typedef unsigned short linux_umode_t;
 typedef linux_kernel_long_t linux_kernel_off_t;
 typedef linux_kernel_off_t linux_off_t;
-typedef int linux_kernel_pid_t;
-typedef linux_kernel_pid_t linux_pid_t;
 typedef unsigned int linux_kernel_uid32_t;
 typedef unsigned int linux_kernel_gid32_t;
 typedef linux_kernel_uid32_t linux_arch_si_uid_t;
@@ -735,17 +738,6 @@ struct linux_user_t
 	unsigned long error_code; // CPU error code or 0
 	unsigned long fault_address; // CR3 or 0
 };
-typedef struct linux_user_cap_header_struct_t
-{
-	uint32_t version;
-	linux_pid_t pid;
-} *linux_cap_user_header_t;
-typedef struct linux_user_cap_data_struct_t
-{
-	uint32_t effective;
-	uint32_t permitted;
-	uint32_t inheritable;
-} *linux_cap_user_data_t;
 struct linux_utimbuf_t
 {
 	linux_kernel_time_t actime;
@@ -6728,8 +6720,6 @@ static inline LINUX_DEFINE_SYSCALL1_RET(getpgid, linux_pid_t, pid, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(setfsuid, linux_uid_t, uid, linux_uid_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(setfsgid, linux_gid_t, gid, linux_gid_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(getsid, linux_pid_t, pid, linux_pid_t)
-static inline LINUX_DEFINE_SYSCALL2_NORET(capget, struct linux_user_cap_header_struct_t*, header, struct linux_user_cap_data_struct_t*, dataptr)
-static inline LINUX_DEFINE_SYSCALL2_NORET(capset, struct linux_user_cap_header_struct_t*, header, struct linux_user_cap_data_struct_t const*, data)
 static inline LINUX_DEFINE_SYSCALL2_NORET(rt_sigpending, linux_sigset_t*, set, size_t, sigsetsize)
 static inline LINUX_DEFINE_SYSCALL4_RET(rt_sigtimedwait, linux_sigset_t const*, uthese, struct linux_siginfo_t*, uinfo, struct linux_timespec_t const*, uts, size_t, sigsetsize, int)
 static inline LINUX_DEFINE_SYSCALL3_NORET(rt_sigqueueinfo, linux_pid_t, pid, int, sig, struct linux_siginfo_t*, uinfo)
