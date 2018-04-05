@@ -1655,6 +1655,36 @@ struct linux_uffdio_zeropage_t
 	uint64_t mode;
 	int64_t zeropage;
 };
+struct linux_statx_timestamp_t
+{
+	int64_t tv_sec;
+	uint32_t tv_nsec;
+	int32_t _reserved;
+};
+struct linux_statx_t
+{
+	uint32_t stx_mask;
+	uint32_t stx_blksize;
+	uint64_t stx_attributes;
+	uint32_t stx_nlink;
+	uint32_t stx_uid;
+	uint32_t stx_gid;
+	uint16_t stx_mode;
+	uint16_t _spare0[1];
+	uint64_t stx_ino;
+	uint64_t stx_size;
+	uint64_t stx_blocks;
+	uint64_t stx_attributes_mask;
+	struct linux_statx_timestamp_t stx_atime;
+	struct linux_statx_timestamp_t stx_btime;
+	struct linux_statx_timestamp_t stx_ctime;
+	struct linux_statx_timestamp_t stx_mtime;
+	uint32_t stx_rdev_major;
+	uint32_t stx_rdev_minor;
+	uint32_t stx_dev_major;
+	uint32_t stx_dev_minor;
+	uint64_t _spare2[14];
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -6262,6 +6292,43 @@ enum
 	linux_PKEY_ACCESS_MASK    = linux_PKEY_DISABLE_ACCESS | linux_PKEY_DISABLE_WRITE,
 };
 
+// statx
+enum
+{
+	linux_STATX_TYPE        = 0x00000001u,
+	linux_STATX_MODE        = 0x00000002u,
+	linux_STATX_NLINK       = 0x00000004u,
+	linux_STATX_UID         = 0x00000008u,
+	linux_STATX_GID         = 0x00000010u,
+	linux_STATX_ATIME       = 0x00000020u,
+	linux_STATX_MTIME       = 0x00000040u,
+	linux_STATX_CTIME       = 0x00000080u,
+	linux_STATX_INO         = 0x00000100u,
+	linux_STATX_SIZE        = 0x00000200u,
+	linux_STATX_BLOCKS      = 0x00000400u,
+	linux_STATX_BASIC_STATS = 0x000007FFu,
+	linux_STATX_BTIME       = 0x00000800u,
+	linux_STATX_ALL         = 0x00000FFFu,
+	linux_STATX__RESERVED   = INT_MIN, // 0x80000000u
+};
+enum
+{
+	linux_STATX_ATTR_COMPRESSED = 0x00000004,
+	linux_STATX_ATTR_IMMUTABLE  = 0x00000010,
+	linux_STATX_ATTR_APPEND     = 0x00000020,
+	linux_STATX_ATTR_NODUMP     = 0x00000040,
+	linux_STATX_ATTR_ENCRYPTED  = 0x00000800,
+
+	linux_STATX_ATTR_AUTOMOUNT  = 0x00001000,
+};
+enum
+{
+	linux_AT_STATX_SYNC_TYPE    = 0x6000,
+	linux_AT_STATX_SYNC_AS_STAT = 0x0000,
+	linux_AT_STATX_FORCE_SYNC   = 0x2000,
+	linux_AT_STATX_DONT_SYNC    = 0x4000,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -6889,6 +6956,7 @@ static inline LINUX_DEFINE_SYSCALL6_RET(pwritev2, linux_fd_t, fd, struct linux_i
 static inline LINUX_DEFINE_SYSCALL4_NORET(pkey_mprotect, void const*, start, size_t, len, unsigned long, prot, linux_pkey_t, pkey)
 static inline LINUX_DEFINE_SYSCALL2_RET(pkey_alloc, unsigned long, flags, unsigned long, init_val, linux_pkey_t)
 static inline LINUX_DEFINE_SYSCALL1_NORET(pkey_free, linux_pkey_t, pkey)
+static inline LINUX_DEFINE_SYSCALL5_NORET(statx, linux_fd_t, dfd, char const*, path, unsigned int, flags, unsigned int, mask, struct linux_statx_t*, buffer)
 
 // Syscalls
 //------------------------------------------------------------------------------
