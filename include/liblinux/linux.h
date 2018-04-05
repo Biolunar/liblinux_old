@@ -62,6 +62,7 @@ typedef int linux_shmid_t;
 typedef int linux_semid_t;
 typedef int linux_msgid_t;
 typedef int32_t linux_wd_t;
+typedef int linux_pkey_t;
 
 // Custom types
 //------------------------------------------------------------------------------
@@ -6253,6 +6254,14 @@ enum linux_membarrier_cmd_t
 	linux_MEMBARRIER_CMD_SHARED                               = linux_MEMBARRIER_CMD_GLOBAL,
 };
 
+// pkeys
+enum
+{
+	linux_PKEY_DISABLE_ACCESS = 0x1,
+	linux_PKEY_DISABLE_WRITE  = 0x2,
+	linux_PKEY_ACCESS_MASK    = linux_PKEY_DISABLE_ACCESS | linux_PKEY_DISABLE_WRITE,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -6877,6 +6886,9 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, le
 static inline LINUX_DEFINE_SYSCALL6_RET(copy_file_range, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
 static inline LINUX_DEFINE_SYSCALL6_RET(preadv2, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, linux_rwf_t, flags, size_t)
 static inline LINUX_DEFINE_SYSCALL6_RET(pwritev2, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, linux_rwf_t, flags, size_t)
+static inline LINUX_DEFINE_SYSCALL4_NORET(pkey_mprotect, void const*, start, size_t, len, unsigned long, prot, linux_pkey_t, pkey)
+static inline LINUX_DEFINE_SYSCALL2_RET(pkey_alloc, unsigned long, flags, unsigned long, init_val, linux_pkey_t)
+static inline LINUX_DEFINE_SYSCALL1_NORET(pkey_free, linux_pkey_t, pkey)
 
 // Syscalls
 //------------------------------------------------------------------------------
