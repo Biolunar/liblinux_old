@@ -6706,6 +6706,7 @@ static inline LINUX_DEFINE_SYSCALL3_RET(seccomp, unsigned int, op, unsigned int,
 static inline LINUX_DEFINE_SYSCALL3_RET(getrandom, char*, buf, size_t, count, unsigned int, flags, size_t)
 static inline LINUX_DEFINE_SYSCALL2_RET(memfd_create, char const*, uname_ptr, unsigned int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL5_NORET(kexec_file_load, linux_fd_t, kernel_fd, linux_fd_t, initrd_fd, unsigned long, cmdline_len, char const*, cmdline_ptr, unsigned long, flags)
+static inline LINUX_DEFINE_SYSCALL3_RET(bpf, int, cmd, union linux_bpf_attr_t*, attr, unsigned int, size, linux_fd_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL6_RET(copy_file_range, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
