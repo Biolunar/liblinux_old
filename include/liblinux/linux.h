@@ -91,6 +91,8 @@ typedef linux_kernel_pid_t linux_pid_t;
 
 #include "dcache.h"
 
+#include "cookies.h"
+
 typedef unsigned short linux_kernel_mode_t;
 typedef unsigned short linux_umode_t;
 typedef linux_kernel_long_t linux_kernel_off_t;
@@ -6788,7 +6790,6 @@ static inline LINUX_DEFINE_SYSCALL1_RET(time, linux_time_t*, tloc, linux_time_t)
 static inline LINUX_DEFINE_SYSCALL6_NORET(futex, uint32_t*, uaddr, int, op, uint32_t, val, struct linux_timespec_t*, utime, uint32_t*, uaddr2, uint32_t, val3)
 static inline LINUX_DEFINE_SYSCALL3_NORET(sched_setaffinity, linux_pid_t, pid, unsigned int, len, unsigned long LINUX_SAFE_CONST*, user_mask_ptr)
 static inline LINUX_DEFINE_SYSCALL3_NORET(sched_getaffinity, linux_pid_t, pid, unsigned int, len, unsigned long*, user_mask_ptr)
-static inline LINUX_DEFINE_SYSCALL3_RET(lookup_dcookie, uint64_t, cookie64, char*, buf, size_t, len, size_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create, int, size, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL5_NORET(remap_file_pages, void const*, start, size_t, size, unsigned long, prot, unsigned long, pgoff, unsigned long, flags)
 static inline LINUX_DEFINE_SYSCALL3_RET(getdents64, linux_fd_t, fd, struct linux_dirent64_t*, dirent, unsigned int, count, unsigned int)
