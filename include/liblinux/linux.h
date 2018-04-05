@@ -52,6 +52,7 @@
 // Custom types
 
 typedef unsigned int linux_fd_t;
+
 typedef int linux_shmid_t;
 typedef int linux_semid_t;
 typedef int linux_msgid_t;
@@ -85,6 +86,8 @@ typedef int linux_kernel_pid_t;
 typedef linux_kernel_pid_t linux_pid_t;
 
 #include "capabilities.h"
+
+#include "xattr.h"
 
 typedef unsigned short linux_kernel_mode_t;
 typedef unsigned short linux_umode_t;
@@ -6779,18 +6782,6 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(delete_module, char const*, name_user,
 static inline LINUX_DEFINE_SYSCALL4_NORET(quotactl, unsigned int, cmd, char const*, special, linux_qid_t, id, void*, addr)
 static inline LINUX_DEFINE_SYSCALL0_RET(gettid, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL3_NORET(readahead, linux_fd_t, fd, linux_loff_t, offset, size_t, count)
-static inline LINUX_DEFINE_SYSCALL5_NORET(setxattr, char const*, path, char const*, name, void const*, value, size_t, size, int, flags)
-static inline LINUX_DEFINE_SYSCALL5_NORET(lsetxattr, char const*, path, char const*, name, void const*, value, size_t, size, int, flags)
-static inline LINUX_DEFINE_SYSCALL5_NORET(fsetxattr, linux_fd_t, fd, char const*, name, void const*, value, size_t, size, int, flags)
-static inline LINUX_DEFINE_SYSCALL4_RET(getxattr, char const*, path, char const*, name, void*, value, size_t, size, size_t)
-static inline LINUX_DEFINE_SYSCALL4_RET(lgetxattr, char const*, path, char const*, name, void*, value, size_t, size, size_t)
-static inline LINUX_DEFINE_SYSCALL4_RET(fgetxattr, linux_fd_t, fd, char const*, name, void*, value, size_t, size, size_t)
-static inline LINUX_DEFINE_SYSCALL3_RET(listxattr, char const*, path, char*, list, size_t, size, size_t)
-static inline LINUX_DEFINE_SYSCALL3_RET(llistxattr, char const*, path, char*, list, size_t, size, size_t)
-static inline LINUX_DEFINE_SYSCALL3_RET(flistxattr, linux_fd_t, fd, char*, list, size_t, size, size_t)
-static inline LINUX_DEFINE_SYSCALL2_NORET(removexattr, char const*, path, char const*, name)
-static inline LINUX_DEFINE_SYSCALL2_NORET(lremovexattr, char const*, path, char const*, name)
-static inline LINUX_DEFINE_SYSCALL2_NORET(fremovexattr, linux_fd_t, fd, char const*, name)
 static inline LINUX_DEFINE_SYSCALL2_NORET(tkill, linux_pid_t, pid, int, sig)
 static inline LINUX_DEFINE_SYSCALL1_RET(time, linux_time_t*, tloc, linux_time_t)
 static inline LINUX_DEFINE_SYSCALL6_NORET(futex, uint32_t*, uaddr, int, op, uint32_t, val, struct linux_timespec_t*, utime, uint32_t*, uaddr2, uint32_t, val3)

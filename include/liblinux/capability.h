@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef HEADER_LIBLINUX_CAPABILITIES_H_INCLUDED
-#define HEADER_LIBLINUX_CAPABILITIES_H_INCLUDED
+#ifndef HEADER_LIBLINUX_CAPABILITY_H_INCLUDED
+#define HEADER_LIBLINUX_CAPABILITY_H_INCLUDED
 
 #include <stdint.h>
 
@@ -36,4 +36,4 @@ typedef struct linux_user_cap_data_struct_t
 static inline LINUX_DEFINE_SYSCALL2_NORET(capget, struct linux_user_cap_header_struct_t*, header, struct linux_user_cap_data_struct_t*, dataptr)
 static inline LINUX_DEFINE_SYSCALL2_NORET(capset, struct linux_user_cap_header_struct_t*, header, struct linux_user_cap_data_struct_t const*, data)
 
-#endif // HEADER_LIBLINUX_CAPABILITIES_H_INCLUDED
+#endif // HEADER_LIBLINUX_CAPABILITY_H_INCLUDED
