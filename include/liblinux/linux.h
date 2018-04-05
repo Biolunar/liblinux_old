@@ -1578,6 +1578,82 @@ struct linux_bpf_cgroup_dev_ctx_t
 	uint32_t major;
 	uint32_t minor;
 };
+struct linux_uffd_msg_t
+{
+	uint8_t event;
+
+	uint8_t reserved1;
+	uint16_t reserved2;
+	uint32_t reserved3;
+
+	union
+	{
+		struct
+		{
+			uint64_t flags;
+			uint64_t address;
+			union
+			{
+				uint32_t ptid;
+			} feat;
+			char _pad[4];
+		} pagefault;
+
+		struct
+		{
+			uint32_t ufd;
+		} fork;
+
+		struct
+		{
+			uint64_t from;
+			uint64_t to;
+			uint64_t len;
+		} remap;
+
+		struct {
+			uint64_t start;
+			uint64_t end;
+		} remove;
+
+		struct {
+			uint64_t reserved1;
+			uint64_t reserved2;
+			uint64_t reserved3;
+		} reserved;
+	} arg;
+};
+struct linux_uffdio_api_t
+{
+	uint64_t api;
+	uint64_t features;
+	uint64_t ioctls;
+};
+struct linux_uffdio_range_t
+{
+	uint64_t start;
+	uint64_t len;
+};
+struct linux_uffdio_register_t
+{
+	struct linux_uffdio_range_t range;
+	uint64_t mode;
+	uint64_t ioctls;
+};
+struct linux_uffdio_copy_t
+{
+	uint64_t dst;
+	uint64_t src;
+	uint64_t len;
+	uint64_t mode;
+	int64_t copy;
+};
+struct linux_uffdio_zeropage_t
+{
+	struct linux_uffdio_range_t range;
+	uint64_t mode;
+	int64_t zeropage;
+};
 
 // Kernel types
 //------------------------------------------------------------------------------
@@ -6090,6 +6166,80 @@ enum
 	linux_BPF_LL_OFF  = linux_SKF_LL_OFF,
 };
 
+// userfaultfd
+enum
+{
+	linux_UFFD_FEATURE_PAGEFAULT_FLAG_WP = 1 << 0,
+	linux_UFFD_FEATURE_EVENT_FORK        = 1 << 1,
+	linux_UFFD_FEATURE_EVENT_REMAP       = 1 << 2,
+	linux_UFFD_FEATURE_EVENT_REMOVE      = 1 << 3,
+	linux_UFFD_FEATURE_MISSING_HUGETLBFS = 1 << 4,
+	linux_UFFD_FEATURE_MISSING_SHMEM     = 1 << 5,
+	linux_UFFD_FEATURE_EVENT_UNMAP       = 1 << 6,
+	linux_UFFD_FEATURE_SIGBUS            = 1 << 7,
+	linux_UFFD_FEATURE_THREAD_ID         = 1 << 8,
+};
+enum
+{
+	linux__UFFDIO_REGISTER   = 0x00,
+	linux__UFFDIO_UNREGISTER = 0x01,
+	linux__UFFDIO_WAKE       = 0x02,
+	linux__UFFDIO_COPY       = 0x03,
+	linux__UFFDIO_ZEROPAGE   = 0x04,
+	linux__UFFDIO_API        = 0x3F,
+};
+enum
+{
+	linux_UFFD_API          = (uint64_t)0xAA,
+	linux_UFFD_API_FEATURES = linux_UFFD_FEATURE_EVENT_FORK |
+	                          linux_UFFD_FEATURE_EVENT_REMAP |
+	                          linux_UFFD_FEATURE_EVENT_REMOVE |
+	                          linux_UFFD_FEATURE_EVENT_UNMAP |
+	                          linux_UFFD_FEATURE_MISSING_HUGETLBFS |
+	                          linux_UFFD_FEATURE_MISSING_SHMEM |
+	                          linux_UFFD_FEATURE_SIGBUS |
+	                          linux_UFFD_FEATURE_THREAD_ID,
+};
+#define linux_UFFD_API_IOCTLS             ((uint64_t)1 << linux__UFFDIO_REGISTER | (uint64_t)1 << linux__UFFDIO_UNREGISTER | (uint64_t)1 << linux__UFFDIO_API)
+#define linux_UFFD_API_RANGE_IOCTLS       ((uint64_t)1 << linux__UFFDIO_WAKE | (uint64_t)1 << linux__UFFDIO_COPY | (uint64_t)1 << linux__UFFDIO_ZEROPAGE)
+#define linux_UFFD_API_RANGE_IOCTLS_BASIC ((uint64_t)1 << linux__UFFDIO_WAKE | (uint64_t)1 << linux__UFFDIO_COPY)
+enum
+{
+	linux_UFFDIO = 0xAA,
+};
+#define linux_UFFDIO_API        ((3 << 30) | (linux_UFFDIO << 8) | linux__UFFDIO_API | (sizeof(struct linux_uffdio_api_t) << 16))
+#define linux_UFFDIO_REGISTER   ((3 << 30) | (linux_UFFDIO << 8) | linux__UFFDIO_REGISTER | (sizeof(struct linux_uffdio_register_t) << 16))
+#define linux_UFFDIO_UNREGISTER ((2 << 30) | (linux_UFFDIO << 8) | linux__UFFDIO_UNREGISTER | (sizeof(struct linux_uffdio_range_t) << 16))
+#define linux_UFFDIO_WAKE       ((2 << 30) | (linux_UFFDIO << 8) | linux__UFFDIO_WAKE | (sizeof(struct linux_uffdio_range_t) << 16))
+#define linux_UFFDIO_COPY       ((3 << 30) | (linux_UFFDIO << 8) | linux__UFFDIO_COPY | (sizeof(struct linux_uffdio_copy_t) << 16))
+#define linux_UFFDIO_ZEROPAGE   ((3 << 30) | (linux_UFFDIO << 8) | linux__UFFDIO_ZEROPAGE | (sizeof(struct linux_uffdio_zeropage_t) << 16))
+enum
+{
+	linux_UFFD_EVENT_PAGEFAULT = 0x12,
+	linux_UFFD_EVENT_FORK      = 0x13,
+	linux_UFFD_EVENT_REMAP     = 0x14,
+	linux_UFFD_EVENT_REMOVE    = 0x15,
+	linux_UFFD_EVENT_UNMAP     = 0x16,
+};
+enum
+{
+	linux_UFFD_PAGEFAULT_FLAG_WRITE = 1 << 0,
+	linux_UFFD_PAGEFAULT_FLAG_WP    = 1 << 1,
+};
+enum
+{
+	linux_UFFDIO_REGISTER_MODE_MISSING = (uint64_t)1 << 0,
+	linux_UFFDIO_REGISTER_MODE_WP      = (uint64_t)1 << 1,
+};
+enum
+{
+	linux_UFFDIO_COPY_MODE_DONTWAKE = (uint64_t)1 << 0,
+};
+enum
+{
+	linux_UFFDIO_ZEROPAGE_MODE_DONTWAKE = (uint64_t)1 << 0,
+};
+
 // Constants
 //------------------------------------------------------------------------------
 
@@ -6708,6 +6858,7 @@ static inline LINUX_DEFINE_SYSCALL2_RET(memfd_create, char const*, uname_ptr, un
 static inline LINUX_DEFINE_SYSCALL5_NORET(kexec_file_load, linux_fd_t, kernel_fd, linux_fd_t, initrd_fd, unsigned long, cmdline_len, char const*, cmdline_ptr, unsigned long, flags)
 static inline LINUX_DEFINE_SYSCALL3_RET(bpf, int, cmd, union linux_bpf_attr_t*, attr, unsigned int, size, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL5_NORET(execveat, linux_fd_t, dfd, char const*, filename, char const* const*, argv, char const* const*, envp, int, flags)
+static inline LINUX_DEFINE_SYSCALL1_RET(userfaultfd, int, flags, linux_fd_t)
 // TODO: Add more syscalls here first.
 static inline LINUX_DEFINE_SYSCALL3_NORET(mlock2, void const*, start, size_t, len, int, flags)
 static inline LINUX_DEFINE_SYSCALL6_RET(copy_file_range, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
