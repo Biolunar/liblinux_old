@@ -18,6 +18,7 @@
 #define HEADER_LIBLINUX_EVENTPOLL_H_INCLUDED
 
 #include <stdint.h>
+#include <stddef.h>
 
 #include <liblinux/syscall.h>
 

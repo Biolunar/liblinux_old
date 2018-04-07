@@ -110,6 +110,8 @@ typedef struct
 
 #include "eventpoll.h"
 
+#include "fcntl.h"
+
 typedef unsigned short linux_kernel_mode_t;
 typedef unsigned short linux_umode_t;
 typedef linux_kernel_long_t linux_kernel_off_t;
@@ -6653,7 +6655,6 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(madvise, void const*, start, size_t, l
 static inline LINUX_DEFINE_SYSCALL3_RET(shmget, linux_key_t, key, size_t, size, int, flag, linux_shmid_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(shmat, linux_shmid_t, shmid, void LINUX_SAFE_CONST*, shmaddr, int, shmflg, void*)
 static inline LINUX_DEFINE_SYSCALL3_RET(shmctl, linux_shmid_t, shmid, int, cmd, struct linux_shmid64_ds_t*, buf, int)
-static inline LINUX_DEFINE_SYSCALL1_RET(dup, linux_fd_t, fildes, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_RET(dup2, linux_fd_t, oldfd, linux_fd_t, newfd, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL0_NORET(pause)
 static inline LINUX_DEFINE_SYSCALL2_NORET(nanosleep, struct linux_timespec_t LINUX_SAFE_CONST*, rqtp, struct linux_timespec_t*, rmtp)
@@ -6693,7 +6694,6 @@ static inline LINUX_DEFINE_SYSCALL2_RET(msgget, linux_key_t, key, int, msgflg, l
 static inline LINUX_DEFINE_SYSCALL4_NORET(msgsnd, linux_msgid_t, msqid, struct linux_msgbuf_t LINUX_SAFE_CONST*, msgp, size_t, msgsz, int, msgflg)
 static inline LINUX_DEFINE_SYSCALL5_RET(msgrcv, linux_msgid_t, msqid, struct linux_msgbuf_t*, msgp, size_t, msgsz, long, msgtyp, int, msgflg, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(msgctl, linux_msgid_t, msqid, int, cmd, struct linux_msqid64_ds_t*, buf, int)
-static inline LINUX_DEFINE_SYSCALL3_RET(fcntl, linux_fd_t, fd, unsigned int, cmd, uintptr_t, arg, int)
 static inline LINUX_DEFINE_SYSCALL2_NORET(flock, linux_fd_t, fd, unsigned int, cmd)
 static inline LINUX_DEFINE_SYSCALL1_NORET(fsync, linux_fd_t, fd)
 static inline LINUX_DEFINE_SYSCALL1_NORET(fdatasync, linux_fd_t, fd)
@@ -6881,7 +6881,6 @@ static inline LINUX_DEFINE_SYSCALL4_NORET(timerfd_settime, linux_fd_t, ufd, int,
 static inline LINUX_DEFINE_SYSCALL2_NORET(timerfd_gettime, linux_fd_t, ufd, struct linux_itimerspec_t*, otmr)
 static inline LINUX_DEFINE_SYSCALL4_RET(accept4, linux_fd_t, fd, struct linux_sockaddr_t*, upeer_sockaddr, int*, upeer_addrlen, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(signalfd4, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, int, flags, linux_fd_t)
-static inline LINUX_DEFINE_SYSCALL3_RET(dup3, linux_fd_t, oldfd, linux_fd_t, newfd, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(pipe2, linux_fd_t*, fildes, int, flags)
 static inline LINUX_DEFINE_SYSCALL1_RET(inotify_init1, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL5_RET(preadv, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, size_t)

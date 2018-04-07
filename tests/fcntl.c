@@ -22,8 +22,9 @@
 
 static enum TestResult test_invalid_fd(void)
 {
-	linux_fd_t fd;
-	enum linux_error_t const err = linux_fcntl(linux_stderr + 1, linux_F_DUPFD, 0, (int*)&fd);
+	long ret;
+	enum linux_error_t const err = linux_fcntl(linux_stderr + 1, linux_F_DUPFD, 0, &ret);
+	linux_fd_t fd = (linux_fd_t)ret;
 	if (!err)
 	{
 		linux_close(fd);
@@ -46,9 +47,10 @@ static enum TestResult test_segfault(void)
 
 static enum TestResult test_dup(void)
 {
-	linux_fd_t fd;
-	if  (linux_fcntl(linux_stdout, linux_F_DUPFD, 0, (int*)&fd))
+	long ret;
+	if  (linux_fcntl(linux_stdout, linux_F_DUPFD, 0, &ret))
 		return TEST_RESULT_FAILURE;
+	linux_fd_t fd = (linux_fd_t)ret;
 
 	if (fd != linux_stderr + 1)
 	{
@@ -58,8 +60,9 @@ static enum TestResult test_dup(void)
 
 	linux_close(fd);
 
-	if  (linux_fcntl(linux_stdout, linux_F_DUPFD_CLOEXEC, 0, (int*)&fd))
+	if  (linux_fcntl(linux_stdout, linux_F_DUPFD_CLOEXEC, 0, &ret))
 		return TEST_RESULT_FAILURE;
+	fd = (linux_fd_t)ret;
 
 	if (fd != linux_stderr + 1)
 	{
