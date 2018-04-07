@@ -61,7 +61,7 @@ static void normal_handler(int const signum)
 
 static enum TestResult test_set_new(void)
 {
-	linux_sigset_t empty = 0;
+	linux_sigset_t empty;
 	linux_sigemptyset(&empty);
 	struct linux_sigaction_t const new =
 	{
@@ -92,7 +92,7 @@ static void siginfo_handler(int const signum, struct linux_siginfo_t* const info
 
 static enum TestResult test_set_siginfo(void)
 {
-	linux_sigset_t empty = 0;
+	linux_sigset_t empty;
 	linux_sigemptyset(&empty);
 	struct linux_sigaction_t const new =
 	{

@@ -95,6 +95,21 @@ typedef linux_kernel_pid_t linux_pid_t;
 
 #include "eventfd.h"
 
+enum
+{
+#ifdef __mips__
+	linux_NSIG = 128,
+#else
+	linux_NSIG =  64,
+#endif
+};
+typedef struct
+{
+	unsigned long sig[linux_NSIG / (sizeof(unsigned long) * CHAR_BIT)];
+} linux_sigset_t;
+
+#include "eventpoll.h"
+
 typedef unsigned short linux_kernel_mode_t;
 typedef unsigned short linux_umode_t;
 typedef linux_kernel_long_t linux_kernel_off_t;
@@ -107,7 +122,6 @@ typedef linux_kernel_long_t linux_kernel_clock_t;
 typedef linux_kernel_clock_t linux_clock_t;
 typedef linux_kernel_clock_t linux_arch_si_clock_t;
 typedef long linux_arch_si_band_t;
-typedef unsigned long linux_sigset_t;
 typedef linux_kernel_ulong_t linux_kernel_size_t;
 typedef long long linux_kernel_loff_t;
 typedef linux_kernel_loff_t linux_loff_t;
@@ -980,15 +994,6 @@ struct linux_itimerspec_t
 {
 	struct linux_timespec_t it_interval;
 	struct linux_timespec_t it_value;
-};
-struct linux_epoll_event_t
-{
-	uint32_t events;
-
-	// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
-	uint32_t data_lo;
-	uint32_t data_hi;
-	//uint64_t data;
 };
 struct linux_mq_attr_t
 {
@@ -6343,37 +6348,49 @@ static inline bool linux_S_ISSOCK(linux_umode_t const m)
 	return (m & linux_S_IFMT) == linux_S_IFSOCK;
 }
 
+#define LINUX_ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
+
 static inline void linux_sigemptyset(linux_sigset_t* const set)
 {
-	*set = 0ul;
+	for (size_t i = 0; i < LINUX_ARRAY_SIZE(set->sig); ++i)
+		set->sig[i] = 0ul;
 }
 
 static inline void linux_sigfillset(linux_sigset_t* const set)
 {
-	*set = -1ul;
+	for (size_t i = 0; i < LINUX_ARRAY_SIZE(set->sig); ++i)
+		set->sig[i] = ULONG_MAX;
 }
+
+#undef LINUX_ARRAY_SIZE
 
 static inline enum linux_error_t linux_sigaddset(linux_sigset_t* const set, int const signum)
 {
-	if (signum == 0 || signum > 64)
+	if (signum <= 0 || signum > linux_NSIG)
 		return linux_EINVAL;
-	*set |= 1ul << (signum - 1);
+	size_t const word = (size_t)(signum - 1) / (sizeof set->sig[0] * CHAR_BIT);
+	size_t const bit = (size_t)(signum - 1) % (sizeof set->sig[0] * CHAR_BIT);
+	set->sig[word] |= 1ul << bit;
 	return linux_error_none;
 }
 
 static inline enum linux_error_t linux_sigdelset(linux_sigset_t* const set, int const signum)
 {
-	if (signum == 0 || signum > 64)
+	if (signum <= 0 || signum > linux_NSIG)
 		return linux_EINVAL;
-	*set &= ~(1ul << (signum - 1));
+	size_t const word = (size_t)(signum - 1) / (sizeof set->sig[0] * CHAR_BIT);
+	size_t const bit = (size_t)(signum - 1) % (sizeof set->sig[0] * CHAR_BIT);
+	set->sig[word] &= ~(1ul << bit);
 	return linux_error_none;
 }
 
 static inline enum linux_error_t linux_sigismember(linux_sigset_t const* const set, int const signum, bool* const ret)
 {
-	if (signum == 0 || signum > 64)
+	if (signum <= 0 || signum > linux_NSIG)
 		return linux_EINVAL;
-	*ret = *set & (1ul << (signum - 1));
+	size_t const word = (size_t)(signum - 1) / (sizeof set->sig[0] * CHAR_BIT);
+	size_t const bit = (size_t)(signum - 1) % (sizeof set->sig[0] * CHAR_BIT);
+	*ret = set->sig[word] & (1ul << bit);
 	return linux_error_none;
 }
 
@@ -6810,7 +6827,6 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(clock_getres, linux_clockid_t, which_c
 static inline LINUX_DEFINE_SYSCALL4_NORET(clock_nanosleep, linux_clockid_t, which_clock, int, flags, struct linux_timespec_t const*, rqtp, struct linux_timespec_t*, rmtp)
 // exit_group
 static inline LINUX_DEFINE_SYSCALL4_RET(epoll_wait, linux_fd_t, epfd, struct linux_epoll_event_t*, events, int, maxevents, int, timeout, int)
-static inline LINUX_DEFINE_SYSCALL4_NORET(epoll_ctl, linux_fd_t, epfd, int, op, linux_fd_t, fd, struct linux_epoll_event_t*, event)
 static inline LINUX_DEFINE_SYSCALL3_NORET(tgkill, linux_pid_t, tgid, linux_pid_t, pid, int, sig)
 static inline LINUX_DEFINE_SYSCALL2_NORET(utimes, char LINUX_SAFE_CONST*, filename, struct linux_timeval_t LINUX_SAFE_CONST*, utimes)
 static inline LINUX_DEFINE_SYSCALL6_NORET(mbind, void const*, start, size_t, len, unsigned long, mode, unsigned long const*, nmask, unsigned long, maxnode, unsigned int, flags)
@@ -6857,7 +6873,6 @@ static inline LINUX_DEFINE_SYSCALL4_NORET(sync_file_range, linux_fd_t, fd, linux
 static inline LINUX_DEFINE_SYSCALL4_RET(vmsplice, linux_fd_t, fd, struct linux_iovec_t const*, iov, unsigned long, nr_segs, unsigned int, flags, size_t)
 static inline LINUX_DEFINE_SYSCALL6_NORET(move_pages, linux_pid_t, pid, unsigned long, nr_pages, void const**, pages, int const*, nodes, int*, status, int, flags)
 static inline LINUX_DEFINE_SYSCALL4_NORET(utimensat, linux_fd_t, dfd, char const*, filename, struct linux_timespec_t LINUX_SAFE_CONST*, utimes, int, flags)
-static inline LINUX_DEFINE_SYSCALL6_RET(epoll_pwait, linux_fd_t, epfd, struct linux_epoll_event_t*, events, int, maxevents, int, timeout, linux_sigset_t const*, sigmask, size_t, sigsetsize, int)
 static inline LINUX_DEFINE_SYSCALL3_RET(signalfd, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_RET(timerfd_create, int, clockid, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(eventfd, unsigned int, count, linux_fd_t)
@@ -6866,7 +6881,6 @@ static inline LINUX_DEFINE_SYSCALL4_NORET(timerfd_settime, linux_fd_t, ufd, int,
 static inline LINUX_DEFINE_SYSCALL2_NORET(timerfd_gettime, linux_fd_t, ufd, struct linux_itimerspec_t*, otmr)
 static inline LINUX_DEFINE_SYSCALL4_RET(accept4, linux_fd_t, fd, struct linux_sockaddr_t*, upeer_sockaddr, int*, upeer_addrlen, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(signalfd4, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, int, flags, linux_fd_t)
-static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create1, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(dup3, linux_fd_t, oldfd, linux_fd_t, newfd, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(pipe2, linux_fd_t*, fildes, int, flags)
 static inline LINUX_DEFINE_SYSCALL1_RET(inotify_init1, int, flags, linux_fd_t)
