@@ -24,7 +24,7 @@ static char const filename[] = "some file";
 
 static enum TestResult test_invalid_fd(void)
 {
-	linux_wd_t wd = 0;
+	linux_fd_t wd = 0;
 	if (linux_inotify_rm_watch(linux_stderr + 1, wd) != linux_EBADF)
 		return TEST_RESULT_FAILURE;
 
@@ -46,7 +46,7 @@ static enum TestResult test_correct_usage(void)
 		return TEST_RESULT_OTHER_FAILURE;
 	}
 
-	linux_wd_t wd;
+	linux_fd_t wd;
 	if (linux_inotify_add_watch(fd, filename, linux_IN_ALL_EVENTS, &wd))
 		return TEST_RESULT_OTHER_FAILURE;
 

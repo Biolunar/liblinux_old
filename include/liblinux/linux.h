@@ -56,7 +56,6 @@ typedef unsigned int linux_fd_t;
 typedef int linux_shmid_t;
 typedef int linux_semid_t;
 typedef int linux_msgid_t;
-typedef int32_t linux_wd_t;
 typedef int linux_pkey_t;
 
 // Custom types
@@ -111,6 +110,8 @@ typedef struct
 #include "eventpoll.h"
 
 #include "fcntl.h"
+
+#include "inotify_user.h"
 
 typedef unsigned short linux_kernel_mode_t;
 typedef unsigned short linux_umode_t;
@@ -6846,8 +6847,6 @@ static inline LINUX_DEFINE_SYSCALL5_RET(keyctl, int, cmd, unsigned long, arg2, u
 static inline LINUX_DEFINE_SYSCALL3_NORET(ioprio_set, int, which, int, who, int, ioprio)
 static inline LINUX_DEFINE_SYSCALL2_RET(ioprio_get, int, which, int, who, int)
 static inline LINUX_DEFINE_SYSCALL0_RET(inotify_init, linux_fd_t)
-static inline LINUX_DEFINE_SYSCALL3_RET(inotify_add_watch, linux_fd_t, fd, char const*, path, uint32_t, mask, linux_wd_t)
-static inline LINUX_DEFINE_SYSCALL2_NORET(inotify_rm_watch, linux_fd_t, fd, linux_wd_t, wd)
 static inline LINUX_DEFINE_SYSCALL4_RET(migrate_pages, linux_pid_t, pid, unsigned long, maxnode, unsigned long const*, from, unsigned long const*, to, int)
 static inline LINUX_DEFINE_SYSCALL4_RET(openat, linux_fd_t, dfd, char const*, filename, int, flags, linux_umode_t, mode, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL3_NORET(mkdirat, linux_fd_t, dfd, char const*, pathname, linux_umode_t, mode)
@@ -6882,7 +6881,6 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(timerfd_gettime, linux_fd_t, ufd, stru
 static inline LINUX_DEFINE_SYSCALL4_RET(accept4, linux_fd_t, fd, struct linux_sockaddr_t*, upeer_sockaddr, int*, upeer_addrlen, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(signalfd4, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(pipe2, linux_fd_t*, fildes, int, flags)
-static inline LINUX_DEFINE_SYSCALL1_RET(inotify_init1, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL5_RET(preadv, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, size_t)
 static inline LINUX_DEFINE_SYSCALL5_RET(pwritev, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, size_t)
 static inline LINUX_DEFINE_SYSCALL4_NORET(rt_tgsigqueueinfo, linux_pid_t, tgid, linux_pid_t, pid, int, sig, struct linux_siginfo_t*, uinfo)
