@@ -117,6 +117,8 @@ typedef struct
 
 #include "ioprio.h"
 
+#include "locks.h"
+
 typedef unsigned short linux_kernel_mode_t;
 typedef unsigned short linux_umode_t;
 typedef linux_kernel_long_t linux_kernel_off_t;
@@ -6698,7 +6700,6 @@ static inline LINUX_DEFINE_SYSCALL2_RET(msgget, linux_key_t, key, int, msgflg, l
 static inline LINUX_DEFINE_SYSCALL4_NORET(msgsnd, linux_msgid_t, msqid, struct linux_msgbuf_t LINUX_SAFE_CONST*, msgp, size_t, msgsz, int, msgflg)
 static inline LINUX_DEFINE_SYSCALL5_RET(msgrcv, linux_msgid_t, msqid, struct linux_msgbuf_t*, msgp, size_t, msgsz, long, msgtyp, int, msgflg, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(msgctl, linux_msgid_t, msqid, int, cmd, struct linux_msqid64_ds_t*, buf, int)
-static inline LINUX_DEFINE_SYSCALL2_NORET(flock, linux_fd_t, fd, unsigned int, cmd)
 static inline LINUX_DEFINE_SYSCALL1_NORET(fsync, linux_fd_t, fd)
 static inline LINUX_DEFINE_SYSCALL1_NORET(fdatasync, linux_fd_t, fd)
 static inline LINUX_DEFINE_SYSCALL2_NORET(truncate, char LINUX_SAFE_CONST*, path, long, length)
