@@ -115,6 +115,8 @@ typedef struct
 
 #include "ioctl.h"
 
+#include "ioprio.h"
+
 typedef unsigned short linux_kernel_mode_t;
 typedef unsigned short linux_umode_t;
 typedef linux_kernel_long_t linux_kernel_off_t;
@@ -6845,8 +6847,6 @@ static inline LINUX_DEFINE_SYSCALL5_NORET(waitid, int, which, linux_pid_t, pid, 
 static inline LINUX_DEFINE_SYSCALL5_RET(add_key, char const*, type, char const*, description, void const*, payload, size_t, plen, linux_key_serial_t, destringid, linux_key_serial_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(request_key, char const*, type, char const*, description, char const*, callout_info, linux_key_serial_t, destringid, linux_key_serial_t)
 static inline LINUX_DEFINE_SYSCALL5_RET(keyctl, int, cmd, unsigned long, arg2, unsigned long, arg3, unsigned long, arg4, unsigned long, arg5, intptr_t)
-static inline LINUX_DEFINE_SYSCALL3_NORET(ioprio_set, int, which, int, who, int, ioprio)
-static inline LINUX_DEFINE_SYSCALL2_RET(ioprio_get, int, which, int, who, int)
 static inline LINUX_DEFINE_SYSCALL0_RET(inotify_init, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(migrate_pages, linux_pid_t, pid, unsigned long, maxnode, unsigned long const*, from, unsigned long const*, to, int)
 static inline LINUX_DEFINE_SYSCALL4_RET(openat, linux_fd_t, dfd, char const*, filename, int, flags, linux_umode_t, mode, linux_fd_t)

@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef HEADER_LIBLINUX_IOCTL_H_INCLUDED
-#define HEADER_LIBLINUX_IOCTL_H_INCLUDED
-
-#include <stdint.h>
+#ifndef HEADER_LIBLINUX_IOPRIO_H_INCLUDED
+#define HEADER_LIBLINUX_IOPRIO_H_INCLUDED
 
 #include <liblinux/syscall.h>
 
-static inline LINUX_DEFINE_SYSCALL3_RET(ioctl, linux_fd_t, fd, unsigned int, cmd, uintptr_t, arg, int)
+static inline LINUX_DEFINE_SYSCALL3_NORET(ioprio_set, int, which, int, who, int, ioprio)
+static inline LINUX_DEFINE_SYSCALL2_RET(ioprio_get, int, which, int, who, int)
 
-#endif // HEADER_LIBLINUX_IOCTL_H_INCLUDED
+#endif // HEADER_LIBLINUX_IOPRIO_H_INCLUDED
