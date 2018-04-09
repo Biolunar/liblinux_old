@@ -316,6 +316,27 @@ typedef linux_kernel_gid32_t linux_gid_t;
 // readdir
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// read_write
+
+typedef linux_kernel_long_t linux_kernel_off_t;
+typedef linux_kernel_off_t linux_off_t;
+#if defined(LINUX_ARCH_ARM64) || defined(LINUX_ARCH_X86_64)
+typedef linux_kernel_ulong_t linux_kernel_size_t;
+#else
+typedef unsigned int linux_kernel_size_t;
+#endif
+struct linux_iovec_t
+{
+	void* iov_base;
+	linux_kernel_size_t iov_len;
+};
+
+#include "read_write.h"
+
+// read_write
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -356,15 +377,12 @@ typedef int linux_pkey_t;
 // Kernel types
 
 typedef unsigned short linux_kernel_mode_t;
-typedef linux_kernel_long_t linux_kernel_off_t;
-typedef linux_kernel_off_t linux_off_t;
 typedef linux_kernel_uid32_t linux_arch_si_uid_t;
 typedef int linux_kernel_timer_t;
 typedef linux_kernel_long_t linux_kernel_clock_t;
 typedef linux_kernel_clock_t linux_clock_t;
 typedef linux_kernel_clock_t linux_arch_si_clock_t;
 typedef long linux_arch_si_band_t;
-typedef linux_kernel_ulong_t linux_kernel_size_t;
 typedef linux_kernel_long_t linux_kernel_suseconds_t;
 typedef int linux_kernel_key_t;
 typedef linux_kernel_key_t linux_key_t;
@@ -615,11 +633,6 @@ struct linux_termios2_t
 	linux_cc_t c_cc[19]; // control characters
 	linux_speed_t c_ispeed; // input speed
 	linux_speed_t c_ospeed; // output speed
-};
-struct linux_iovec_t
-{
-	void* iov_base; // BSD uses caddr_t (1003.1g requires void *)
-	linux_kernel_size_t iov_len; // Must be size_t (1003.1g)
 };
 typedef struct
 {
@@ -6829,14 +6842,11 @@ static inline int linux_BPF_MISCOP(int const code)
 //------------------------------------------------------------------------------
 // Syscalls
 
-static inline LINUX_DEFINE_SYSCALL3_RET(read, linux_fd_t, fd, void*, buf, size_t, count, size_t)
-static inline LINUX_DEFINE_SYSCALL3_RET(write, linux_fd_t, fd, void const*, buf, size_t, count, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(open, char const*, filename, int, flags, linux_umode_t, mode, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(newstat, char const*, filename, struct linux_stat_t*, statbuf)
 static inline LINUX_DEFINE_SYSCALL2_NORET(newfstat, linux_fd_t, fd, struct linux_stat_t*, statbuf)
 static inline LINUX_DEFINE_SYSCALL2_NORET(newlstat, char const*, filename, struct linux_stat_t*, statbuf)
 static inline LINUX_DEFINE_SYSCALL3_RET(poll, struct linux_pollfd_t*, ufds, unsigned int, nfds, int, timeout, unsigned int)
-static inline LINUX_DEFINE_SYSCALL3_RET(lseek, linux_fd_t, fd, linux_off_t, offset, unsigned int, whence, linux_off_t)
 static inline LINUX_DEFINE_SYSCALL6_RET(mmap, void const*, addr, size_t, len, unsigned long, prot, unsigned long, flags, linux_fd_t, fd, linux_off_t, off, void*)
 static inline LINUX_DEFINE_SYSCALL3_NORET(mprotect, void const*, start, size_t, len, unsigned long, prot)
 static inline LINUX_DEFINE_SYSCALL2_NORET(munmap, void const*, addr, size_t, len)
@@ -6844,10 +6854,6 @@ static inline LINUX_DEFINE_SYSCALL1_RET(brk, void const*, brk, void*)
 static inline LINUX_DEFINE_SYSCALL4_NORET(rt_sigaction, int, sig, struct linux_sigaction_t const*, act, struct linux_sigaction_t*, oact, size_t, sigsetsize)
 static inline LINUX_DEFINE_SYSCALL4_NORET(rt_sigprocmask, int, how, linux_sigset_t LINUX_SAFE_CONST*, set, linux_sigset_t*, oset, size_t, sigsetsize)
 //rt_sigreturn
-static inline LINUX_DEFINE_SYSCALL4_RET(pread64, linux_fd_t, fd, void*, buf, size_t, count, linux_loff_t, pos, size_t)
-static inline LINUX_DEFINE_SYSCALL4_RET(pwrite64, linux_fd_t, fd, void const*, buf, size_t, count, linux_loff_t, pos, size_t)
-static inline LINUX_DEFINE_SYSCALL3_RET(readv, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, size_t)
-static inline LINUX_DEFINE_SYSCALL3_RET(writev, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, size_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(access, char const*, filename, int, mode)
 static inline LINUX_DEFINE_SYSCALL1_NORET(pipe, linux_fd_t*, fildes)
 static inline LINUX_DEFINE_SYSCALL5_RET(select, int, n, linux_fd_set_t*, inp, linux_fd_set_t*, outp, linux_fd_set_t*, exp, struct linux_timeval_t*, tvp, unsigned int)
@@ -7054,8 +7060,6 @@ static inline LINUX_DEFINE_SYSCALL4_NORET(timerfd_settime, linux_fd_t, ufd, int,
 static inline LINUX_DEFINE_SYSCALL2_NORET(timerfd_gettime, linux_fd_t, ufd, struct linux_itimerspec_t*, otmr)
 static inline LINUX_DEFINE_SYSCALL4_RET(accept4, linux_fd_t, fd, struct linux_sockaddr_t*, upeer_sockaddr, int*, upeer_addrlen, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(signalfd4, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, int, flags, linux_fd_t)
-static inline LINUX_DEFINE_SYSCALL5_RET(preadv, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, size_t)
-static inline LINUX_DEFINE_SYSCALL5_RET(pwritev, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, size_t)
 static inline LINUX_DEFINE_SYSCALL4_NORET(rt_tgsigqueueinfo, linux_pid_t, tgid, linux_pid_t, pid, int, sig, struct linux_siginfo_t*, uinfo)
 static inline LINUX_DEFINE_SYSCALL5_RET(perf_event_open, struct linux_perf_event_attr_t*, attr_uptr, linux_pid_t, pid, int, cpu, linux_fd_t, group_fd, unsigned long, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL5_RET(recvmmsg, linux_fd_t, fd, struct linux_mmsghdr_t*, msg, unsigned int, vlen, unsigned int, flags, struct linux_timespec_t*, timeout, unsigned int)
