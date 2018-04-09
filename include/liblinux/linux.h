@@ -300,6 +300,14 @@ typedef linux_kernel_gid32_t linux_gid_t;
 // pipe
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// quota
+
+#include "quota.h"
+
+// quota
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -1073,7 +1081,6 @@ struct linux_timex_t
 	int  :32; int  :32; int  :32; int  :32;
 	int  :32; int  :32; int  :32;
 };
-typedef linux_kernel_uid32_t linux_qid_t;
 struct linux_if_dqblk_t
 {
 	uint64_t dqb_bhardlimit;
@@ -6985,7 +6992,6 @@ static inline LINUX_DEFINE_SYSCALL1_NORET(iopl, unsigned int, level)
 static inline LINUX_DEFINE_SYSCALL3_NORET(ioperm, unsigned long, from, unsigned long, num, int, on)
 static inline LINUX_DEFINE_SYSCALL3_NORET(init_module, void LINUX_SAFE_CONST*, umod, size_t, len, char const*, uargs)
 static inline LINUX_DEFINE_SYSCALL2_NORET(delete_module, char const*, name_user, unsigned int, flags)
-static inline LINUX_DEFINE_SYSCALL4_NORET(quotactl, unsigned int, cmd, char const*, special, linux_qid_t, id, void*, addr)
 static inline LINUX_DEFINE_SYSCALL0_RET(gettid, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL3_NORET(readahead, linux_fd_t, fd, linux_loff_t, offset, size_t, count)
 static inline LINUX_DEFINE_SYSCALL2_NORET(tkill, linux_pid_t, pid, int, sig)
