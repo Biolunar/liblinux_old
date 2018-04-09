@@ -167,6 +167,14 @@ typedef unsigned short linux_umode_t;
 // namei
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// namespace
+
+#include "namespace.h"
+
+// namespace
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -229,15 +237,22 @@ typedef unsigned short linux_umode_t;
 #endif
 #endif
 
-// Some syscalls do not modify a parameter but are passed as non-const
-// pointers in the kernel sources. Define this macro so that our syscalls also
-// expect non-const pointers. Do not define this macro if you wish to have const
-// correctness.
+/*
+ * Some syscalls do not modify a parameter but are passed as non-const
+ * pointers in the kernel sources. Define this macro so that our syscalls also
+ * expect non-const pointers. Do not define this macro if you wish to have const
+ * correctness.
+ */
 #ifdef LINUX_NO_SAFE_CONST
 #define LINUX_SAFE_CONST
 #else
 #define LINUX_SAFE_CONST const
 #endif // LINUX_NO_SAFE_CONST
+
+/*
+ * TODO: Check every syscall for every other architecture than x86_64 if the
+ * parameters fit (compat/stub/...)
+ */
 
 //------------------------------------------------------------------------------
 // Custom types
@@ -6918,7 +6933,6 @@ static inline enum linux_error_t linux_modify_ldt(int const func, void* const pt
 		*result = ret;
 	return linux_error_none;
 }
-static inline LINUX_DEFINE_SYSCALL2_NORET(pivot_root, char const*, new_root, char const*, put_old)
 static inline LINUX_DEFINE_SYSCALL1_NORET(sysctl, struct linux_sysctl_args_t*, args)
 static inline LINUX_DEFINE_SYSCALL5_RET(prctl, int, option, uintptr_t, arg2, uintptr_t, arg3, uintptr_t, arg4, uintptr_t, arg5, long)
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
@@ -6928,8 +6942,6 @@ static inline LINUX_DEFINE_SYSCALL1_NORET(chroot, char const*, filename)
 static inline LINUX_DEFINE_SYSCALL0_NORET(sync)
 static inline LINUX_DEFINE_SYSCALL1_NORET(acct, char const*, name)
 static inline LINUX_DEFINE_SYSCALL2_NORET(settimeofday, struct linux_timeval_t LINUX_SAFE_CONST*, tv, struct linux_timezone_t LINUX_SAFE_CONST*, tz)
-static inline LINUX_DEFINE_SYSCALL5_NORET(mount, char LINUX_SAFE_CONST*, dev_name, char LINUX_SAFE_CONST*, dir_name, char LINUX_SAFE_CONST*, type, unsigned long, flags, void LINUX_SAFE_CONST*, data)
-static inline LINUX_DEFINE_SYSCALL2_NORET(umount, char LINUX_SAFE_CONST*, name, int, flags)
 static inline LINUX_DEFINE_SYSCALL2_NORET(swapon, char const*, specialfile, int, swap_flags)
 static inline LINUX_DEFINE_SYSCALL1_NORET(swapoff, char const*, specialfile)
 static inline LINUX_DEFINE_SYSCALL4_NORET(reboot, int, magic1, int, magic2, unsigned int, cmd, void LINUX_SAFE_CONST*, arg)
