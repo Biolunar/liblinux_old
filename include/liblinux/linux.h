@@ -17,54 +17,18 @@
 #ifndef HEADER_LIBLINUX_LINUX_H_INCLUDED
 #define HEADER_LIBLINUX_LINUX_H_INCLUDED
 
-#include <stddef.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdalign.h>
-#include <limits.h>
-
-#include <liblinux/syscall.h>
-
-/* C types
- * =======
- * Make sure all type replacements are exactly the same size! There is no
- * standard that defines if values get sign extended or not.
- *
- * char
- * signed char, unsigned char -> (u)int8_t
- * signed short, unsigned short -> (u)int16_t
- * signed int, unsigned int -> (u)int32_t
- * signed long, unsigned long -> (u)intptr_t, size_t
- * signed long long, unsigned long long -> (u)int64_t
- */
-
-// Some syscalls do not modify a parameter but are passed as non-const
-// pointers in the kernel sources. Define this macro so that our syscalls also
-// expect non-const pointers. Do not define this macro if you wish to have const
-// correctness.
-#ifdef LINUX_NO_SAFE_CONST
-#define LINUX_SAFE_CONST
-#else
-#define LINUX_SAFE_CONST const
-#endif // LINUX_NO_SAFE_CONST
-
 //------------------------------------------------------------------------------
 // Custom types
 
 typedef unsigned int linux_fd_t;
 
-typedef int linux_shmid_t;
-typedef int linux_semid_t;
-typedef int linux_msgid_t;
-typedef int linux_pkey_t;
-
 // Custom types
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-// Kernel types
+// aio
 
-#if defined(__x86_64__) && defined(__ILP32__)
+#ifdef LINUX_ARCH_X32
 typedef long long linux_kernel_long_t;
 typedef unsigned long long linux_kernel_ulong_t;
 #else
@@ -81,18 +45,56 @@ struct linux_timespec_t
 
 #include "aio.h"
 
+// aio
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// capability
+
 typedef int linux_kernel_pid_t;
 typedef linux_kernel_pid_t linux_pid_t;
 
 #include "capability.h"
 
+// capability
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// xattr
+
 #include "xattr.h"
+
+// xattr
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// dcache
 
 #include "dcache.h"
 
+// dcache
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// cookies
+
 #include "cookies.h"
 
+// cookies
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// eventfd
+
 #include "eventfd.h"
+
+// eventfd
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// eventpoll
+
+#include <limits.h>
 
 enum
 {
@@ -109,18 +111,149 @@ typedef struct
 
 #include "eventpoll.h"
 
+// eventpoll
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// fcntl
+
 #include "fcntl.h"
+
+// fcntl
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// inotify_user
 
 #include "inotify_user.h"
 
+// inotify_user
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// ioctl
+
 #include "ioctl.h"
+
+// ioctl
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// ioprio
 
 #include "ioprio.h"
 
+// ioprio
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// locks
+
 #include "locks.h"
 
-typedef unsigned short linux_kernel_mode_t;
+// locks
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// namei
+
+#ifndef LINUX_ARCH_RISCV
+#define LINUX_ARCH_WANT_RENAMEAT
+#endif
 typedef unsigned short linux_umode_t;
+
+#include "namei.h"
+
+// namei
+//------------------------------------------------------------------------------
+
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdalign.h>
+
+#include <liblinux/syscall.h>
+
+/* C types
+ * =======
+ * Make sure all type replacements are exactly the same size! There is no
+ * standard that defines if values get sign extended or not.
+ *
+ * signed char, unsigned char -> (u)int8_t
+ * signed short, unsigned short -> (u)int16_t
+ * signed int, unsigned int -> (u)int32_t
+ * signed long, unsigned long -> (u)intptr_t, size_t
+ * signed long long, unsigned long long -> (u)int64_t
+ */
+
+/* Linux architectures:
+ * ====================
+ * alpha      __alpha__
+ * arc
+ * arm        __arm__
+ * arm64      __aarch64__
+ * c6x
+ * h8300
+ * hexagon
+ * ia64       __ia64__
+ * m68k       __m68k__
+ * microblaze
+ * mips       __mips__
+ * nios2
+ * openrisc
+ * parisc
+ * powerpc    __powerpc__
+ * riscv
+ * s390
+ * sh
+ * sparc      __sparc__
+ * unicore32
+ * x86        __i386__
+ * x86_64     __x86_64__
+ * xtensa
+ */
+
+#ifdef __aarch64__
+#define LINUX_ARCH_ARM64
+#endif
+
+#ifdef __i386__
+#define LINUX_ARCH_X86
+#endif
+
+#ifdef __x86_64__
+#ifdef __ILP32__
+#define LINUX_ARCH_X32
+#else
+#define LINUX_ARCH_X86_64
+#endif
+#endif
+
+// Some syscalls do not modify a parameter but are passed as non-const
+// pointers in the kernel sources. Define this macro so that our syscalls also
+// expect non-const pointers. Do not define this macro if you wish to have const
+// correctness.
+#ifdef LINUX_NO_SAFE_CONST
+#define LINUX_SAFE_CONST
+#else
+#define LINUX_SAFE_CONST const
+#endif // LINUX_NO_SAFE_CONST
+
+//------------------------------------------------------------------------------
+// Custom types
+
+typedef int linux_shmid_t;
+typedef int linux_semid_t;
+typedef int linux_msgid_t;
+typedef int linux_pkey_t;
+
+// Custom types
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Kernel types
+
+typedef unsigned short linux_kernel_mode_t;
 typedef linux_kernel_long_t linux_kernel_off_t;
 typedef linux_kernel_off_t linux_off_t;
 typedef unsigned int linux_kernel_uid32_t;
@@ -6851,15 +6984,9 @@ static inline LINUX_DEFINE_SYSCALL5_RET(keyctl, int, cmd, unsigned long, arg2, u
 static inline LINUX_DEFINE_SYSCALL0_RET(inotify_init, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(migrate_pages, linux_pid_t, pid, unsigned long, maxnode, unsigned long const*, from, unsigned long const*, to, int)
 static inline LINUX_DEFINE_SYSCALL4_RET(openat, linux_fd_t, dfd, char const*, filename, int, flags, linux_umode_t, mode, linux_fd_t)
-static inline LINUX_DEFINE_SYSCALL3_NORET(mkdirat, linux_fd_t, dfd, char const*, pathname, linux_umode_t, mode)
-static inline LINUX_DEFINE_SYSCALL4_NORET(mknodat, linux_fd_t, dfd, char const*, filename, linux_umode_t, mode, unsigned int, dev)
 static inline LINUX_DEFINE_SYSCALL5_NORET(fchownat, linux_fd_t, dfd, char const*, filename, linux_uid_t, user, linux_gid_t, group, int, flag)
 static inline LINUX_DEFINE_SYSCALL3_NORET(futimesat, linux_fd_t, dfd, char const*, filename, struct linux_timeval_t LINUX_SAFE_CONST*, utimes)
 static inline LINUX_DEFINE_SYSCALL4_NORET(newfstatat, linux_fd_t, dfd, char const*, filename, struct linux_stat_t*, statbuf, int, flag)
-static inline LINUX_DEFINE_SYSCALL3_NORET(unlinkat, linux_fd_t, dfd, char const*, pathname, int, flag)
-static inline LINUX_DEFINE_SYSCALL4_NORET(renameat, linux_fd_t, olddfd, char const*, oldname, linux_fd_t, newdfd, char const*, newname)
-static inline LINUX_DEFINE_SYSCALL5_NORET(linkat, linux_fd_t, olddfd, char const*, oldname, linux_fd_t, newdfd, char const*, newname, int, flags)
-static inline LINUX_DEFINE_SYSCALL3_NORET(symlinkat, char const*, oldname, linux_fd_t, newdfd, char const*, newname)
 static inline LINUX_DEFINE_SYSCALL4_RET(readlinkat, linux_fd_t, dfd, char const*, path, char*, buf, int, bufsiz, int)
 static inline LINUX_DEFINE_SYSCALL3_NORET(fchmodat, linux_fd_t, dfd, char const*, filename, linux_umode_t, mode)
 static inline LINUX_DEFINE_SYSCALL3_NORET(faccessat, linux_fd_t, dfd, char const*, filename, int, mode)
