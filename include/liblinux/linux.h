@@ -292,6 +292,14 @@ typedef linux_kernel_gid32_t linux_gid_t;
 // open
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// pipe
+
+#include "pipe.h"
+
+// pipe
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -7042,7 +7050,6 @@ static inline LINUX_DEFINE_SYSCALL4_NORET(timerfd_settime, linux_fd_t, ufd, int,
 static inline LINUX_DEFINE_SYSCALL2_NORET(timerfd_gettime, linux_fd_t, ufd, struct linux_itimerspec_t*, otmr)
 static inline LINUX_DEFINE_SYSCALL4_RET(accept4, linux_fd_t, fd, struct linux_sockaddr_t*, upeer_sockaddr, int*, upeer_addrlen, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(signalfd4, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, int, flags, linux_fd_t)
-static inline LINUX_DEFINE_SYSCALL2_NORET(pipe2, linux_fd_t*, fildes, int, flags)
 static inline LINUX_DEFINE_SYSCALL5_RET(preadv, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, size_t)
 static inline LINUX_DEFINE_SYSCALL5_RET(pwritev, linux_fd_t, fd, struct linux_iovec_t const*, vec, unsigned long, vlen, unsigned long, pos_l, unsigned long, pos_h, size_t)
 static inline LINUX_DEFINE_SYSCALL4_NORET(rt_tgsigqueueinfo, linux_pid_t, tgid, linux_pid_t, pid, int, sig, struct linux_siginfo_t*, uinfo)

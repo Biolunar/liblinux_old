@@ -17,6 +17,8 @@
 #ifndef HEADER_LIBLINUX_INOTIFY_USER_H_INCLUDED
 #define HEADER_LIBLINUX_INOTIFY_USER_H_INCLUDED
 
+#include <stdint.h>
+
 #include <liblinux/syscall.h>
 
 static inline LINUX_DEFINE_SYSCALL1_RET(inotify_init1, int, flags, linux_fd_t)

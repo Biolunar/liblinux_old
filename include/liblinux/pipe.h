@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef HEADER_LIBLINUX_DCACHE_H_INCLUDED
-#define HEADER_LIBLINUX_DCACHE_H_INCLUDED
-
-#include <stddef.h>
+#ifndef HEADER_LIBLINUX_PIPE_H_INCLUDED
+#define HEADER_LIBLINUX_PIPE_H_INCLUDED
 
 #include <liblinux/syscall.h>
 
-static inline LINUX_DEFINE_SYSCALL2_RET(getcwd, char*, buf, size_t, size, int)
+static inline LINUX_DEFINE_SYSCALL2_NORET(pipe2, linux_fd_t*, fildes, int, flags)
 
-#endif // HEADER_LIBLINUX_DCACHE_H_INCLUDED
+#endif // HEADER_LIBLINUX_PIPE_H_INCLUDED

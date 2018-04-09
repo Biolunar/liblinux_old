@@ -17,8 +17,6 @@
 #ifndef HEADER_LIBLINUX_NAMEI_H_INCLUDED
 #define HEADER_LIBLINUX_NAMEI_H_INCLUDED
 
-#include <stdint.h>
-
 #include <liblinux/syscall.h>
 
 static inline LINUX_DEFINE_SYSCALL4_NORET(mknodat, linux_fd_t, dfd, char const*, filename, linux_umode_t, mode, unsigned int, dev)
