@@ -308,6 +308,14 @@ typedef linux_kernel_gid32_t linux_gid_t;
 // quota
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// readdir
+
+#include "readdir.h"
+
+// readdir
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -872,15 +880,6 @@ struct linux_dirent_t
 	unsigned long d_off;
 	unsigned short d_reclen;
 	char d_name[6]; // TODO: Hack to supress struct padding warning. Use flexible array member when ready.
-};
-struct linux_dirent64_t
-{
-	uint64_t d_ino;
-	int64_t d_off;
-	unsigned short d_reclen;
-	unsigned char d_type;
-	char _pad[5];
-	char d_name[];
 };
 struct linux_rlimit_t
 {
@@ -7001,7 +7000,6 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(sched_setaffinity, linux_pid_t, pid, u
 static inline LINUX_DEFINE_SYSCALL3_NORET(sched_getaffinity, linux_pid_t, pid, unsigned int, len, unsigned long*, user_mask_ptr)
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create, int, size, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL5_NORET(remap_file_pages, void const*, start, size_t, size, unsigned long, prot, unsigned long, pgoff, unsigned long, flags)
-static inline LINUX_DEFINE_SYSCALL3_RET(getdents64, linux_fd_t, fd, struct linux_dirent64_t*, dirent, unsigned int, count, unsigned int)
 static inline LINUX_DEFINE_SYSCALL1_RET(set_tid_address, int*, tidptr, linux_pid_t)
 //restart_syscall
 static inline LINUX_DEFINE_SYSCALL4_NORET(semtimedop, linux_semid_t, semid, struct linux_sembuf_t*, sops, unsigned int, nsops, struct linux_timespec_t const*, timeout)
