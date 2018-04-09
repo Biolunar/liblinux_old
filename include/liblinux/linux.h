@@ -17,6 +17,110 @@
 #ifndef HEADER_LIBLINUX_LINUX_H_INCLUDED
 #define HEADER_LIBLINUX_LINUX_H_INCLUDED
 
+/* C types
+ * =======
+ * Make sure all type replacements are exactly the same size! There is no
+ * standard that defines if values get sign extended or not.
+ *
+ * signed char, unsigned char -> (u)int8_t
+ * signed short, unsigned short -> (u)int16_t
+ * signed int, unsigned int -> (u)int32_t
+ * signed long, unsigned long -> (u)intptr_t, size_t
+ * signed long long, unsigned long long -> (u)int64_t
+ */
+
+/* Linux architectures:
+ * ====================
+ * alpha      __alpha__
+ * arc
+ * arm        __arm__
+ * arm64      __aarch64__
+ * c6x
+ * h8300
+ * hexagon
+ * ia64       __ia64__
+ * m68k       __m68k__
+ * microblaze
+ * mips       __mips__
+ * nios2
+ * openrisc
+ * parisc
+ * powerpc    __powerpc__
+ * riscv
+ * s390
+ * sh
+ * sparc      __sparc__
+ * unicore32
+ * x86        __i386__
+ * x86_64     __x86_64__
+ * xtensa
+ */
+
+//------------------------------------------------------------------------------
+// Architecture
+
+#if !defined(LINUX_ARCH_ARM64)  && \
+    !defined(LINUX_ARCH_X86)    && \
+    !defined(LINUX_ARCH_X32)    && \
+    !defined(LINUX_ARCH_X86_64)
+
+#ifdef __aarch64__
+#define LINUX_ARCH_ARM64
+#endif
+
+#ifdef __i386__
+#define LINUX_ARCH_X86
+#endif
+
+#ifdef __x86_64__
+#ifdef __ILP32__
+#define LINUX_ARCH_X32
+#else
+#define LINUX_ARCH_X86_64
+#endif
+#endif
+
+#endif
+
+#if !defined(LINUX_ARCH_ARM64)  && \
+    !defined(LINUX_ARCH_X86)    && \
+    !defined(LINUX_ARCH_X32)    && \
+    !defined(LINUX_ARCH_X86_64)
+#error "No architecture was selected and it could not be detected automatically."
+#endif
+
+// Cannot test if multiple architectures are selected without going insane
+// because there are too many combinations to test for.
+
+// Architecture
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Endianess
+
+#if !defined(LINUX_BYTE_ORDER_LITTLE_ENDIAN) && !defined(LINUX_BYTE_ORDER_BIG_ENDIAN)
+
+#if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && defined(__ORDER_BIG_ENDIAN__)
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#define LINUX_BYTE_ORDER_LITTLE_ENDIAN
+#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#define LINUX_BYTE_ORDER_BIG_ENDIAN
+#endif
+#endif
+
+#endif
+
+#if !defined(LINUX_BYTE_ORDER_LITTLE_ENDIAN) && !defined(LINUX_BYTE_ORDER_BIG_ENDIAN)
+#error "No endianess was selected and it could not be detected automatically."
+#endif
+
+#if defined(LINUX_BYTE_ORDER_LITTLE_ENDIAN) && defined(LINUX_BYTE_ORDER_BIG_ENDIAN)
+#error "You cannot select both little and big endian at the same time."
+#endif
+
+// Endianess
+//------------------------------------------------------------------------------
+
 //------------------------------------------------------------------------------
 // Custom types
 
@@ -157,11 +261,9 @@ typedef struct
 //------------------------------------------------------------------------------
 // namei
 
-#ifndef LINUX_ARCH_RISCV
-#define LINUX_ARCH_WANT_RENAMEAT
-#endif
 typedef unsigned short linux_umode_t;
 
+#define LINUX_ARCH_WANT_RENAMEAT
 #include "namei.h"
 
 // namei
@@ -175,67 +277,27 @@ typedef unsigned short linux_umode_t;
 // namespace
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// open
+
+typedef long long linux_kernel_loff_t;
+typedef linux_kernel_loff_t linux_loff_t;
+typedef unsigned int linux_kernel_uid32_t;
+typedef linux_kernel_uid32_t linux_uid_t;
+typedef unsigned int linux_kernel_gid32_t;
+typedef linux_kernel_gid32_t linux_gid_t;
+
+#include "open.h"
+
+// open
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdalign.h>
 
 #include <liblinux/syscall.h>
-
-/* C types
- * =======
- * Make sure all type replacements are exactly the same size! There is no
- * standard that defines if values get sign extended or not.
- *
- * signed char, unsigned char -> (u)int8_t
- * signed short, unsigned short -> (u)int16_t
- * signed int, unsigned int -> (u)int32_t
- * signed long, unsigned long -> (u)intptr_t, size_t
- * signed long long, unsigned long long -> (u)int64_t
- */
-
-/* Linux architectures:
- * ====================
- * alpha      __alpha__
- * arc
- * arm        __arm__
- * arm64      __aarch64__
- * c6x
- * h8300
- * hexagon
- * ia64       __ia64__
- * m68k       __m68k__
- * microblaze
- * mips       __mips__
- * nios2
- * openrisc
- * parisc
- * powerpc    __powerpc__
- * riscv
- * s390
- * sh
- * sparc      __sparc__
- * unicore32
- * x86        __i386__
- * x86_64     __x86_64__
- * xtensa
- */
-
-#ifdef __aarch64__
-#define LINUX_ARCH_ARM64
-#endif
-
-#ifdef __i386__
-#define LINUX_ARCH_X86
-#endif
-
-#ifdef __x86_64__
-#ifdef __ILP32__
-#define LINUX_ARCH_X32
-#else
-#define LINUX_ARCH_X86_64
-#endif
-#endif
 
 /*
  * Some syscalls do not modify a parameter but are passed as non-const
@@ -252,6 +314,7 @@ typedef unsigned short linux_umode_t;
 /*
  * TODO: Check every syscall for every other architecture than x86_64 if the
  * parameters fit (compat/stub/...)
+ * TODO: Check which (32 or 64 bit) version of the syscall is being used.
  */
 
 //------------------------------------------------------------------------------
@@ -271,8 +334,6 @@ typedef int linux_pkey_t;
 typedef unsigned short linux_kernel_mode_t;
 typedef linux_kernel_long_t linux_kernel_off_t;
 typedef linux_kernel_off_t linux_off_t;
-typedef unsigned int linux_kernel_uid32_t;
-typedef unsigned int linux_kernel_gid32_t;
 typedef linux_kernel_uid32_t linux_arch_si_uid_t;
 typedef int linux_kernel_timer_t;
 typedef linux_kernel_long_t linux_kernel_clock_t;
@@ -280,8 +341,6 @@ typedef linux_kernel_clock_t linux_clock_t;
 typedef linux_kernel_clock_t linux_arch_si_clock_t;
 typedef long linux_arch_si_band_t;
 typedef linux_kernel_ulong_t linux_kernel_size_t;
-typedef long long linux_kernel_loff_t;
-typedef linux_kernel_loff_t linux_loff_t;
 typedef linux_kernel_long_t linux_kernel_suseconds_t;
 typedef int linux_kernel_key_t;
 typedef linux_kernel_key_t linux_key_t;
@@ -807,8 +866,6 @@ struct linux_dirent64_t
 	char _pad[5];
 	char d_name[];
 };
-typedef linux_kernel_uid32_t linux_uid_t;
-typedef linux_kernel_gid32_t linux_gid_t;
 struct linux_rlimit_t
 {
 	linux_kernel_ulong_t rlim_cur;
@@ -935,26 +992,6 @@ struct linux_ustat_t
 	char f_fname[6];
 	char f_fpack[6];
 	char _pad2[4];
-};
-typedef struct
-{
-	int val[2];
-} linux_kernel_fsid_t;
-typedef linux_kernel_long_t linux_statfs_word;
-struct linux_statfs_t
-{
-	linux_statfs_word f_type;
-	linux_statfs_word f_bsize;
-	linux_statfs_word f_blocks;
-	linux_statfs_word f_bfree;
-	linux_statfs_word f_bavail;
-	linux_statfs_word f_files;
-	linux_statfs_word f_ffree;
-	linux_kernel_fsid_t f_fsid;
-	linux_statfs_word f_namelen;
-	linux_statfs_word f_frsize;
-	linux_statfs_word f_flags;
-	linux_statfs_word f_spare[4];
 };
 struct linux_sched_param_t
 {
@@ -6781,7 +6818,6 @@ static inline int linux_BPF_MISCOP(int const code)
 static inline LINUX_DEFINE_SYSCALL3_RET(read, linux_fd_t, fd, void*, buf, size_t, count, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(write, linux_fd_t, fd, void const*, buf, size_t, count, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(open, char const*, filename, int, flags, linux_umode_t, mode, linux_fd_t)
-static inline LINUX_DEFINE_SYSCALL1_NORET(close, linux_fd_t, fd)
 static inline LINUX_DEFINE_SYSCALL2_NORET(newstat, char const*, filename, struct linux_stat_t*, statbuf)
 static inline LINUX_DEFINE_SYSCALL2_NORET(newfstat, linux_fd_t, fd, struct linux_stat_t*, statbuf)
 static inline LINUX_DEFINE_SYSCALL2_NORET(newlstat, char const*, filename, struct linux_stat_t*, statbuf)
@@ -6850,11 +6886,7 @@ static inline LINUX_DEFINE_SYSCALL5_RET(msgrcv, linux_msgid_t, msqid, struct lin
 static inline LINUX_DEFINE_SYSCALL3_RET(msgctl, linux_msgid_t, msqid, int, cmd, struct linux_msqid64_ds_t*, buf, int)
 static inline LINUX_DEFINE_SYSCALL1_NORET(fsync, linux_fd_t, fd)
 static inline LINUX_DEFINE_SYSCALL1_NORET(fdatasync, linux_fd_t, fd)
-static inline LINUX_DEFINE_SYSCALL2_NORET(truncate, char LINUX_SAFE_CONST*, path, long, length)
-static inline LINUX_DEFINE_SYSCALL2_NORET(ftruncate, linux_fd_t, fd, unsigned long, length)
 static inline LINUX_DEFINE_SYSCALL3_RET(getdents, linux_fd_t, fd, struct linux_dirent_t*, dirent, unsigned int, count, unsigned int)
-static inline LINUX_DEFINE_SYSCALL1_NORET(chdir, char const*, filename)
-static inline LINUX_DEFINE_SYSCALL1_NORET(fchdir, linux_fd_t, fd)
 static inline LINUX_DEFINE_SYSCALL2_NORET(rename, char const*, oldname, char const*, newname)
 static inline LINUX_DEFINE_SYSCALL2_NORET(mkdir, char const*, pathname, linux_umode_t, mode)
 static inline LINUX_DEFINE_SYSCALL1_NORET(rmdir, char const*, pathname)
@@ -6864,9 +6896,7 @@ static inline LINUX_DEFINE_SYSCALL1_NORET(unlink, char const*, pathname)
 static inline LINUX_DEFINE_SYSCALL2_NORET(symlink, char const*, oldname, char const*, newname)
 static inline LINUX_DEFINE_SYSCALL3_RET(readlink, char const*, path, char*, buf, int, bufsiz, int)
 static inline LINUX_DEFINE_SYSCALL2_NORET(chmod, char const*, filename, linux_umode_t, mode)
-static inline LINUX_DEFINE_SYSCALL2_NORET(fchmod, linux_fd_t, fd, linux_umode_t, mode)
 static inline LINUX_DEFINE_SYSCALL3_NORET(chown, char const*, filename, linux_uid_t, user, linux_gid_t, group)
-static inline LINUX_DEFINE_SYSCALL3_NORET(fchown, linux_fd_t, fd, linux_uid_t, user, linux_gid_t, group)
 static inline LINUX_DEFINE_SYSCALL3_NORET(lchown, char const*, filename, linux_uid_t, user, linux_gid_t, group)
 static inline LINUX_DEFINE_SYSCALL1_RET(umask, linux_umode_t, mask, linux_umode_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(gettimeofday, struct linux_timeval_t*, tv, struct linux_timezone_t*, tz)
@@ -6907,8 +6937,6 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(utime, char LINUX_SAFE_CONST*, filenam
 static inline LINUX_DEFINE_SYSCALL3_NORET(mknod, char const*, filename, linux_umode_t, mode, linux_dev_t, dev)
 static inline LINUX_DEFINE_SYSCALL1_RET(personality, unsigned int, personality, unsigned int)
 static inline LINUX_DEFINE_SYSCALL2_NORET(ustat, linux_dev_t, dev, struct linux_ustat_t*, ubuf)
-static inline LINUX_DEFINE_SYSCALL2_NORET(statfs, char const*, path, struct linux_statfs_t*, buf)
-static inline LINUX_DEFINE_SYSCALL2_NORET(fstatfs, linux_fd_t, fd, struct linux_statfs_t*, buf)
 static inline LINUX_DEFINE_SYSCALL3_RET(sysfs, int, option, uintptr_t, arg1, uintptr_t, arg2, int)
 static inline LINUX_DEFINE_SYSCALL2_RET(getpriority, int, which, int, who, long)
 static inline LINUX_DEFINE_SYSCALL3_NORET(setpriority, int, which, int, who, int, niceval)
@@ -6923,7 +6951,6 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(mlock, void const*, start, size_t, len
 static inline LINUX_DEFINE_SYSCALL2_NORET(munlock, void const*, start, size_t, len)
 static inline LINUX_DEFINE_SYSCALL1_NORET(mlockall, int, flags)
 static inline LINUX_DEFINE_SYSCALL0_NORET(munlockall)
-static inline LINUX_DEFINE_SYSCALL0_NORET(vhangup)
 static inline enum linux_error_t linux_modify_ldt(int const func, void* const ptr, unsigned long const bytecount, int* const result)
 {
 	int const ret = (int)linux_syscall3((intptr_t)func, (intptr_t)ptr, (intptr_t)bytecount, linux_syscall_name_modify_ldt);
@@ -6938,7 +6965,6 @@ static inline LINUX_DEFINE_SYSCALL5_RET(prctl, int, option, uintptr_t, arg2, uin
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 static inline LINUX_DEFINE_SYSCALL1_RET(adjtimex, struct linux_timex_t*, txc_p, int)
 static inline LINUX_DEFINE_SYSCALL2_NORET(setrlimit, unsigned int, resource, struct linux_rlimit_t LINUX_SAFE_CONST*, rlim)
-static inline LINUX_DEFINE_SYSCALL1_NORET(chroot, char const*, filename)
 static inline LINUX_DEFINE_SYSCALL0_NORET(sync)
 static inline LINUX_DEFINE_SYSCALL1_NORET(acct, char const*, name)
 static inline LINUX_DEFINE_SYSCALL2_NORET(settimeofday, struct linux_timeval_t LINUX_SAFE_CONST*, tv, struct linux_timezone_t LINUX_SAFE_CONST*, tz)
@@ -6995,13 +7021,9 @@ static inline LINUX_DEFINE_SYSCALL4_RET(request_key, char const*, type, char con
 static inline LINUX_DEFINE_SYSCALL5_RET(keyctl, int, cmd, unsigned long, arg2, unsigned long, arg3, unsigned long, arg4, unsigned long, arg5, intptr_t)
 static inline LINUX_DEFINE_SYSCALL0_RET(inotify_init, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(migrate_pages, linux_pid_t, pid, unsigned long, maxnode, unsigned long const*, from, unsigned long const*, to, int)
-static inline LINUX_DEFINE_SYSCALL4_RET(openat, linux_fd_t, dfd, char const*, filename, int, flags, linux_umode_t, mode, linux_fd_t)
-static inline LINUX_DEFINE_SYSCALL5_NORET(fchownat, linux_fd_t, dfd, char const*, filename, linux_uid_t, user, linux_gid_t, group, int, flag)
 static inline LINUX_DEFINE_SYSCALL3_NORET(futimesat, linux_fd_t, dfd, char const*, filename, struct linux_timeval_t LINUX_SAFE_CONST*, utimes)
 static inline LINUX_DEFINE_SYSCALL4_NORET(newfstatat, linux_fd_t, dfd, char const*, filename, struct linux_stat_t*, statbuf, int, flag)
 static inline LINUX_DEFINE_SYSCALL4_RET(readlinkat, linux_fd_t, dfd, char const*, path, char*, buf, int, bufsiz, int)
-static inline LINUX_DEFINE_SYSCALL3_NORET(fchmodat, linux_fd_t, dfd, char const*, filename, linux_umode_t, mode)
-static inline LINUX_DEFINE_SYSCALL3_NORET(faccessat, linux_fd_t, dfd, char const*, filename, int, mode)
 static inline LINUX_DEFINE_SYSCALL6_RET(pselect6, int, n, linux_fd_set_t*, inp, linux_fd_set_t*, outp, linux_fd_set_t*, exp, struct linux_timespec_t*, tsp, void*, sig, unsigned int)
 static inline LINUX_DEFINE_SYSCALL5_RET(ppoll, struct linux_pollfd_t*, ufds, unsigned int, nfds, struct linux_timespec_t*, tsp, linux_sigset_t const*, sigmask, size_t, sigsetsize, unsigned int)
 static inline LINUX_DEFINE_SYSCALL1_NORET(unshare, unsigned long, unshare_flags)
@@ -7016,7 +7038,6 @@ static inline LINUX_DEFINE_SYSCALL4_NORET(utimensat, linux_fd_t, dfd, char const
 static inline LINUX_DEFINE_SYSCALL3_RET(signalfd, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_RET(timerfd_create, int, clockid, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(eventfd, unsigned int, count, linux_fd_t)
-static inline LINUX_DEFINE_SYSCALL4_NORET(fallocate, linux_fd_t, fd, int, mode, linux_loff_t, offset, linux_loff_t, len)
 static inline LINUX_DEFINE_SYSCALL4_NORET(timerfd_settime, linux_fd_t, ufd, int, flags, struct linux_itimerspec_t const*, utmr, struct linux_itimerspec_t*, otmr)
 static inline LINUX_DEFINE_SYSCALL2_NORET(timerfd_gettime, linux_fd_t, ufd, struct linux_itimerspec_t*, otmr)
 static inline LINUX_DEFINE_SYSCALL4_RET(accept4, linux_fd_t, fd, struct linux_sockaddr_t*, upeer_sockaddr, int*, upeer_addrlen, int, flags, linux_fd_t)

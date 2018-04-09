@@ -26,7 +26,7 @@ struct linux_epoll_event_t
 {
 	uint32_t events;
 
-#ifdef __x86_64__
+#ifdef LINUX_ARCH_X86_64
 	// TODO: Following two 32 bit members should be one 64 bit memeber but with 32 bit alignment.
 	uint32_t data_lo;
 	uint32_t data_hi;
@@ -34,7 +34,7 @@ struct linux_epoll_event_t
 	uint64_t data;
 #endif
 };
-#ifdef __x86_64__
+#ifdef LINUX_ARCH_X86_64
 _Static_assert(sizeof(struct linux_epoll_event_t) == 4 + 8, "struct linux_epoll_event_t must have no padding on x86_64.");
 #endif
 

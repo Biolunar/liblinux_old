@@ -25,14 +25,12 @@ typedef linux_kernel_ulong_t linux_aio_context_t;
 struct linux_iocb_t
 {
 	uint64_t aio_data;
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#ifdef LINUX_BYTE_ORDER_LITTLE_ENDIAN
 	uint32_t aio_key;
 	linux_kernel_rwf_t aio_rw_flags;
-#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-	linux_kernel_rwf_t aio_rw_flags;
-	uint32_t aio_key;
 #else
-#error "Unknown byte order."
+	linux_kernel_rwf_t aio_rw_flags;
+	uint32_t aio_key;
 #endif
 	uint16_t aio_lio_opcode;
 	int16_t aio_reqprio;
