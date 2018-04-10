@@ -35,13 +35,26 @@ static enum TestResult test_correct_usage(void)
 	if (linux_epoll_create1(linux_EPOLL_CLOEXEC, &fd))
 		return TEST_RESULT_OTHER_FAILURE;
 
-	struct linux_epoll_event_t event = { .events = linux_EPOLLOUT };
-	if (linux_epoll_ctl(fd, linux_EPOLL_CTL_ADD, linux_stdout, &event))
+	linux_fd_t pfd[2];
+	if (linux_pipe2(pfd, linux_O_CLOEXEC))
 	{
+		linux_close(fd);
+		return TEST_RESULT_OTHER_FAILURE;
+	}
+
+	struct linux_epoll_event_t event = { .events = linux_EPOLLOUT };
+	enum linux_error_t err = linux_epoll_ctl(fd, linux_EPOLL_CTL_ADD, pfd[1], &event);
+	if (err)
+	{
+		printf("err: %d\n", err);
+		linux_close(pfd[0]);
+		linux_close(pfd[1]);
 		linux_close(fd);
 		return TEST_RESULT_FAILURE;
 	}
 
+	linux_close(pfd[0]);
+	linux_close(pfd[1]);
 	linux_close(fd);
 	return TEST_RESULT_SUCCESS;
 }

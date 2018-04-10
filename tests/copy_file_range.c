@@ -67,10 +67,8 @@ static enum TestResult test_correct_usage(void)
 	}
 
 	size_t ret = 0;
-	enum linux_error_t err = linux_copy_file_range(fd1, 0, fd2, 0, linux_PAGE_SIZE, 0, &ret);
-	if (err)
+	if (linux_copy_file_range(fd1, 0, fd2, 0, linux_PAGE_SIZE, 0, &ret))
 	{
-		printf("err: %d\n", err);
 		linux_close(fd2);
 		linux_unlink(fn2);
 		linux_close(fd1);

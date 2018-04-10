@@ -48,13 +48,13 @@ static enum TestResult test_correct_usage(void)
 	while (err == linux_EINVAL)
 	{
 		int len;
-		if (linux_getgroups(0, 0, &len) || len <= 0)
+		if (linux_getgroups(0, 0, &len) || len < 0)
 		{
 			free(list);
 			return TEST_RESULT_FAILURE;
 		}
 
-		linux_gid_t* const new_list = realloc(list, (unsigned)len);
+		linux_gid_t* const new_list = realloc(list, (unsigned)len * sizeof(linux_gid_t));
 		if (!new_list)
 		{
 			free(list);
@@ -64,7 +64,7 @@ static enum TestResult test_correct_usage(void)
 
 		int ret;
 		err = linux_getgroups(len, list, &ret);
-		if ((err && err != linux_EINVAL) || ret <= 0)
+		if ((err && err != linux_EINVAL) || ret < 0)
 		{
 			free(list);
 			return TEST_RESULT_FAILURE;

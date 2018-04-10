@@ -21,12 +21,12 @@
 #include <stdlib.h>
 
 #include <stdnoreturn.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 static enum TestResult test_no_tracee(void)
 {
-	pid_t const pid = getpid();
+	linux_pid_t pid;
+	if (linux_getpid(&pid))
+		return TEST_RESULT_OTHER_FAILURE;
 
 	linux_siginfo_t info;
 	if (linux_ptrace(linux_PTRACE_GETSIGINFO, pid, 0, (uintptr_t)&info) != linux_ESRCH)
@@ -37,11 +37,15 @@ static enum TestResult test_no_tracee(void)
 
 static noreturn void child(void)
 {
-	if (linux_ptrace(linux_PTRACE_TRACEME, 0, 0, 0))
+	linux_pid_t pid;
+	if (linux_getpid(&pid))
 		linux_exit(1);
 
-	if (linux_kill(getpid(), linux_SIGSTOP))
-		linux_exit(1);
+	if (linux_ptrace(linux_PTRACE_TRACEME, 0, 0, 0))
+		linux_exit(2);
+
+	if (linux_kill(pid, linux_SIGSTOP))
+		linux_exit(3);
 
 	linux_exit(0);
 }
@@ -65,7 +69,7 @@ static enum TestResult test_segfault(void)
 		if (linux_ptrace(linux_PTRACE_CONT, pid, 0, 0))
 			return TEST_RESULT_FAILURE;
 
-		if (linux_wait4(pid, &status, 0, 0, 0))
+		if (linux_wait4(pid, &status, 0, 0, 0) || !linux_WIFEXITED(status) || linux_WEXITSTATUS(status) != 0)
 			return TEST_RESULT_OTHER_FAILURE;
 	}
 	else // Child
@@ -93,7 +97,7 @@ static enum TestResult test_correct_usage(void)
 		if (linux_ptrace(linux_PTRACE_CONT, pid, 0, 0))
 			return TEST_RESULT_FAILURE;
 
-		if (linux_wait4(pid, &status, 0, 0, 0))
+		if (linux_wait4(pid, &status, 0, 0, 0) || !linux_WIFEXITED(status) || linux_WEXITSTATUS(status) != 0)
 			return TEST_RESULT_OTHER_FAILURE;
 	}
 	else // Child

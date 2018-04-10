@@ -73,7 +73,7 @@ static enum TestResult test_correct_usage(void)
 		return TEST_RESULT_FAILURE;
 
 	while (!alarm_triggered)
-		linux_pause(); // Leave the process sleeping if the signal does not trigger.
+		;
 
 	return TEST_RESULT_SUCCESS;
 }

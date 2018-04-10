@@ -21,17 +21,17 @@
 #include <stdlib.h>
 
 #include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 
-#define BUFFER_SIZE 512
+enum
+{
+	BUFFER_SIZE = 512,
+};
 
 static enum TestResult test_invalid_fd(void)
 {
-	char buf[BUFFER_SIZE] = {0};
-	if (linux_write(linux_stderr + 1, buf, sizeof buf, 0) != linux_EBADF)
+	int const data = 42;
+	size_t ret;
+	if (linux_write(linux_stderr + 1, &data, sizeof data, &ret) != linux_EBADF)
 		return TEST_RESULT_FAILURE;
 
 	return TEST_RESULT_SUCCESS;
@@ -40,90 +40,95 @@ static enum TestResult test_invalid_fd(void)
 static enum TestResult test_invalid_buf(void)
 {
 	// Cannot use /dev/null, because every write to it is successful.
-	int const fd = open(".", O_WRONLY | 020000000 | 00200000, S_IWUSR); // TODO: Use O_TMPFILE instead of 020000000 | 00200000
-	if (fd == -1)
+	linux_fd_t fd;
+	if (linux_open("/tmp", linux_O_WRONLY | linux_O_TMPFILE, 0666, &fd))
 		return TEST_RESULT_OTHER_FAILURE;
 
 	if (linux_write((linux_fd_t)fd, 0, BUFFER_SIZE, 0) != linux_EFAULT)
 	{
-		close(fd);
+		linux_close(fd);
 		return TEST_RESULT_FAILURE;
 	}
 
-	close(fd);
+	linux_close(fd);
 	return TEST_RESULT_SUCCESS;
 }
 
 static enum TestResult test_write_zero(void)
 {
-	int const fd = open("/dev/null", O_WRONLY, 0);
-	if (fd == -1)
+	linux_fd_t fd;
+	// Cannot use /dev/null, because every write to it is successful.
+	if (linux_open("/tmp", linux_O_WRONLY | linux_O_TMPFILE, 0666, &fd))
 		return TEST_RESULT_OTHER_FAILURE;
 
-	char buf[1] = {0};
-	size_t result = 0;
-	if (linux_write((linux_fd_t)fd, buf, 0, &result) || result)
+	int const data = 42;
+	size_t ret = 0;
+	if (linux_write((linux_fd_t)fd, &data, 0, &ret) || ret > 0)
 	{
-		close(fd);
+		linux_close(fd);
 		return TEST_RESULT_FAILURE;
 	}
 
-	close(fd);
+	linux_close(fd);
 	return TEST_RESULT_SUCCESS;
+}
+
+static size_t read_all(linux_fd_t const fd, void* buf, size_t count)
+{
+	char* const b = buf;
+	size_t bytes_read = 0;
+	while (bytes_read < count)
+	{
+		size_t ret;
+		if (linux_read(fd, b + bytes_read, count - bytes_read, &ret) || !ret)
+			return bytes_read;
+		bytes_read += ret;
+	}
+	return bytes_read;
 }
 
 static enum TestResult test_random_write(void)
 {
-	enum TestResult ret = TEST_RESULT_OTHER_FAILURE;
-	int p[2] = {-1, -1};
-	FILE* file = 0;
+	linux_fd_t fd;
+	if (linux_open("/dev/urandom", linux_O_RDONLY, 0, &fd))
+		return TEST_RESULT_OTHER_FAILURE;
 
-	if (pipe(p) == -1)
-		goto cleanup;
+	char in_buf[BUFFER_SIZE];
+	size_t bytes_read = read_all(fd, in_buf, sizeof in_buf);
+	if (bytes_read != sizeof in_buf)
+		return TEST_RESULT_OTHER_FAILURE;
+	linux_close(fd);
 
-	if (p[0] == -1 || p[1] == -1)
-		goto cleanup;
+	linux_fd_t pfd[2] = {(linux_fd_t)-1, (linux_fd_t)-1};
+	if (linux_pipe(pfd))
+		return TEST_RESULT_OTHER_FAILURE;
 
-	file = fopen("/dev/urandom", "r");
-	if (!file)
-		goto cleanup;
-
-	char in_buf[BUFFER_SIZE] = {0};
-	if (fread(in_buf, 1, sizeof in_buf, file) != sizeof in_buf)
-		goto cleanup;
-
-	if (linux_write((linux_fd_t)p[1], in_buf, sizeof in_buf, 0))
+	if (linux_write(pfd[1], in_buf, sizeof in_buf, 0))
 	{
-		ret = TEST_RESULT_FAILURE;
-		goto cleanup;
+		linux_close(pfd[0]);
+		linux_close(pfd[1]);
+		return TEST_RESULT_FAILURE;
 	}
 
-	char out_buf[sizeof in_buf] = {0};
-	size_t to_read = sizeof out_buf;
-	while (to_read)
+	char out_buf[sizeof in_buf];
+	bytes_read = read_all(pfd[0], out_buf, sizeof out_buf);
+	if (bytes_read != sizeof out_buf)
 	{
-		ssize_t const bytes_read = read(p[0], out_buf + (sizeof out_buf - to_read), to_read);
-		if (bytes_read < 0)
-			goto cleanup;
-		to_read -= (size_t)bytes_read;
+		linux_close(pfd[0]);
+		linux_close(pfd[1]);
+		return TEST_RESULT_OTHER_FAILURE;
 	}
 
 	if (memcmp(out_buf, in_buf, sizeof out_buf))
 	{
-		ret = TEST_RESULT_FAILURE;
-		goto cleanup;
+		linux_close(pfd[0]);
+		linux_close(pfd[1]);
+		return TEST_RESULT_FAILURE;
 	}
 
-	ret = TEST_RESULT_SUCCESS;
-
-cleanup:
-	if (file)
-		fclose(file);
-	if (p[0] != -1)
-		close(p[0]);
-	if (p[1] != -1)
-		close(p[1]);
-	return ret;
+	linux_close(pfd[0]);
+	linux_close(pfd[1]);
+	return TEST_RESULT_SUCCESS;
 }
 
 int main(void)

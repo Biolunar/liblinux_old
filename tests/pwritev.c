@@ -41,7 +41,7 @@ static enum TestResult test_invalid_buf(void)
 	// Cannot use /dev/null, because every write to it is successful.
 
 	linux_fd_t fd;
-	if (linux_open(".", linux_O_WRONLY | linux_O_TMPFILE, 0666, &fd))
+	if (linux_open("/tmp", linux_O_WRONLY | linux_O_TMPFILE, 0666, &fd))
 		return TEST_RESULT_OTHER_FAILURE;
 
 	struct linux_iovec_t vec =

@@ -30,7 +30,7 @@ static enum TestResult test_invalid_fd(void)
 
 static enum TestResult test_correct_usage(void)
 {
-	char const filename[] = "some file";
+	char const filename[] = "/tmp/liblinux_testfile";
 
 	linux_fd_t fd;
 	if (linux_open(filename, linux_O_RDWR | linux_O_CREAT, 0666, &fd))
