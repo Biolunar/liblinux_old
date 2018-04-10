@@ -22,69 +22,61 @@
 
 #include <string.h>
 
+#include "xattr.h"
+
 static enum TestResult test_buffer_too_small(void)
 {
-	char const* const filename = "some test file";
-
-	linux_fd_t fd;
-	if (linux_open(filename, linux_O_RDWR | linux_O_CREAT, 0666, &fd))
-		return TEST_RESULT_OTHER_FAILURE;
-
-	if (linux_close(fd))
+	struct File f;
+	if (file_create(&f))
 		return TEST_RESULT_OTHER_FAILURE;
 
 	char const data[] = "test data";
-	if (linux_setxattr(filename, "user.liblinux", data, sizeof data, linux_XATTR_CREATE))
+	if (linux_setxattr(f.name, "user.liblinux", data, sizeof data, 0))
 	{
-		linux_unlink(filename);
+		file_close(&f);
 		return TEST_RESULT_OTHER_FAILURE;
 	}
 
 	char buf[sizeof data - 1];
 	size_t ret;
-	if (linux_lgetxattr(filename, "user.liblinux", buf, sizeof buf, &ret) != linux_ERANGE)
+	if (linux_lgetxattr(f.name, "user.liblinux", buf, sizeof buf, &ret) != linux_ERANGE)
 	{
-		linux_unlink(filename);
+		file_close(&f);
 		return TEST_RESULT_FAILURE;
 	}
 
-	linux_unlink(filename);
+	file_close(&f);
 	return TEST_RESULT_SUCCESS;
 }
 
 static enum TestResult test_correct_usage(void)
 {
-	char const* const filename = "some test file";
-
-	linux_fd_t fd;
-	if (linux_open(filename, linux_O_RDWR | linux_O_CREAT, 0666, &fd))
-		return TEST_RESULT_OTHER_FAILURE;
-
-	if (linux_close(fd))
+	struct File f;
+	if (file_create(&f))
 		return TEST_RESULT_OTHER_FAILURE;
 
 	char const data[] = "test data";
-	if (linux_setxattr(filename, "user.liblinux", data, sizeof data, linux_XATTR_CREATE))
+	if (linux_setxattr(f.name, "user.liblinux", data, sizeof data, 0))
 	{
-		linux_unlink(filename);
+		file_close(&f);
 		return TEST_RESULT_OTHER_FAILURE;
 	}
 
 	char buf[512];
 	size_t ret;
-	if (linux_lgetxattr(filename, "user.liblinux", buf, sizeof buf, &ret))
+	if (linux_lgetxattr(f.name, "user.liblinux", buf, sizeof buf, &ret))
 	{
-		linux_unlink(filename);
+		file_close(&f);
 		return TEST_RESULT_FAILURE;
 	}
 
 	if (memcmp(buf, data, ret))
 	{
-		linux_unlink(filename);
+		file_close(&f);
 		return TEST_RESULT_FAILURE;
 	}
 
-	linux_unlink(filename);
+	file_close(&f);
 	return TEST_RESULT_SUCCESS;
 }
 

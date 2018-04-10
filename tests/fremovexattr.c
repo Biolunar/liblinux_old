@@ -20,55 +20,46 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <string.h>
+#include "xattr.h"
 
 static enum TestResult test_attr_not_found(void)
 {
-	char const* const filename = "some test file";
-
-	linux_fd_t fd;
-	if (linux_open(filename, linux_O_RDWR | linux_O_CREAT, 0666, &fd))
+	struct File f;
+	if (file_create(&f))
 		return TEST_RESULT_OTHER_FAILURE;
 
-	char const name[] = "user.liblinux";
-	if (linux_fremovexattr(fd, name) != linux_ENODATA)
+	char const name[] = "user.liblinux_non_existant";
+	if (linux_fremovexattr(f.fd, name) != linux_ENODATA)
 	{
-		linux_close(fd);
-		linux_unlink(filename);
+		file_close(&f);
 		return TEST_RESULT_FAILURE;
 	}
 
-	linux_close(fd);
-	linux_unlink(filename);
+	file_close(&f);
 	return TEST_RESULT_SUCCESS;
 }
 
 static enum TestResult test_correct_usage(void)
 {
-	char const* const filename = "some test file";
-
-	linux_fd_t fd;
-	if (linux_open(filename, linux_O_RDWR | linux_O_CREAT, 0666, &fd))
+	struct File f;
+	if (file_create(&f))
 		return TEST_RESULT_OTHER_FAILURE;
 
 	char const name[] = "user.liblinux";
 	char const data[] = "test data";
-	if (linux_setxattr(filename, name, data, sizeof data, linux_XATTR_CREATE))
+	if (linux_setxattr(f.name, name, data, sizeof data, 0))
 	{
-		linux_close(fd);
-		linux_unlink(filename);
+		file_close(&f);
 		return TEST_RESULT_OTHER_FAILURE;
 	}
 
-	if (linux_fremovexattr(fd, name))
+	if (linux_fremovexattr(f.fd, name))
 	{
-		linux_close(fd);
-		linux_unlink(filename);
+		file_close(&f);
 		return TEST_RESULT_FAILURE;
 	}
 
-	linux_close(fd);
-	linux_unlink(filename);
+	file_close(&f);
 	return TEST_RESULT_SUCCESS;
 }
 
