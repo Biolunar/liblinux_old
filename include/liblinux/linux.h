@@ -345,6 +345,31 @@ struct linux_iovec_t
 // sendfile
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// select
+
+enum
+{
+	linux_FD_SETSIZE = 1024,
+};
+
+typedef struct
+{
+	unsigned long _fds_bits[linux_FD_SETSIZE / (CHAR_BIT * sizeof(long))];
+} linux_kernel_fd_set_t;
+typedef linux_kernel_fd_set_t linux_fd_set_t;
+struct linux_pollfd_t
+{
+	linux_fd_t fd;
+	short events;
+	short revents;
+};
+
+#include "select.h"
+
+// select
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -426,12 +451,6 @@ struct linux_stat_t
 	linux_kernel_ulong_t st_ctime;
 	linux_kernel_ulong_t st_ctime_nsec;
 	linux_kernel_long_t _unused[3];
-};
-struct linux_pollfd_t
-{
-	int fd; // TODO: int is used as a file descriptor.
-	short events;
-	short revents;
 };
 typedef void linux_signalfn_t(int sig);
 typedef linux_signalfn_t* linux_sighandler_t;
@@ -642,11 +661,6 @@ struct linux_termios2_t
 	linux_speed_t c_ispeed; // input speed
 	linux_speed_t c_ospeed; // output speed
 };*/
-typedef struct
-{
-	unsigned long _fds_bits[1024 / (CHAR_BIT * sizeof(long))];
-} linux_kernel_fd_set_t;
-typedef linux_kernel_fd_set_t linux_fd_set_t;
 struct linux_timeval_t
 {
 	linux_kernel_time_t      tv_sec;  // seconds
@@ -7049,8 +7063,6 @@ static inline LINUX_DEFINE_SYSCALL4_RET(migrate_pages, linux_pid_t, pid, unsigne
 static inline LINUX_DEFINE_SYSCALL3_NORET(futimesat, linux_fd_t, dfd, char const*, filename, struct linux_timeval_t LINUX_SAFE_CONST*, utimes)
 static inline LINUX_DEFINE_SYSCALL4_NORET(newfstatat, linux_fd_t, dfd, char const*, filename, struct linux_stat_t*, statbuf, int, flag)
 static inline LINUX_DEFINE_SYSCALL4_RET(readlinkat, linux_fd_t, dfd, char const*, path, char*, buf, int, bufsiz, int)
-static inline LINUX_DEFINE_SYSCALL6_RET(pselect6, int, n, linux_fd_set_t*, inp, linux_fd_set_t*, outp, linux_fd_set_t*, exp, struct linux_timespec_t*, tsp, void*, sig, unsigned int)
-static inline LINUX_DEFINE_SYSCALL5_RET(ppoll, struct linux_pollfd_t*, ufds, unsigned int, nfds, struct linux_timespec_t*, tsp, linux_sigset_t const*, sigmask, size_t, sigsetsize, unsigned int)
 static inline LINUX_DEFINE_SYSCALL1_NORET(unshare, unsigned long, unshare_flags)
 static inline LINUX_DEFINE_SYSCALL2_NORET(set_robust_list, struct linux_robust_list_head_t*, head, size_t, len)
 static inline LINUX_DEFINE_SYSCALL3_NORET(get_robust_list, linux_pid_t, pid, struct linux_robust_list_head_t**, head_ptr, size_t*, len_ptr)
