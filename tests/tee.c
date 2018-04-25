@@ -22,7 +22,7 @@
 
 static enum TestResult test_invalid_fd(void)
 {
-	size_t ret;
+	unsigned int ret;
 	if (linux_tee(linux_stdin, linux_stderr + 1, linux_PAGE_SIZE, 0, &ret) != linux_EBADF)
 		return TEST_RESULT_FAILURE;
 	if (linux_tee(linux_stderr + 1, linux_stdout, linux_PAGE_SIZE, 0, &ret) != linux_EBADF)

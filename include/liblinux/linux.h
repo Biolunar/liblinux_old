@@ -378,6 +378,14 @@ struct linux_pollfd_t
 // signalfd
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// splice
+
+#include "splice.h"
+
+// splice
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -7074,10 +7082,7 @@ static inline LINUX_DEFINE_SYSCALL4_RET(readlinkat, linux_fd_t, dfd, char const*
 static inline LINUX_DEFINE_SYSCALL1_NORET(unshare, unsigned long, unshare_flags)
 static inline LINUX_DEFINE_SYSCALL2_NORET(set_robust_list, struct linux_robust_list_head_t*, head, size_t, len)
 static inline LINUX_DEFINE_SYSCALL3_NORET(get_robust_list, linux_pid_t, pid, struct linux_robust_list_head_t**, head_ptr, size_t*, len_ptr)
-static inline LINUX_DEFINE_SYSCALL6_RET(splice, linux_fd_t, fd_in, linux_loff_t*, off_in, linux_fd_t, fd_out, linux_loff_t*, off_out, size_t, len, unsigned int, flags, size_t)
-static inline LINUX_DEFINE_SYSCALL4_RET(tee, linux_fd_t, fdin, linux_fd_t, fdout, size_t, len, unsigned int, flags, size_t)
 static inline LINUX_DEFINE_SYSCALL4_NORET(sync_file_range, linux_fd_t, fd, linux_loff_t, offset, linux_loff_t, nbytes, unsigned int, flags)
-static inline LINUX_DEFINE_SYSCALL4_RET(vmsplice, linux_fd_t, fd, struct linux_iovec_t const*, iov, unsigned long, nr_segs, unsigned int, flags, size_t)
 static inline LINUX_DEFINE_SYSCALL6_NORET(move_pages, linux_pid_t, pid, unsigned long, nr_pages, void const**, pages, int const*, nodes, int*, status, int, flags)
 static inline LINUX_DEFINE_SYSCALL4_NORET(utimensat, linux_fd_t, dfd, char const*, filename, struct linux_timespec_t LINUX_SAFE_CONST*, utimes, int, flags)
 static inline LINUX_DEFINE_SYSCALL3_RET(signalfd, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, linux_fd_t)
