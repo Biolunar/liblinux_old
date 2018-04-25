@@ -337,6 +337,14 @@ struct linux_iovec_t
 // read_write
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// sendfile
+
+#include "sendfile.h"
+
+// sendfile
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -620,7 +628,7 @@ struct linux_sigaction_t
 	linux_sigrestore_t sa_restorer;
 	linux_sigset_t sa_mask; // mask last for extensibility
 };
-typedef unsigned char linux_cc_t;
+/*typedef unsigned char linux_cc_t;
 typedef unsigned int linux_speed_t;
 typedef unsigned int linux_tcflag_t;
 struct linux_termios2_t
@@ -633,7 +641,7 @@ struct linux_termios2_t
 	linux_cc_t c_cc[19]; // control characters
 	linux_speed_t c_ispeed; // input speed
 	linux_speed_t c_ospeed; // output speed
-};
+};*/
 typedef struct
 {
 	unsigned long _fds_bits[1024 / (CHAR_BIT * sizeof(long))];
@@ -2267,7 +2275,7 @@ enum
 	linux_SIG_SETMASK = 2,
 };
 
-enum
+/*enum
 {
 	// 0x54 is just a magic number to make these relatively unique ('T')
 	linux_TCGETS          = 0x5401,
@@ -2311,24 +2319,24 @@ enum
 	linux_TIOCSBRK        = 0x5427, // BSD compatibility
 	linux_TIOCCBRK        = 0x5428, // BSD compatibility
 	linux_TIOCGSID        = 0x5429, // Return the session ID of FD
-#define linux_TCGETS2         = (2u << 30) | ('T' << 8) | 0x2A | (sizeof(struct linux_termios2_t) << 16),
+#define linux_TCGETS2           ((2u << 30) | ('T' << 8) | 0x2A | (sizeof(struct linux_termios2_t) << 16))
 	linux_TCSETS2         = (1u << 30) | ('T' << 8) | 0x2B | (sizeof(struct linux_termios2_t) << 16),
 	linux_TCSETSW2        = (1u << 30) | ('T' << 8) | 0x2C | (sizeof(struct linux_termios2_t) << 16),
 	linux_TCSETSF2        = (1u << 30) | ('T' << 8) | 0x2D | (sizeof(struct linux_termios2_t) << 16),
 	linux_TIOCGRS485      = 0x542E,
 	linux_TIOCSRS485      = 0x542F,
-#define linux_TIOCGPTN        = ((2u << 30) | ('T' << 8) | 0x30 | (sizeof(unsigned int) << 16)), // Get Pty Number (of pty-mux device)
+#define linux_TIOCGPTN          ((2u << 30) | ('T' << 8) | 0x30 | (sizeof(unsigned int) << 16)) // Get Pty Number (of pty-mux device)
 	linux_TIOCSPTLCK      = ((1u << 30) | ('T' << 8) | 0x31 | (sizeof(int) << 16)), // Lock/unlock Pty
-#define linux_TIOCGDEV        = ((2u << 30) | ('T' << 8) | 0x32 | (sizeof(unsigned int) << 16)), // Get primary device node of /dev/console
+#define linux_TIOCGDEV          ((2u << 30) | ('T' << 8) | 0x32 | (sizeof(unsigned int) << 16)) // Get primary device node of /dev/console
 	linux_TCGETX          = 0x5432, // SYS5 TCGETX compatibility
 	linux_TCSETX          = 0x5433,
 	linux_TCSETXF         = 0x5434,
 	linux_TCSETXW         = 0x5435,
 	linux_TIOCSIG         = (1u << 30) | ('T' << 8) | 0x36 | (sizeof(int) << 16), // pty: generate signal
 	linux_TIOCVHANGUP     = 0x5437,
-#define linux_TIOCGPKT        = (2u << 30) | ('T' << 8) | 0x38 | (sizeof(int) << 16), // Get packet mode state
-#define linux_TIOCGPTLCK      = (2u << 30) | ('T' << 8) | 0x39 | (sizeof(int) << 16), // Get Pty lock state
-#define linux_TIOCGEXCL       = (2u << 30) | ('T' << 8) | 0x40 | (sizeof(int) << 16), // Get exclusive mode state
+#define linux_TIOCGPKT          ((2u << 30) | ('T' << 8) | 0x38 | (sizeof(int) << 16)) // Get packet mode state
+#define linux_TIOCGPTLCK        ((2u << 30) | ('T' << 8) | 0x39 | (sizeof(int) << 16)) // Get Pty lock state
+#define linux_TIOCGEXCL         ((2u << 30) | ('T' << 8) | 0x40 | (sizeof(int) << 16)) // Get exclusive mode state
 
 	linux_FIONCLEX        = 0x5450,
 	linux_FIOCLEX         = 0x5451,
@@ -2365,7 +2373,7 @@ enum
 enum
 {
 	linux_TIOCSER_TEMT = 0x01, // Transmitter physically empty
-};
+};*/
 
 enum
 {
@@ -2801,8 +2809,8 @@ enum
 enum
 {
 	// Linux-specific socket ioctls
-	linux_SIOCINQ                = linux_FIONREAD,
-	linux_SIOCOUTQ               = linux_TIOCOUTQ, // output queue size (not sent + not acked)
+	/*linux_SIOCINQ                = linux_FIONREAD,
+	linux_SIOCOUTQ               = linux_TIOCOUTQ, // output queue size (not sent + not acked)*/
 
 	linux_SOCK_IOC_TYPE          = 0x89,
 
@@ -6872,7 +6880,6 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(getitimer, int, which, struct linux_it
 static inline LINUX_DEFINE_SYSCALL1_RET(alarm, unsigned int, seconds, unsigned int)
 static inline LINUX_DEFINE_SYSCALL3_NORET(setitimer, int, which, struct linux_itimerval_t  LINUX_SAFE_CONST*, value, struct linux_itimerval_t*, ovalue)
 static inline LINUX_DEFINE_SYSCALL0_RET(getpid, linux_pid_t)
-static inline LINUX_DEFINE_SYSCALL4_RET(sendfile64, linux_fd_t, out_fd, linux_fd_t, in_fd, linux_loff_t, offset, size_t, count, size_t)
 static inline LINUX_DEFINE_SYSCALL3_RET(socket, int, family, int, type, int, protocol, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL3_NORET(connect, linux_fd_t, fd, struct linux_sockaddr_t LINUX_SAFE_CONST*, uservaddr, int, addrlen)
 static inline LINUX_DEFINE_SYSCALL3_RET(accept, linux_fd_t, fd, struct linux_sockaddr_t*, upeer_sockaddr, int*, upeer_addrlen, linux_fd_t)
