@@ -21,8 +21,9 @@
 #include "termio.h"
 #include "termiox.h"
 #include "termbits.h"
-#include "kd.h"
 #include "vt.h"
+#include "kd.h"
+#include "keyboard.h"
 
 enum
 {
