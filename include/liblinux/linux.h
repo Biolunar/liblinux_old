@@ -449,6 +449,14 @@ struct linux_itimerspec_t
 // utimes
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// acct
+
+#include "acct.h"
+
+// acct
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -7054,7 +7062,6 @@ static inline LINUX_DEFINE_SYSCALL5_RET(prctl, int, option, uintptr_t, arg2, uin
 static inline LINUX_DEFINE_SYSCALL2_NORET(arch_prctl, int, option, uintptr_t, arg2)
 static inline LINUX_DEFINE_SYSCALL1_RET(adjtimex, struct linux_timex_t*, txc_p, int)
 static inline LINUX_DEFINE_SYSCALL2_NORET(setrlimit, unsigned int, resource, struct linux_rlimit_t LINUX_SAFE_CONST*, rlim)
-static inline LINUX_DEFINE_SYSCALL1_NORET(acct, char const*, name)
 static inline LINUX_DEFINE_SYSCALL2_NORET(settimeofday, struct linux_timeval_t LINUX_SAFE_CONST*, tv, struct linux_timezone_t LINUX_SAFE_CONST*, tz)
 static inline LINUX_DEFINE_SYSCALL2_NORET(swapon, char const*, specialfile, int, swap_flags)
 static inline LINUX_DEFINE_SYSCALL1_NORET(swapoff, char const*, specialfile)
