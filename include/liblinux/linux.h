@@ -427,6 +427,20 @@ struct linux_stat_t
 // sync
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// timerfd
+
+struct linux_itimerspec_t
+{
+	struct linux_timespec_t it_interval;
+	struct linux_timespec_t it_value;
+};
+
+#include "timerfd.h"
+
+// timerfd
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -1266,11 +1280,6 @@ struct linux_sigevent_t
 			void* attribute;
 		} sigev_thread;
 	} sigev_un;
-};
-struct linux_itimerspec_t
-{
-	struct linux_timespec_t it_interval;
-	struct linux_timespec_t it_value;
 };
 struct linux_mq_attr_t
 {
@@ -7097,10 +7106,7 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(get_robust_list, linux_pid_t, pid, str
 static inline LINUX_DEFINE_SYSCALL6_NORET(move_pages, linux_pid_t, pid, unsigned long, nr_pages, void const**, pages, int const*, nodes, int*, status, int, flags)
 static inline LINUX_DEFINE_SYSCALL4_NORET(utimensat, linux_fd_t, dfd, char const*, filename, struct linux_timespec_t LINUX_SAFE_CONST*, utimes, int, flags)
 static inline LINUX_DEFINE_SYSCALL3_RET(signalfd, linux_fd_t, ufd, linux_sigset_t LINUX_SAFE_CONST*, user_mask, size_t, sizemask, linux_fd_t)
-static inline LINUX_DEFINE_SYSCALL2_RET(timerfd_create, int, clockid, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL1_RET(eventfd, unsigned int, count, linux_fd_t)
-static inline LINUX_DEFINE_SYSCALL4_NORET(timerfd_settime, linux_fd_t, ufd, int, flags, struct linux_itimerspec_t const*, utmr, struct linux_itimerspec_t*, otmr)
-static inline LINUX_DEFINE_SYSCALL2_NORET(timerfd_gettime, linux_fd_t, ufd, struct linux_itimerspec_t*, otmr)
 static inline LINUX_DEFINE_SYSCALL4_RET(accept4, linux_fd_t, fd, struct linux_sockaddr_t*, upeer_sockaddr, int*, upeer_addrlen, int, flags, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL4_NORET(rt_tgsigqueueinfo, linux_pid_t, tgid, linux_pid_t, pid, int, sig, struct linux_siginfo_t*, uinfo)
 static inline LINUX_DEFINE_SYSCALL5_RET(perf_event_open, struct linux_perf_event_attr_t*, attr_uptr, linux_pid_t, pid, int, cpu, linux_fd_t, group_fd, unsigned long, flags, linux_fd_t)
