@@ -761,46 +761,29 @@ typedef struct linux_sigaltstack_t
 } linux_stack_t;
 struct linux_fpx_sw_bytes_t
 {
-	// If set to FP_XSTATE_MAGIC1 then this is an xstate context.
-	// 0 if a legacy frame.
 	uint32_t magic1;
-
-	// Total size of the fpstate area:
-	//
-	//  - if magic1 == 0 then it's sizeof(struct _fpstate)
-	//  - if magic1 == FP_XSTATE_MAGIC1 then it's sizeof(struct _xstate)
-	//    plus extensions (if any)
 	uint32_t extended_size;
-
-	// Feature bit mask (including FP/SSE/extended state) that is present
-	// in the memory layout:
 	uint64_t xfeatures;
-
-	// Actual XSAVE state size, based on the xfeatures saved in the layout.
-	// 'extended_size' is greater than 'xstate_size':
 	uint32_t xstate_size;
-
-	// For future use:
 	uint32_t _padding[7];
 };
 struct linux_fpstate_t
 {
 	uint16_t cwd;
 	uint16_t swd;
-	// Note this is not the same as the 32-bit/x87/FSAVE twd:
 	uint16_t twd;
 	uint16_t fop;
 	uint64_t rip;
 	uint64_t rdp;
 	uint32_t mxcsr;
 	uint32_t mxcsr_mask;
-	uint32_t st_space[32];  //  8x  FP registers, 16 bytes each
-	uint32_t xmm_space[64];	// 16x XMM registers, 16 bytes each
+	uint32_t st_space[32];
+	uint32_t xmm_space[64];
 	uint32_t reserved2[12];
 	union
 	{
 		uint32_t eserved3[12];
-		struct linux_fpx_sw_bytes_t sw_reserved; // Potential extended state is encoded here
+		struct linux_fpx_sw_bytes_t sw_reserved;
 	};
 };
 struct linux_sigcontext_t
@@ -822,20 +805,20 @@ struct linux_sigcontext_t
 	uint64_t rcx;
 	uint64_t rsp;
 	uint64_t rip;
-	uint64_t eflags; // RFLAGS
+	uint64_t eflags;
 	uint16_t cs;
 	uint16_t gs;
 	uint16_t fs;
 	union
 	{
-		uint16_t ss;    // If UC_SIGCONTEXT_SS
-		uint16_t _pad0; // Alias name for old (!UC_SIGCONTEXT_SS) user-space
+		uint16_t ss;
+		uint16_t _pad0;
 	};
 	uint64_t err;
 	uint64_t trapno;
 	uint64_t oldmask;
 	uint64_t cr2;
-	struct linux_fpstate_t* fpstate; // Zero when no FPU context
+	struct linux_fpstate_t* fpstate;
 	uint64_t _reserved1[8];
 };
 struct linux_ucontext_t
@@ -844,7 +827,7 @@ struct linux_ucontext_t
 	struct linux_ucontext_t* uc_link;
 	linux_stack_t uc_stack;
 	struct linux_sigcontext_t uc_mcontext;
-	linux_sigset_t uc_sigmask; // mask last for extensibility
+	linux_sigset_t uc_sigmask;
 };
 typedef void linux_infofn_t(int sig, struct linux_siginfo_t* info, struct linux_ucontext_t* context);
 typedef linux_infofn_t* linux_siginfo_t;
@@ -853,26 +836,12 @@ struct linux_sigaction_t
 	linux_sighandler_t sa_handler;
 	unsigned long sa_flags;
 	linux_sigrestore_t sa_restorer;
-	linux_sigset_t sa_mask; // mask last for extensibility
+	linux_sigset_t sa_mask;
 };
-/*typedef unsigned char linux_cc_t;
-typedef unsigned int linux_speed_t;
-typedef unsigned int linux_tcflag_t;
-struct linux_termios2_t
-{
-	linux_tcflag_t c_iflag; // input mode flags
-	linux_tcflag_t c_oflag; // output mode flags
-	linux_tcflag_t c_cflag; // control mode flags
-	linux_tcflag_t c_lflag; // local mode flags
-	linux_cc_t c_line; // line discipline
-	linux_cc_t c_cc[19]; // control characters
-	linux_speed_t c_ispeed; // input speed
-	linux_speed_t c_ospeed; // output speed
-};*/
 struct linux_timezone_t
 {
-	int tz_minuteswest; // minutes west of Greenwich
-	int tz_dsttime; // type of dst correction
+	int tz_minuteswest;
+	int tz_dsttime;
 };
 struct linux_ipc64_perm_t
 {
@@ -891,14 +860,14 @@ struct linux_ipc64_perm_t
 };
 struct linux_shmid64_ds_t
 {
-	struct linux_ipc64_perm_t shm_perm; // operation perms
-	size_t shm_segsz; // size of segment (bytes)
-	linux_kernel_time_t shm_atime; // last attach time
-	linux_kernel_time_t shm_dtime; // last detach time
-	linux_kernel_time_t shm_ctime; // last change time
-	linux_kernel_pid_t shm_cpid; //  of creator
-	linux_kernel_pid_t shm_lpid; //  of last operator
-	linux_kernel_ulong_t shm_nattch; // no. of current attaches
+	struct linux_ipc64_perm_t shm_perm;
+	size_t shm_segsz;
+	linux_kernel_time_t shm_atime;
+	linux_kernel_time_t shm_dtime;
+	linux_kernel_time_t shm_ctime;
+	linux_kernel_pid_t shm_cpid;
+	linux_kernel_pid_t shm_lpid;
+	linux_kernel_ulong_t shm_nattch;
 	linux_kernel_ulong_t _unused4;
 	linux_kernel_ulong_t _unused5;
 };
@@ -918,28 +887,28 @@ struct linux_shm_info_t
 {
 	int used_ids;
 	unsigned char _pad[4];
-	linux_kernel_ulong_t shm_tot; // total allocated shm
-	linux_kernel_ulong_t shm_rss; // total resident shm
-	linux_kernel_ulong_t shm_swp; // total swapped shm
+	linux_kernel_ulong_t shm_tot;
+	linux_kernel_ulong_t shm_rss;
+	linux_kernel_ulong_t shm_swp;
 	linux_kernel_ulong_t swap_attempts;
 	linux_kernel_ulong_t swap_successes;
 };
 struct linux_semid64_ds_t
 {
-	struct linux_ipc64_perm_t sem_perm; // permissions
-	linux_kernel_time_t sem_otime; // last semop time
+	struct linux_ipc64_perm_t sem_perm;
+	linux_kernel_time_t sem_otime;
 	linux_kernel_ulong_t _pad1;
-	linux_kernel_time_t sem_ctime; // last change time
+	linux_kernel_time_t sem_ctime;
 	linux_kernel_ulong_t _pad2;
-	linux_kernel_ulong_t sem_nsems; // no. of semaphores in array
+	linux_kernel_ulong_t sem_nsems;
 	linux_kernel_ulong_t _pad3;
 	linux_kernel_ulong_t _pad4;
 };
 struct linux_sembuf_t
 {
-	unsigned short sem_num; // semaphore index in array
-	short sem_op; // semaphore operation
-	short sem_flg; // operation flags
+	unsigned short sem_num;
+	short sem_op;
+	short sem_flg;
 };
 struct linux_seminfo_t
 {
@@ -956,31 +925,31 @@ struct linux_seminfo_t
 };
 union linux_semun_t
 {
-	int val; // value for SETVAL
-	struct linux_semid64_ds_t* buf; // buffer for IPC_STAT & IPC_SET
-	unsigned short* array; // array for GETALL & SETALL
-	struct linux_seminfo_t* info; // buffer for IPC_INFO
+	int val;
+	struct linux_semid64_ds_t* buf;
+	unsigned short* array;
+	struct linux_seminfo_t* info;
 	void* _pad;
 };
 _Static_assert(sizeof(union linux_semun_t) == sizeof(unsigned long), "union linux_semun_t and unsigned long must have the same size. This is a bug in a liblinux header.");
 struct linux_msqid64_ds_t
 {
 	struct linux_ipc64_perm_t msg_perm;
-	linux_kernel_time_t msg_stime; // last msgsnd time
-	linux_kernel_time_t msg_rtime; // last msgrcv time
-	linux_kernel_time_t msg_ctime; // last change time
-	linux_kernel_ulong_t msg_cbytes; // current number of bytes on queue
-	linux_kernel_ulong_t msg_qnum; // number of messages in queue
-	linux_kernel_ulong_t msg_qbytes; // max number of bytes on queue
-	linux_kernel_pid_t msg_lspid; // pid of last msgsnd
-	linux_kernel_pid_t msg_lrpid; // last receive pid
+	linux_kernel_time_t msg_stime;
+	linux_kernel_time_t msg_rtime;
+	linux_kernel_time_t msg_ctime;
+	linux_kernel_ulong_t msg_cbytes;
+	linux_kernel_ulong_t msg_qnum;
+	linux_kernel_ulong_t msg_qbytes;
+	linux_kernel_pid_t msg_lspid;
+	linux_kernel_pid_t msg_lrpid;
 	linux_kernel_ulong_t _unused1;
 	linux_kernel_ulong_t _unused2;
 };
 struct linux_msgbuf_t
 {
-	linux_kernel_long_t mtype; // type of message
-	char mtext[]; // message text
+	linux_kernel_long_t mtype;
+	char mtext[];
 };
 struct linux_msginfo_t
 {
@@ -996,8 +965,8 @@ struct linux_msginfo_t
 };
 struct linux_itimerval_t
 {
-	struct linux_timeval_t it_interval; // timer interval
-	struct linux_timeval_t it_value; // current value
+	struct linux_timeval_t it_interval;
+	struct linux_timeval_t it_value;
 };
 struct linux_sockaddr_t
 {
@@ -2468,106 +2437,6 @@ enum
 	linux_SIG_SETMASK = 2,
 };
 
-/*enum
-{
-	// 0x54 is just a magic number to make these relatively unique ('T')
-	linux_TCGETS          = 0x5401,
-	linux_TCSETS          = 0x5402,
-	linux_TCSETSW         = 0x5403,
-	linux_TCSETSF         = 0x5404,
-	linux_TCGETA          = 0x5405,
-	linux_TCSETA          = 0x5406,
-	linux_TCSETAW         = 0x5407,
-	linux_TCSETAF         = 0x5408,
-	linux_TCSBRK          = 0x5409,
-	linux_TCXONC          = 0x540A,
-	linux_TCFLSH          = 0x540B,
-	linux_TIOCEXCL        = 0x540C,
-	linux_TIOCNXCL        = 0x540D,
-	linux_TIOCSCTTY       = 0x540E,
-	linux_TIOCGPGRP       = 0x540F,
-	linux_TIOCSPGRP       = 0x5410,
-	linux_TIOCOUTQ        = 0x5411,
-	linux_TIOCSTI         = 0x5412,
-	linux_TIOCGWINSZ      = 0x5413,
-	linux_TIOCSWINSZ      = 0x5414,
-	linux_TIOCMGET        = 0x5415,
-	linux_TIOCMBIS        = 0x5416,
-	linux_TIOCMBIC        = 0x5417,
-	linux_TIOCMSET        = 0x5418,
-	linux_TIOCGSOFTCAR    = 0x5419,
-	linux_TIOCSSOFTCAR    = 0x541A,
-	linux_FIONREAD        = 0x541B,
-	linux_TIOCINQ         = linux_FIONREAD,
-	linux_TIOCLINUX       = 0x541C,
-	linux_TIOCCONS        = 0x541D,
-	linux_TIOCGSERIAL     = 0x541E,
-	linux_TIOCSSERIAL     = 0x541F,
-	linux_TIOCPKT         = 0x5420,
-	linux_FIONBIO         = 0x5421,
-	linux_TIOCNOTTY       = 0x5422,
-	linux_TIOCSETD        = 0x5423,
-	linux_TIOCGETD        = 0x5424,
-	linux_TCSBRKP         = 0x5425, // Needed for POSIX tcsendbreak()
-	linux_TIOCSBRK        = 0x5427, // BSD compatibility
-	linux_TIOCCBRK        = 0x5428, // BSD compatibility
-	linux_TIOCGSID        = 0x5429, // Return the session ID of FD
-#define linux_TCGETS2           ((2u << 30) | ('T' << 8) | 0x2A | (sizeof(struct linux_termios2_t) << 16))
-	linux_TCSETS2         = (1u << 30) | ('T' << 8) | 0x2B | (sizeof(struct linux_termios2_t) << 16),
-	linux_TCSETSW2        = (1u << 30) | ('T' << 8) | 0x2C | (sizeof(struct linux_termios2_t) << 16),
-	linux_TCSETSF2        = (1u << 30) | ('T' << 8) | 0x2D | (sizeof(struct linux_termios2_t) << 16),
-	linux_TIOCGRS485      = 0x542E,
-	linux_TIOCSRS485      = 0x542F,
-#define linux_TIOCGPTN          ((2u << 30) | ('T' << 8) | 0x30 | (sizeof(unsigned int) << 16)) // Get Pty Number (of pty-mux device)
-	linux_TIOCSPTLCK      = ((1u << 30) | ('T' << 8) | 0x31 | (sizeof(int) << 16)), // Lock/unlock Pty
-#define linux_TIOCGDEV          ((2u << 30) | ('T' << 8) | 0x32 | (sizeof(unsigned int) << 16)) // Get primary device node of /dev/console
-	linux_TCGETX          = 0x5432, // SYS5 TCGETX compatibility
-	linux_TCSETX          = 0x5433,
-	linux_TCSETXF         = 0x5434,
-	linux_TCSETXW         = 0x5435,
-	linux_TIOCSIG         = (1u << 30) | ('T' << 8) | 0x36 | (sizeof(int) << 16), // pty: generate signal
-	linux_TIOCVHANGUP     = 0x5437,
-#define linux_TIOCGPKT          ((2u << 30) | ('T' << 8) | 0x38 | (sizeof(int) << 16)) // Get packet mode state
-#define linux_TIOCGPTLCK        ((2u << 30) | ('T' << 8) | 0x39 | (sizeof(int) << 16)) // Get Pty lock state
-#define linux_TIOCGEXCL         ((2u << 30) | ('T' << 8) | 0x40 | (sizeof(int) << 16)) // Get exclusive mode state
-
-	linux_FIONCLEX        = 0x5450,
-	linux_FIOCLEX         = 0x5451,
-	linux_FIOASYNC        = 0x5452,
-	linux_TIOCSERCONFIG   = 0x5453,
-	linux_TIOCSERGWILD    = 0x5454,
-	linux_TIOCSERSWILD    = 0x5455,
-	linux_TIOCGLCKTRMIOS  = 0x5456,
-	linux_TIOCSLCKTRMIOS  = 0x5457,
-	linux_TIOCSERGSTRUCT  = 0x5458, // For debugging only
-	linux_TIOCSERGETLSR   = 0x5459, // Get line status register
-	linux_TIOCSERGETMULTI = 0x545A, // Get multiport config
-	linux_TIOCSERSETMULTI = 0x545B, // Set multiport config
-
-	linux_TIOCMIWAIT      = 0x545C, // wait for a change on serial input line(s)
-	linux_TIOCGICOUNT     = 0x545D, // read serial port inline interrupt counts
-
-	linux_FIOQSIZE        = 0x5460,
-};
-
-enum
-{
-	// Used for packet mode
-	linux_TIOCPKT_DATA       =  0,
-	linux_TIOCPKT_FLUSHREAD  =  1,
-	linux_TIOCPKT_FLUSHWRITE =  2,
-	linux_TIOCPKT_STOP       =  4,
-	linux_TIOCPKT_START      =  8,
-	linux_TIOCPKT_NOSTOP     = 16,
-	linux_TIOCPKT_DOSTOP     = 32,
-	linux_TIOCPKT_IOCTL      = 64,
-};
-
-enum
-{
-	linux_TIOCSER_TEMT = 0x01, // Transmitter physically empty
-};*/
-
 enum
 {
 	linux_FP_XSTATE_MAGIC1      = 0x46505853u,
@@ -3002,8 +2871,8 @@ enum
 enum
 {
 	// Linux-specific socket ioctls
-	/*linux_SIOCINQ                = linux_FIONREAD,
-	linux_SIOCOUTQ               = linux_TIOCOUTQ, // output queue size (not sent + not acked)*/
+	linux_SIOCINQ                = linux_FIONREAD,
+	linux_SIOCOUTQ               = linux_TIOCOUTQ, // output queue size (not sent + not acked)
 
 	linux_SOCK_IOC_TYPE          = 0x89,
 

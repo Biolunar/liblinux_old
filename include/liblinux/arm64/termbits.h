@@ -14,25 +14,9 @@
  * limitations under the License.
  */
 
-#ifndef HEADER_LIBLINUX_IOCTL_H_INCLUDED
-#define HEADER_LIBLINUX_IOCTL_H_INCLUDED
+#ifndef HEADER_LIBLINUX_ARM64_TERMBITS_H_INCLUDED
+#define HEADER_LIBLINUX_ARM64_TERMBITS_H_INCLUDED
 
-#include <stdint.h>
+#include "../generic/termbits.h"
 
-#include <liblinux/syscall.h>
-
-static inline LINUX_DEFINE_SYSCALL3_RET(ioctl, linux_fd_t, fd, unsigned int, cmd, uintptr_t, arg, int)
-
-#if defined(LINUX_ARCH_ARM64)
-#include "arm64/ioctls.h"
-#elif defined(LINUX_ARCH_X86)
-#include "x86/ioctls.h"
-#elif defined(LINUX_ARCH_X32)
-#include "x32/ioctls.h"
-#elif defined(LINUX_ARCH_X86_64)
-#include "x86_64/ioctls.h"
-#else
-#error "Unknown architecture"
-#endif
-
-#endif // HEADER_LIBLINUX_IOCTL_H_INCLUDED
+#endif // HEADER_LIBLINUX_ARM64_TERMBITS_H_INCLUDED
