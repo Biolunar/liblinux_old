@@ -18,6 +18,8 @@
 #define HEADER_LIBLINUX_GENERIC_IOCTLS_H_INCLUDED
 
 #include "ioctl.h"
+#include "termio.h"
+#include "termiox.h"
 #include "termbits.h"
 
 enum
