@@ -153,17 +153,6 @@ struct linux_timespec_t
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-// capability
-
-typedef int linux_kernel_pid_t;
-typedef linux_kernel_pid_t linux_pid_t;
-
-#include "capability.h"
-
-// capability
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
 // xattr
 
 #include "xattr.h"
@@ -455,6 +444,25 @@ struct linux_itimerspec_t
 #include "acct.h"
 
 // acct
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// capability
+
+typedef int linux_kernel_pid_t;
+typedef linux_kernel_pid_t linux_pid_t;
+
+#include "capability.h"
+
+// capability
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// exec_domain
+
+#include "exec_domain.h"
+
+// exec_domain
 //------------------------------------------------------------------------------
 
 #include <stddef.h>
@@ -7032,7 +7040,6 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(rt_sigsuspend, linux_sigset_t LINUX_SA
 static inline LINUX_DEFINE_SYSCALL2_NORET(sigaltstack, struct linux_sigaltstack_t const*, uss, struct linux_sigaltstack_t*, uoss)
 static inline LINUX_DEFINE_SYSCALL2_NORET(utime, char LINUX_SAFE_CONST*, filename, struct linux_utimbuf_t LINUX_SAFE_CONST*, times)
 static inline LINUX_DEFINE_SYSCALL3_NORET(mknod, char const*, filename, linux_umode_t, mode, linux_dev_t, dev)
-static inline LINUX_DEFINE_SYSCALL1_RET(personality, unsigned int, personality, unsigned int)
 static inline LINUX_DEFINE_SYSCALL2_NORET(ustat, linux_dev_t, dev, struct linux_ustat_t*, ubuf)
 static inline LINUX_DEFINE_SYSCALL3_RET(sysfs, int, option, uintptr_t, arg1, uintptr_t, arg2, int)
 static inline LINUX_DEFINE_SYSCALL2_RET(getpriority, int, which, int, who, long)
