@@ -26,7 +26,7 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(symlinkat, char const*, oldname, linux
 static inline LINUX_DEFINE_SYSCALL5_NORET(linkat, linux_fd_t, olddfd, char const*, oldname, linux_fd_t, newdfd, char const*, newname, int, flags)
 #ifdef LINUX_ARCH_WANT_RENAMEAT
 static inline LINUX_DEFINE_SYSCALL4_NORET(renameat, linux_fd_t, olddfd, char const*, oldname, linux_fd_t, newdfd, char const*, newname)
-#undef LINUX_ARCH_WANT_RENAMEAT
 #endif
+#undef LINUX_ARCH_WANT_RENAMEAT
 
 #endif // HEADER_LIBLINUX_NAMEI_H_INCLUDED

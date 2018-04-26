@@ -191,12 +191,13 @@ struct linux_timespec_t
 
 enum
 {
-#ifdef __mips__
+#if defined(LINUX_ARCH_MIPS)
 	linux_NSIG = 128,
 #else
 	linux_NSIG =  64,
 #endif
 };
+
 typedef struct
 {
 	unsigned long sig[linux_NSIG / (sizeof(unsigned long) * CHAR_BIT)];
@@ -252,7 +253,12 @@ typedef struct
 
 typedef unsigned short linux_umode_t;
 
+#if defined(LINUX_ARCH_ARM64) || \
+    defined(LINUX_ARCH_X86)   || \
+    defined(LINUX_ARCH_X32)   || \
+    defined(LINUX_ARCH_X86_64)
 #define LINUX_ARCH_WANT_RENAMEAT
+#endif
 #include "namei.h"
 
 // namei
@@ -378,6 +384,28 @@ struct linux_pollfd_t
 //------------------------------------------------------------------------------
 // stat
 
+#if defined(LINUX_ARCH_X86)
+struct linux_stat_t
+{
+	unsigned long st_dev;
+	unsigned long st_ino;
+	unsigned short st_mode;
+	unsigned short st_nlink;
+	unsigned short st_uid;
+	unsigned short st_gid;
+	unsigned long st_rdev;
+	unsigned long st_size;
+	unsigned long st_blksize;
+	unsigned long st_blocks;
+	unsigned long st_atime;
+	unsigned long st_atime_nsec;
+	unsigned long st_mtime;
+	unsigned long st_mtime_nsec;
+	unsigned long st_ctime;
+	unsigned long st_ctime_nsec;
+	unsigned long _unused[2];
+};
+#elif defined(LINUX_ARCH_X32) || defined(LINUX_ARCH_X86_64)
 struct linux_stat_t
 {
 	linux_kernel_ulong_t st_dev;
@@ -401,6 +429,30 @@ struct linux_stat_t
 	linux_kernel_ulong_t st_ctime_nsec;
 	linux_kernel_long_t _unused[3];
 };
+#else
+struct linux_stat_t
+{
+	unsigned long st_dev;
+	unsigned long st_ino;
+	unsigned int st_mode;
+	unsigned int st_nlink;
+	unsigned int st_uid;
+	unsigned int st_gid;
+	unsigned long st_rdev;
+	unsigned long _pad1;
+	long st_size;
+	int st_blksize;
+	int _pad2;
+	long st_blocks;
+	long st_atime;
+	unsigned long st_atime_nsec;
+	long st_mtime;
+	unsigned long st_mtime_nsec;
+	long st_ctime;
+	unsigned long st_ctime_nsec;
+	unsigned int _unused[2];
+};
+#endif
 
 #include "stat.h"
 
@@ -410,7 +462,9 @@ struct linux_stat_t
 //------------------------------------------------------------------------------
 // sync
 
-//#define LINUX_ARCH_WANT_SYNC_FILE_RANGE2
+#if 0 // Check for ARM, etc
+#define LINUX_ARCH_WANT_SYNC_FILE_RANGE2
+#endif
 #include "sync.h"
 
 // sync
@@ -465,6 +519,182 @@ typedef linux_kernel_pid_t linux_pid_t;
 // exec_domain
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// exit
+
+#include  <stdalign.h>
+
+enum
+{
+#if defined(LINUX_ARCH_ARM64)  || \
+    defined(LINUX_ARCH_X86_64)
+	linux_ARCH_SI_PREAMBLE_SIZE = (4 * sizeof(int)),
+#else
+	linux_ARCH_SI_PREAMBLE_SIZE = (3 * sizeof(int)),
+#endif
+	linux_SI_PAD_SIZE           = ((128 - linux_ARCH_SI_PREAMBLE_SIZE) / sizeof(int)),
+};
+
+union linux_sigval_t
+{
+	int sival_int;
+	void* sival_ptr;
+};
+typedef linux_kernel_uid32_t linux_arch_si_uid_t;
+typedef int linux_kernel_timer_t;
+#if defined(LINUX_ARCH_SPARC)
+typedef int linux_arch_si_band_t;
+#else
+typedef long linux_arch_si_band_t;
+#endif
+typedef linux_kernel_long_t linux_kernel_clock_t;
+#if 0 // Test for MIPS, etc
+#define LINUX_ARCH_HAS_SWAPPED_SIGINFO
+#endif
+struct linux_siginfo_t
+{
+#if defined(LINUX_ARCH_X32)
+	alignas(8) int si_signo;
+#else
+	int si_signo;
+#endif
+#ifndef LINUX_ARCH_HAS_SWAPPED_SIGINFO
+	int si_errno;
+	int si_code;
+#else
+	int si_code;
+	int si_errno;
+#endif
+#undef LINUX_ARCH_HAS_SWAPPED_SIGINFO
+
+#if defined(LINUX_ARCH_X86_64)
+	char _pad[4];
+#endif
+	union
+	{
+		int _pad[linux_SI_PAD_SIZE];
+
+		struct
+		{
+			linux_kernel_pid_t pid;
+			linux_arch_si_uid_t uid;
+		} kill;
+
+		struct
+		{
+			linux_kernel_timer_t tid;
+			int overrun;
+			union linux_sigval_t sigvalue;
+			int _private;
+#if defined(LINUX_ARCH_X86_64)
+			char _pad[4];
+#endif
+		} timer;
+
+		struct
+		{
+			linux_kernel_pid_t pid;
+			linux_arch_si_uid_t uid;
+			union linux_sigval_t sigval;
+		} rt;
+
+		struct
+		{
+			linux_kernel_pid_t pid;
+			linux_arch_si_uid_t uid;
+			int status;
+#if defined(LINUX_ARCH_X32)
+			alignas(4) linux_kernel_clock_t utime;
+			alignas(4) linux_kernel_clock_t stime;
+#else
+#if defined(LINUX_ARCH_X86_64)
+			char _pad[4];
+#endif
+			linux_kernel_clock_t utime;
+			linux_kernel_clock_t stime;
+#endif
+		} sigchld;
+
+		struct
+		{
+			void* addr;
+#ifdef LINUX_ARCH_SI_TRAPNO
+			int trapno;
+#endif
+#undef LINUX_ARCH_SI_TRAPNO
+#ifdef LINUX_ARCH_IA64
+			int imm;
+			unsigned int flags;
+			unsigned long isr;
+#endif
+			union
+			{
+				short addr_lsb;
+				struct
+				{
+					void* dummy_bnd;
+					void* lower;
+					void* upper;
+				} addr_bnd;
+				struct
+				{
+					void* dummy_pkey;
+					uint32_t pkey;
+#if defined(LINUX_ARCH_X86_64)
+					char _pad[4];
+#endif
+				} addr_pkey;
+			};
+		} sigfault;
+
+		struct
+		{
+			linux_arch_si_band_t band;
+			linux_fd_t fd;
+#if defined(LINUX_ARCH_X86_64)
+			char _pad[4];
+#endif
+		} sigpoll;
+
+		struct
+		{
+			void* call_addr;
+			int syscall;
+			unsigned int arch;
+		} sigsys;
+	} sifields;
+};
+typedef linux_kernel_long_t linux_kernel_suseconds_t;
+struct linux_timeval_t
+{
+	linux_kernel_time_t tv_sec;
+	linux_kernel_suseconds_t tv_usec;
+};
+struct linux_rusage_t
+{
+	struct linux_timeval_t ru_utime;
+	struct linux_timeval_t ru_stime;
+	linux_kernel_long_t ru_maxrss;
+	linux_kernel_long_t ru_ixrss;
+	linux_kernel_long_t ru_idrss;
+	linux_kernel_long_t ru_isrss;
+	linux_kernel_long_t ru_minflt;
+	linux_kernel_long_t ru_majflt;
+	linux_kernel_long_t ru_nswap;
+	linux_kernel_long_t ru_inblock;
+	linux_kernel_long_t ru_oublock;
+	linux_kernel_long_t ru_msgsnd;
+	linux_kernel_long_t ru_msgrcv;
+	linux_kernel_long_t ru_nsignals;
+	linux_kernel_long_t ru_nvcsw;
+	linux_kernel_long_t ru_nivcsw;
+};
+
+#include "exit.h"
+
+// exit
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -505,13 +735,7 @@ typedef int linux_pkey_t;
 // Kernel types
 
 typedef unsigned short linux_kernel_mode_t;
-typedef linux_kernel_uid32_t linux_arch_si_uid_t;
-typedef int linux_kernel_timer_t;
-typedef linux_kernel_long_t linux_kernel_clock_t;
 typedef linux_kernel_clock_t linux_clock_t;
-typedef linux_kernel_clock_t linux_arch_si_clock_t;
-typedef long linux_arch_si_band_t;
-typedef linux_kernel_long_t linux_kernel_suseconds_t;
 typedef int linux_kernel_key_t;
 typedef linux_kernel_key_t linux_key_t;
 typedef unsigned short linux_kernel_sa_family_t;
@@ -528,94 +752,6 @@ typedef void linux_signalfn_t(int sig);
 typedef linux_signalfn_t* linux_sighandler_t;
 typedef void linux_restorefn_t(void);
 typedef linux_restorefn_t* linux_sigrestore_t;
-union linux_sigval_t
-{
-	int sival_int;
-	void* sival_ptr;
-};
-struct linux_siginfo_t
-{
-	int si_signo;
-	int si_errno;
-	int si_code;
-
-	char _pad[4];
-	union
-	{
-		int _pad[(128 - 4 * sizeof(int)) / sizeof(int)];
-
-		// kill()
-		struct
-		{
-			linux_kernel_pid_t si_pid; // sender's pid
-			linux_arch_si_uid_t si_uid; // sender's uid
-		} kill;
-
-		// POSIX.1b timers
-		struct
-		{
-			linux_kernel_timer_t si_timerid; // timer id
-			int si_overrun; // overrun count
-			union linux_sigval_t si_value; // same as below
-			int _sys_private; // not to be passed to user
-			char _pad[4];
-		} timer;
-
-		// POSIX.1b signals
-		struct
-		{
-			linux_kernel_pid_t si_pid; // sender's pid
-			linux_arch_si_uid_t si_uid; // sender's uid
-			union linux_sigval_t si_value;
-		} rt;
-
-		// SIGCHLD
-		struct
-		{
-			linux_kernel_pid_t si_pid; // which child
-			linux_arch_si_uid_t si_uid; // sender's uid
-			int si_status; // exit code
-			char _pad[4];
-			linux_arch_si_clock_t si_utime;
-			linux_arch_si_clock_t si_stime;
-		} sigchld;
-
-		// SIGILL, SIGFPE, SIGSEGV, SIGBUS
-		struct
-		{
-			void* si_addr; // faulting insn/memory ref.
-			short si_addr_lsb; // LSB of the reported address
-			char _pad[6];
-			union
-			{
-				// used when si_code=SEGV_BNDERR
-				struct
-				{
-					void* si_lower;
-					void* si_upper;
-				} addr_bnd;
-				// used when si_code=SEGV_PKUERR
-				uint32_t si_pkey;
-			};
-		} sigfault;
-
-		// SIGPOLL
-		struct
-		{
-			linux_arch_si_band_t si_band; // POLL_IN, POLL_OUT, POLL_MSG
-			int si_fd; // TODO: int is used as a file descriptor.
-			char _pad[4];
-		} sigpoll;
-
-		// SIGSYS
-		struct
-		{
-			void* si_call_addr; // calling user insn
-			int si_syscall; // triggering system call number
-			unsigned int si_arch; // AUDIT_ARCH_* of syscall
-		} sigsys;
-	} sifields;
-};
 typedef struct linux_sigaltstack_t
 {
 	void* ss_sp;
@@ -733,11 +869,6 @@ struct linux_termios2_t
 	linux_speed_t c_ispeed; // input speed
 	linux_speed_t c_ospeed; // output speed
 };*/
-struct linux_timeval_t
-{
-	linux_kernel_time_t      tv_sec;  // seconds
-	linux_kernel_suseconds_t tv_usec; // microseconds
-};
 struct linux_timezone_t
 {
 	int tz_minuteswest; // minutes west of Greenwich
@@ -867,25 +998,6 @@ struct linux_itimerval_t
 {
 	struct linux_timeval_t it_interval; // timer interval
 	struct linux_timeval_t it_value; // current value
-};
-struct linux_rusage_t
-{
-	struct linux_timeval_t ru_utime; // user time used
-	struct linux_timeval_t ru_stime; // system time used
-	linux_kernel_long_t ru_maxrss; // maximum resident set size
-	linux_kernel_long_t ru_ixrss; // integral shared memory size
-	linux_kernel_long_t ru_idrss; // integral unshared data size
-	linux_kernel_long_t ru_isrss; // integral unshared stack size
-	linux_kernel_long_t ru_minflt; // page reclaims
-	linux_kernel_long_t ru_majflt; // page faults
-	linux_kernel_long_t ru_nswap; // swaps
-	linux_kernel_long_t ru_inblock; // block input operations
-	linux_kernel_long_t ru_oublock; // block output operations
-	linux_kernel_long_t ru_msgsnd; // messages sent
-	linux_kernel_long_t ru_msgrcv; // messages received
-	linux_kernel_long_t ru_nsignals; // signals received
-	linux_kernel_long_t ru_nvcsw; // voluntary context switches
-	linux_kernel_long_t ru_nivcsw; // involuntary context switches
 };
 struct linux_sockaddr_t
 {
@@ -6979,7 +7091,6 @@ static inline LINUX_DEFINE_SYSCALL5_RET(clone, unsigned long, clone_flags, void*
 static inline LINUX_DEFINE_SYSCALL0_RET(fork, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL0_RET(vfork, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL3_NORET(execve, char const*, filename, char const* const*, argv, char const* const*, envp)
-//exit
 static inline LINUX_DEFINE_SYSCALL4_RET(wait4, linux_pid_t, pid, int*, stat_addr, int, options, struct linux_rusage_t*, ru, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(kill, linux_pid_t, pid, int, sig)
 static inline LINUX_DEFINE_SYSCALL1_NORET(newuname, struct linux_new_utsname_t*, name)
@@ -7101,7 +7212,6 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(clock_settime, linux_clockid_t, which_
 static inline LINUX_DEFINE_SYSCALL2_NORET(clock_gettime, linux_clockid_t, which_clock, struct linux_timespec_t*, tp)
 static inline LINUX_DEFINE_SYSCALL2_NORET(clock_getres, linux_clockid_t, which_clock, struct linux_timespec_t*, tp)
 static inline LINUX_DEFINE_SYSCALL4_NORET(clock_nanosleep, linux_clockid_t, which_clock, int, flags, struct linux_timespec_t const*, rqtp, struct linux_timespec_t*, rmtp)
-// exit_group
 static inline LINUX_DEFINE_SYSCALL4_RET(epoll_wait, linux_fd_t, epfd, struct linux_epoll_event_t*, events, int, maxevents, int, timeout, int)
 static inline LINUX_DEFINE_SYSCALL3_NORET(tgkill, linux_pid_t, tgid, linux_pid_t, pid, int, sig)
 static inline LINUX_DEFINE_SYSCALL2_NORET(utimes, char LINUX_SAFE_CONST*, filename, struct linux_timeval_t LINUX_SAFE_CONST*, utimes)
@@ -7115,7 +7225,6 @@ static inline LINUX_DEFINE_SYSCALL5_RET(mq_timedreceive, linux_mqd_t, mqdes, cha
 static inline LINUX_DEFINE_SYSCALL2_NORET(mq_notify, linux_mqd_t, mqdes, struct linux_sigevent_t const*, notification)
 static inline LINUX_DEFINE_SYSCALL3_NORET(mq_getsetattr, linux_mqd_t, mqdes, struct linux_mq_attr_t const*, mqstat, struct linux_mq_attr_t*, omqstat)
 static inline LINUX_DEFINE_SYSCALL4_NORET(kexec_load, unsigned long, entry, unsigned long, nr_segments, struct linux_kexec_segment_t*, segments, unsigned long, flags)
-static inline LINUX_DEFINE_SYSCALL5_NORET(waitid, int, which, linux_pid_t, pid, struct linux_siginfo_t*, infop, int, options, struct linux_rusage_t*, ru)
 static inline LINUX_DEFINE_SYSCALL5_RET(add_key, char const*, type, char const*, description, void const*, payload, size_t, plen, linux_key_serial_t, destringid, linux_key_serial_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(request_key, char const*, type, char const*, description, char const*, callout_info, linux_key_serial_t, destringid, linux_key_serial_t)
 static inline LINUX_DEFINE_SYSCALL5_RET(keyctl, int, cmd, unsigned long, arg2, unsigned long, arg3, unsigned long, arg4, unsigned long, arg5, intptr_t)

@@ -27,5 +27,6 @@ static inline LINUX_DEFINE_SYSCALL4_NORET(sync_file_range2, linux_fd_t, fd, unsi
 #else
 static inline LINUX_DEFINE_SYSCALL4_NORET(sync_file_range, linux_fd_t, fd, linux_loff_t, offset, linux_loff_t, nbytes, unsigned int, flags)
 #endif
+#undef LINUX_ARCH_WANT_SYNC_FILE_RANGE2
 
 #endif // HEADER_LIBLINUX_SYNC_H_INCLUDED

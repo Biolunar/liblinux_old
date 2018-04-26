@@ -29,7 +29,7 @@ static void signal_handler(int const sig, struct linux_siginfo_t* const info, st
 	(void)sig;
 	(void)context;
 
-	if (info->sifields.rt.si_value.sival_int == 42)
+	if (info->sifields.rt.sigval.sival_int == 42)
 		g_success = true;
 }
 
@@ -66,9 +66,9 @@ static enum TestResult test_invalid_pid(void)
 	struct linux_siginfo_t info =
 	{
 		.si_code = linux_SI_QUEUE,
-		.sifields.rt.si_pid = pid,
-		.sifields.rt.si_uid = uid,
-		.sifields.rt.si_value = { .sival_int = 42 },
+		.sifields.rt.pid = pid,
+		.sifields.rt.uid = uid,
+		.sifields.rt.sigval = { .sival_int = 42 },
 	};
 	if (linux_rt_sigqueueinfo((linux_pid_t)-1, linux_SIGUSR1, &info) != linux_ESRCH || g_success == true)
 		return TEST_RESULT_FAILURE;
@@ -92,9 +92,9 @@ static enum TestResult test_correct_usage(void)
 	struct linux_siginfo_t info =
 	{
 		.si_code = linux_SI_QUEUE,
-		.sifields.rt.si_pid = pid,
-		.sifields.rt.si_uid = uid,
-		.sifields.rt.si_value = { .sival_int = 42 },
+		.sifields.rt.pid = pid,
+		.sifields.rt.uid = uid,
+		.sifields.rt.sigval = { .sival_int = 42 },
 	};
 	if (linux_rt_sigqueueinfo(pid, linux_SIGUSR1, &info) || g_success == false)
 		return TEST_RESULT_FAILURE;
