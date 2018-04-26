@@ -386,6 +386,38 @@ struct linux_pollfd_t
 // splice
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// stat
+
+struct linux_stat_t
+{
+	linux_kernel_ulong_t st_dev;
+	linux_kernel_ulong_t st_ino;
+	linux_kernel_ulong_t st_nlink;
+
+	unsigned int st_mode;
+	unsigned int st_uid;
+	unsigned int st_gid;
+	unsigned int _pad0;
+	linux_kernel_ulong_t st_rdev;
+	linux_kernel_long_t st_size;
+	linux_kernel_long_t st_blksize;
+	linux_kernel_long_t st_blocks;
+
+	linux_kernel_ulong_t st_atime;
+	linux_kernel_ulong_t st_atime_nsec;
+	linux_kernel_ulong_t st_mtime;
+	linux_kernel_ulong_t st_mtime_nsec;
+	linux_kernel_ulong_t st_ctime;
+	linux_kernel_ulong_t st_ctime_nsec;
+	linux_kernel_long_t _unused[3];
+};
+
+#include "stat.h"
+
+// stat
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -445,29 +477,6 @@ typedef int linux_kernel_mqd_t;
 typedef linux_kernel_mqd_t linux_mqd_t;
 typedef int32_t linux_key_serial_t;
 typedef linux_kernel_rwf_t linux_rwf_t;
-struct linux_stat_t
-{
-	linux_kernel_ulong_t st_dev;
-	linux_kernel_ulong_t st_ino;
-	linux_kernel_ulong_t st_nlink;
-
-	unsigned int st_mode;
-	unsigned int st_uid;
-	unsigned int st_gid;
-	unsigned int _pad0;
-	linux_kernel_ulong_t st_rdev;
-	linux_kernel_long_t st_size;
-	linux_kernel_long_t st_blksize;
-	linux_kernel_long_t st_blocks; // Number 512-byte blocks allocated.
-
-	linux_kernel_ulong_t st_atime;
-	linux_kernel_ulong_t st_atime_nsec;
-	linux_kernel_ulong_t st_mtime;
-	linux_kernel_ulong_t st_mtime_nsec;
-	linux_kernel_ulong_t st_ctime;
-	linux_kernel_ulong_t st_ctime_nsec;
-	linux_kernel_long_t _unused[3];
-};
 typedef void linux_signalfn_t(int sig);
 typedef linux_signalfn_t* linux_sighandler_t;
 typedef void linux_restorefn_t(void);
@@ -6882,7 +6891,6 @@ static inline int linux_BPF_MISCOP(int const code)
 
 static inline LINUX_DEFINE_SYSCALL3_RET(open, char const*, filename, int, flags, linux_umode_t, mode, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(newstat, char const*, filename, struct linux_stat_t*, statbuf)
-static inline LINUX_DEFINE_SYSCALL2_NORET(newfstat, linux_fd_t, fd, struct linux_stat_t*, statbuf)
 static inline LINUX_DEFINE_SYSCALL2_NORET(newlstat, char const*, filename, struct linux_stat_t*, statbuf)
 static inline LINUX_DEFINE_SYSCALL3_RET(poll, struct linux_pollfd_t*, ufds, unsigned int, nfds, int, timeout, unsigned int)
 static inline LINUX_DEFINE_SYSCALL6_RET(mmap, void const*, addr, size_t, len, unsigned long, prot, unsigned long, flags, linux_fd_t, fd, linux_off_t, off, void*)
@@ -7077,8 +7085,6 @@ static inline LINUX_DEFINE_SYSCALL5_RET(keyctl, int, cmd, unsigned long, arg2, u
 static inline LINUX_DEFINE_SYSCALL0_RET(inotify_init, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(migrate_pages, linux_pid_t, pid, unsigned long, maxnode, unsigned long const*, from, unsigned long const*, to, int)
 static inline LINUX_DEFINE_SYSCALL3_NORET(futimesat, linux_fd_t, dfd, char const*, filename, struct linux_timeval_t LINUX_SAFE_CONST*, utimes)
-static inline LINUX_DEFINE_SYSCALL4_NORET(newfstatat, linux_fd_t, dfd, char const*, filename, struct linux_stat_t*, statbuf, int, flag)
-static inline LINUX_DEFINE_SYSCALL4_RET(readlinkat, linux_fd_t, dfd, char const*, path, char*, buf, int, bufsiz, int)
 static inline LINUX_DEFINE_SYSCALL1_NORET(unshare, unsigned long, unshare_flags)
 static inline LINUX_DEFINE_SYSCALL2_NORET(set_robust_list, struct linux_robust_list_head_t*, head, size_t, len)
 static inline LINUX_DEFINE_SYSCALL3_NORET(get_robust_list, linux_pid_t, pid, struct linux_robust_list_head_t**, head_ptr, size_t*, len_ptr)
