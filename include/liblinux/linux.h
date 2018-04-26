@@ -695,6 +695,14 @@ struct linux_rusage_t
 // exit
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// fork
+
+#include "fork.h"
+
+// fork
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -7068,7 +7076,6 @@ static inline LINUX_DEFINE_SYSCALL3_NORET(sched_setaffinity, linux_pid_t, pid, u
 static inline LINUX_DEFINE_SYSCALL3_NORET(sched_getaffinity, linux_pid_t, pid, unsigned int, len, unsigned long*, user_mask_ptr)
 static inline LINUX_DEFINE_SYSCALL1_RET(epoll_create, int, size, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL5_NORET(remap_file_pages, void const*, start, size_t, size, unsigned long, prot, unsigned long, pgoff, unsigned long, flags)
-static inline LINUX_DEFINE_SYSCALL1_RET(set_tid_address, int*, tidptr, linux_pid_t)
 //restart_syscall
 static inline LINUX_DEFINE_SYSCALL4_NORET(semtimedop, linux_semid_t, semid, struct linux_sembuf_t*, sops, unsigned int, nsops, struct linux_timespec_t const*, timeout)
 static inline LINUX_DEFINE_SYSCALL4_NORET(fadvise64, linux_fd_t, fd, linux_loff_t, offset, size_t, len, int, advice)
@@ -7100,7 +7107,6 @@ static inline LINUX_DEFINE_SYSCALL5_RET(keyctl, int, cmd, unsigned long, arg2, u
 static inline LINUX_DEFINE_SYSCALL0_RET(inotify_init, linux_fd_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(migrate_pages, linux_pid_t, pid, unsigned long, maxnode, unsigned long const*, from, unsigned long const*, to, int)
 static inline LINUX_DEFINE_SYSCALL3_NORET(futimesat, linux_fd_t, dfd, char const*, filename, struct linux_timeval_t LINUX_SAFE_CONST*, utimes)
-static inline LINUX_DEFINE_SYSCALL1_NORET(unshare, unsigned long, unshare_flags)
 static inline LINUX_DEFINE_SYSCALL2_NORET(set_robust_list, struct linux_robust_list_head_t*, head, size_t, len)
 static inline LINUX_DEFINE_SYSCALL3_NORET(get_robust_list, linux_pid_t, pid, struct linux_robust_list_head_t**, head_ptr, size_t*, len_ptr)
 static inline LINUX_DEFINE_SYSCALL6_NORET(move_pages, linux_pid_t, pid, unsigned long, nr_pages, void const**, pages, int const*, nodes, int*, status, int, flags)
