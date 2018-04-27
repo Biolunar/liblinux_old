@@ -735,6 +735,14 @@ struct linux_rusage_t
 // kexec
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// module
+
+#include "module.h"
+
+// module
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -7072,8 +7080,6 @@ static inline LINUX_DEFINE_SYSCALL2_NORET(sethostname, char LINUX_SAFE_CONST*, n
 static inline LINUX_DEFINE_SYSCALL2_NORET(setdomainname, char LINUX_SAFE_CONST*, name, int, len)
 static inline LINUX_DEFINE_SYSCALL1_NORET(iopl, unsigned int, level)
 static inline LINUX_DEFINE_SYSCALL3_NORET(ioperm, unsigned long, from, unsigned long, num, int, on)
-static inline LINUX_DEFINE_SYSCALL3_NORET(init_module, void LINUX_SAFE_CONST*, umod, size_t, len, char const*, uargs)
-static inline LINUX_DEFINE_SYSCALL2_NORET(delete_module, char const*, name_user, unsigned int, flags)
 static inline LINUX_DEFINE_SYSCALL0_RET(gettid, linux_pid_t)
 static inline LINUX_DEFINE_SYSCALL3_NORET(readahead, linux_fd_t, fd, linux_loff_t, offset, size_t, count)
 static inline LINUX_DEFINE_SYSCALL2_NORET(tkill, linux_pid_t, pid, int, sig)
