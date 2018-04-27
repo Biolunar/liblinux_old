@@ -727,6 +727,14 @@ struct linux_rusage_t
 // itimer
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// kexec
+
+#include "kexec.h"
+
+// kexec
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -1420,13 +1428,6 @@ struct linux_mq_attr_t
 	linux_kernel_long_t mq_msgsize;
 	linux_kernel_long_t mq_curmsgs;
 	linux_kernel_long_t _reserved[4];
-};
-struct linux_kexec_segment_t
-{
-	void const* buf;
-	size_t bufsz;
-	void const* mem;
-	size_t memsz;
 };
 struct linux_keyctl_dh_params_t
 {
@@ -7105,7 +7106,6 @@ static inline LINUX_DEFINE_SYSCALL5_NORET(mq_timedsend, linux_mqd_t, mqdes, char
 static inline LINUX_DEFINE_SYSCALL5_RET(mq_timedreceive, linux_mqd_t, mqdes, char*, msg_ptr, size_t, msg_len, unsigned int*, msg_prio, struct linux_timespec_t const*, abs_timeout, size_t)
 static inline LINUX_DEFINE_SYSCALL2_NORET(mq_notify, linux_mqd_t, mqdes, struct linux_sigevent_t const*, notification)
 static inline LINUX_DEFINE_SYSCALL3_NORET(mq_getsetattr, linux_mqd_t, mqdes, struct linux_mq_attr_t const*, mqstat, struct linux_mq_attr_t*, omqstat)
-static inline LINUX_DEFINE_SYSCALL4_NORET(kexec_load, unsigned long, entry, unsigned long, nr_segments, struct linux_kexec_segment_t*, segments, unsigned long, flags)
 static inline LINUX_DEFINE_SYSCALL5_RET(add_key, char const*, type, char const*, description, void const*, payload, size_t, plen, linux_key_serial_t, destringid, linux_key_serial_t)
 static inline LINUX_DEFINE_SYSCALL4_RET(request_key, char const*, type, char const*, description, char const*, callout_info, linux_key_serial_t, destringid, linux_key_serial_t)
 static inline LINUX_DEFINE_SYSCALL5_RET(keyctl, int, cmd, unsigned long, arg2, unsigned long, arg3, unsigned long, arg4, unsigned long, arg5, intptr_t)
