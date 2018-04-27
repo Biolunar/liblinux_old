@@ -30,7 +30,7 @@ static bool futex_wait(uint32_t* futex)
 		if (__sync_bool_compare_and_swap(futex, 1, 0))
 			break;
 
-		enum linux_error_t const err = linux_futex(futex, linux_FUTEX_WAIT, 0, 0, 0, 0);
+		enum linux_error_t const err = linux_futex(futex, linux_FUTEX_WAIT, 0, 0, 0, 0, 0);
 		if (err && (err != linux_EAGAIN))
 			return false;
 	}
@@ -41,7 +41,7 @@ static bool futex_post(uint32_t* futex)
 {
 	if (__sync_bool_compare_and_swap(futex, 0, 1))
 	{
-		if (linux_futex(futex, linux_FUTEX_WAKE, 1, 0, 0, 0))
+		if (linux_futex(futex, linux_FUTEX_WAKE, 1, 0, 0, 0, 0))
 			return false;
 	}
 	return true;
