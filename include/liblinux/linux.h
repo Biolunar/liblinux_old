@@ -664,7 +664,11 @@ struct linux_siginfo_t
 		} sigsys;
 	} sifields;
 };
+#if defined(LINUX_ARCH_PARISC) || defined(LINUX_ARCH_SPARC)
+typedef int linux_kernel_suseconds_t;
+#else
 typedef linux_kernel_long_t linux_kernel_suseconds_t;
+#endif
 struct linux_timeval_t
 {
 	linux_kernel_time_t tv_sec;
@@ -743,6 +747,43 @@ struct linux_rusage_t
 // module
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// posix_timers
+
+typedef int linux_kernel_clockid_t;
+typedef linux_kernel_clockid_t linux_clockid_t;
+enum
+{
+#if defined(LINUX_ARCH_MIPS)
+	linux_ARCH_SIGEV_PREAMBLE_SIZE = sizeof(long) + 2 * sizeof(int),
+#else
+	linux_ARCH_SIGEV_PREAMBLE_SIZE = sizeof(int) * 2 + sizeof(union linux_sigval_t),
+#endif
+	linux_SIGEV_PAD_SIZE = ((64 - linux_ARCH_SIGEV_PREAMBLE_SIZE) / sizeof(int)),
+};
+struct linux_sigevent_t
+{
+	union linux_sigval_t sigev_value;
+	int sigev_signo;
+	int sigev_notify;
+	union
+	{
+		int _pad[linux_SIGEV_PAD_SIZE];
+		int tid;
+
+		struct
+		{
+			void (*function)(union linux_sigval_t);
+			void* attribute;
+		} sigev_thread;
+	} sigev_un;
+};
+
+#include "posix_timers.h"
+
+// posix_timers
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -789,9 +830,6 @@ typedef linux_kernel_key_t linux_key_t;
 typedef unsigned short linux_kernel_sa_family_t;
 typedef linux_kernel_sa_family_t linux_sa_family_t;
 typedef linux_kernel_time_t linux_time_t;
-typedef int linux_kernel_clockid_t;
-typedef linux_kernel_clockid_t linux_clockid_t;
-typedef linux_kernel_timer_t linux_timer_t;
 typedef int linux_kernel_mqd_t;
 typedef linux_kernel_mqd_t linux_mqd_t;
 typedef int32_t linux_key_serial_t;
@@ -1411,23 +1449,6 @@ struct linux_fs_quota_statv_t
 	uint16_t qs_bwarnlimit;
 	uint16_t qs_iwarnlimit;
 	uint64_t qs_pad2[8];
-};
-struct linux_sigevent_t
-{
-	union linux_sigval_t sigev_value;
-	int sigev_signo;
-	int sigev_notify;
-	union
-	{
-		int _pad[(64 - (sizeof(int) * 2 + sizeof(union linux_sigval_t))) / sizeof(int)];
-		int tid;
-
-		struct
-		{
-			void (*function)(union linux_sigval_t);
-			void* attribute;
-		} sigev_thread;
-	} sigev_un;
 };
 struct linux_mq_attr_t
 {
@@ -7091,15 +7112,6 @@ static inline LINUX_DEFINE_SYSCALL5_NORET(remap_file_pages, void const*, start, 
 //restart_syscall
 static inline LINUX_DEFINE_SYSCALL4_NORET(semtimedop, linux_semid_t, semid, struct linux_sembuf_t*, sops, unsigned int, nsops, struct linux_timespec_t const*, timeout)
 static inline LINUX_DEFINE_SYSCALL4_NORET(fadvise64, linux_fd_t, fd, linux_loff_t, offset, size_t, len, int, advice)
-static inline LINUX_DEFINE_SYSCALL3_NORET(timer_create, linux_clockid_t, which_clock, struct linux_sigevent_t*, timer_event_spec, linux_timer_t*, created_timer_id)
-static inline LINUX_DEFINE_SYSCALL4_NORET(timer_settime, linux_timer_t, timer_id, int, flags, struct linux_itimerspec_t const*, new_setting, struct linux_itimerspec_t*, old_setting)
-static inline LINUX_DEFINE_SYSCALL2_NORET(timer_gettime, linux_timer_t, timer_id, struct linux_itimerspec_t*, setting)
-static inline LINUX_DEFINE_SYSCALL1_RET(timer_getoverrun, linux_timer_t, timer_id, int)
-static inline LINUX_DEFINE_SYSCALL1_NORET(timer_delete, linux_timer_t, timer_id)
-static inline LINUX_DEFINE_SYSCALL2_NORET(clock_settime, linux_clockid_t, which_clock, struct linux_timespec_t const*, tp)
-static inline LINUX_DEFINE_SYSCALL2_NORET(clock_gettime, linux_clockid_t, which_clock, struct linux_timespec_t*, tp)
-static inline LINUX_DEFINE_SYSCALL2_NORET(clock_getres, linux_clockid_t, which_clock, struct linux_timespec_t*, tp)
-static inline LINUX_DEFINE_SYSCALL4_NORET(clock_nanosleep, linux_clockid_t, which_clock, int, flags, struct linux_timespec_t const*, rqtp, struct linux_timespec_t*, rmtp)
 static inline LINUX_DEFINE_SYSCALL4_RET(epoll_wait, linux_fd_t, epfd, struct linux_epoll_event_t*, events, int, maxevents, int, timeout, int)
 static inline LINUX_DEFINE_SYSCALL3_NORET(tgkill, linux_pid_t, tgid, linux_pid_t, pid, int, sig)
 static inline LINUX_DEFINE_SYSCALL2_NORET(utimes, char LINUX_SAFE_CONST*, filename, struct linux_timeval_t LINUX_SAFE_CONST*, utimes)
