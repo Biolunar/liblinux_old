@@ -22,7 +22,7 @@
 
 static enum TestResult test_invalid_id(void)
 {
-	int ret;
+	unsigned int ret;
 	if (linux_timer_getoverrun(0, &ret) != linux_EINVAL)
 		return TEST_RESULT_FAILURE;
 
@@ -44,7 +44,7 @@ static enum TestResult test_correct_usage(void)
 	if (linux_timer_create(linux_CLOCK_MONOTONIC, &event, &timer))
 		return TEST_RESULT_OTHER_FAILURE;
 
-	int ret;
+	unsigned int ret;
 	if (linux_timer_getoverrun(timer, &ret))
 	{
 		linux_timer_delete(timer);

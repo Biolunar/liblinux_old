@@ -14,22 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef HEADER_LIBLINUX_READDIR_H_INCLUDED
-#define HEADER_LIBLINUX_READDIR_H_INCLUDED
-
-#include <stdint.h>
+#ifndef HEADER_LIBLINUX_PRINTK_H_INCLUDED
+#define HEADER_LIBLINUX_PRINTK_H_INCLUDED
 
 #include <liblinux/syscall.h>
 
-struct linux_dirent64_t
-{
-	uint64_t d_ino;
-	int64_t d_off;
-	unsigned short d_reclen;
-	unsigned char d_type;
-	char d_name[];
-};
+static inline LINUX_DEFINE_SYSCALL3_RET(syslog, int, type, char*, buf, int, len, int)
 
-static inline LINUX_DEFINE_SYSCALL3_RET(getdents64, linux_fd_t, fd, struct linux_dirent64_t*, dirent, unsigned int, count, unsigned int)
-
-#endif // HEADER_LIBLINUX_READDIR_H_INCLUDED
+#endif // HEADER_LIBLINUX_PRINTK_H_INCLUDED

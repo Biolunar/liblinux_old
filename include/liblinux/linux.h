@@ -784,6 +784,14 @@ struct linux_sigevent_t
 // posix_timers
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// printk
+
+#include "printk.h"
+
+// printk
+//------------------------------------------------------------------------------
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -7035,7 +7043,6 @@ static inline LINUX_DEFINE_SYSCALL1_NORET(sysinfo, struct linux_sysinfo_t*, info
 static inline LINUX_DEFINE_SYSCALL1_RET(times, struct linux_tms_t*, tbuf, linux_clock_t)
 static inline LINUX_DEFINE_SYSCALL4_NORET(ptrace, int, request, linux_pid_t, pid, void*, addr, uintptr_t, data)
 static inline LINUX_DEFINE_SYSCALL0_RET(getuid, linux_uid_t)
-static inline LINUX_DEFINE_SYSCALL3_RET(syslog, int, type, char*, buf, int, len, int)
 static inline LINUX_DEFINE_SYSCALL0_RET(getgid, linux_gid_t)
 static inline LINUX_DEFINE_SYSCALL1_NORET(setuid, linux_uid_t, uid)
 static inline LINUX_DEFINE_SYSCALL1_NORET(setgid, linux_gid_t, gid)
