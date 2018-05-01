@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef HEADER_LIBLINUX_VT_H_INCLUDED
-#define HEADER_LIBLINUX_VT_H_INCLUDED
+#ifndef HEADER_LIBLINUX_GENERIC_VT_H_INCLUDED
+#define HEADER_LIBLINUX_GENERIC_VT_H_INCLUDED
 
 enum
 {
@@ -107,4 +107,4 @@ struct linux_vt_setactivate_t
 	struct linux_vt_mode_t mode;
 };
 
-#endif // HEADER_LIBLINUX_VT_H_INCLUDED
+#endif // HEADER_LIBLINUX_GENERIC_VT_H_INCLUDED
